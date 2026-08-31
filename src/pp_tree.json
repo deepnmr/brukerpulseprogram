@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "topspin_home": null,
+  "root": "domain",
+  "nodes": {
+    "domain": {
+      "q": "Sample type?",
+      "opts": [
+        ["Small molecule (1D / 2D)", "sm_exp"],
+        ["Protein / nucleic acid (isotope labeled)", "bio_exp"]
+      ]
+    },
+    "sm_exp": {
+      "q": "Experiment?",
+      "opts": [
+        ["1D 1H", "sm_1h"],
+        ["1D 13C", "sm_13c"]
+      ]
+    },
+    "sm_1h": {
+      "q": "Pulse angle / solvent suppression?",
+      "opts": [
+        ["30 deg pulse, no suppression (routine)", "L:zg30"],
+        ["90 deg pulse (quantitative), no suppression", "L:zg"],
+        ["Presaturation", "L:zgpr"],
+        ["WATERGATE 3-9-19 (gradients)", "L:p3919gp"],
+        ["Excitation sculpting (gradients)", "L:zgesgp"],
+        ["WET", "L:wet"]
+      ]
+    },
+    "sm_13c": {
+      "q": "Decoupling?",
+      "opts": [
+        ["Broadband decoupled (NOE enhanced), 30 deg", "L:zgdc30"],
+        ["Broadband decoupled, 90 deg", "L:zgdc"],
+        ["Inverse gated (quantitative, no NOE)", "L:zgig"],
+        ["Gated (coupled spectrum with NOE)", "L:zggd"],
+        ["Coupled, no decoupling", "L:zg"]
+      ]
+    },
+    "bio_exp": {
+      "q": "Experiment class?",
+      "opts": [
+        ["2D 1H-15N HSQC / TROSY", "bio_hn"],
+        ["Backbone assignment (triple resonance)", "bio_bb"]
+      ]
+    },
+    "bio_hn": {
+      "q": "Protein size / conditions?",
+      "opts": [
+        ["< 25 kDa, H2O: HSQC with PEP and water flip-back", "L:hsqcetfpf3gpsi"],
+        ["> 25 kDa or high field: TROSY", "L:trosyetf3gpsi"]
+      ]
+    },
+    "bio_bb": {
+      "q": "Experiment?",
+      "opts": [
+        ["HNCO", "bio_hnco"],
+        ["HNCA", "bio_hnca"]
+      ]
+    },
+    "bio_hnco": {
+      "q": "Version?",
+      "opts": [
+        ["PEP (< 25 kDa)", "L:hncogp3d"],
+        ["TROSY (> 25 kDa)", "L:trhncogp3d"]
+      ]
+    },
+    "bio_hnca": {
+      "q": "Version?",
+      "opts": [
+        ["PEP (< 25 kDa)", "L:hncagp3d"],
+        ["TROSY (> 25 kDa)", "L:trhncagp3d"]
+      ]
+    }
+  },
+  "leaves": {
+    "zg30": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zg"]},
+    "zg": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zg30"]},
+    "zgpr": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "Set o1 on the solvent line; pl9 = presaturation power", "alt": ["zgcppr"]},
+    "p3919gp": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "d19 = 1/(2*distance water-signal of interest in Hz)", "alt": ["zggpwg"]},
+    "zgesgp": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zggpw5"]},
+    "wet": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["wetdc"]},
+    "zgdc30": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zgpg30"]},
+    "zgdc": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zgpg"]},
+    "zgig": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "Use d1 >= 5*T1 for quantitation", "alt": ["zgig30"]},
+    "zggd": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zggd30"]},
+    "hsqcetfpf3gpsi": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["hsqcfpf3gpphwg", "hsqcetf3gpsi"]},
+    "trosyetf3gpsi": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["trosyf3gpph19", "trosyetf3gpsi.2"]},
+    "hncogp3d": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "Set cnst21 (CO ppm), cnst22 (Ca ppm); getprosol after rpar", "alt": ["hncogpwg3d", "trhncogp3d", "b_hncogp3d"]},
+    "trhncogp3d": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "No decoupling during acquisition (TROSY); set cnst21/cnst22", "alt": ["trhncoetgp3d", "trhncogp2h3d"]},
+    "hncagp3d": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "Set cnst21 (CO ppm), cnst22 (Ca ppm)", "alt": ["hncagpwg3d", "trhncagp3d", "hncaigp3d"]},
+    "trhncagp3d": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["trhncaetgp3d", "trhncagp2h3d"]}
+  }
+}

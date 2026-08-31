@@ -208,6 +208,100 @@ def test_find_topspin_home_falls_back_to_tree():
     assert pp.find_topspin_home(t) is None
 
 
+def real_tree():
+    return pp.load_tree(TREE_PATH)
+
+
+def parset_map():
+    """pulseprogram -> parameter set from doc/ppcatalogue-{1,2}-programs.txt ('-' = unknown)."""
+    m = {}
+    for vol in ("1", "2"):
+        p = os.path.join(ROOT, "doc", "ppcatalogue-%s-programs.txt" % vol)
+        with io.open(p, encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("#") or not line.strip():
+                    continue
+                name, ps = line.rstrip("\n").split("\t")
+                if ps != "-":
+                    m.setdefault(name, ps)
+    return m
+
+
+def test_real_tree_loads_and_validates():
+    t = real_tree()
+    assert t["root"] in t["nodes"]
+
+
+def test_real_tree_no_orphan_nodes_and_all_leaves_reachable():
+    t = real_tree()
+    seen_nodes, seen_leaves = set(), set()
+    stack = [t["root"]]
+    while stack:
+        nid = stack.pop()
+        if nid in seen_nodes:
+            continue
+        seen_nodes.add(nid)
+        for _, target in t["nodes"][nid]["opts"]:
+            if target.startswith(pp.LEAF_PREFIX):
+                seen_leaves.add(target[len(pp.LEAF_PREFIX) :])
+            else:
+                stack.append(target)
+    orphans = set(t["nodes"]) - seen_nodes
+    unreachable = set(t["leaves"]) - seen_leaves
+    assert not orphans, "orphan nodes: %s" % sorted(orphans)
+    assert not unreachable, "unreachable leaves: %s" % sorted(unreachable)
+
+
+def test_real_tree_has_no_cycles():
+    t = real_tree()
+    WHITE, GREY, BLACK = 0, 1, 2
+    color = dict((n, WHITE) for n in t["nodes"])
+
+    def visit(nid):
+        color[nid] = GREY
+        for _, target in t["nodes"][nid]["opts"]:
+            if target.startswith(pp.LEAF_PREFIX):
+                continue
+            if color[target] == GREY:
+                raise AssertionError("cycle through %s -> %s" % (nid, target))
+            if color[target] == WHITE:
+                visit(target)
+        color[nid] = BLACK
+
+    visit(t["root"])
+
+
+def test_real_tree_leaf_and_alt_files_exist():
+    t = real_tree()
+    missing = []
+    for name, leaf in t["leaves"].items():
+        for n in [name] + list(leaf.get("alt") or []):
+            if not os.path.isfile(os.path.join(PP_DIR, n)):
+                missing.append(n)
+    assert not missing, "not in doc/pulseprogram: %s" % sorted(set(missing))
+
+
+def test_real_tree_parsets_match_catalogue():
+    t = real_tree()
+    m = parset_map()
+    bad = []
+    for name, leaf in t["leaves"].items():
+        ps = leaf.get("parset")
+        if ps and name in m and m[name] != ps:
+            bad.append((name, ps, m[name]))
+    assert not bad, "parset mismatch (leaf, json, catalogue): %s" % bad
+
+
+def test_real_tree_leaf_fields_present():
+    t = real_tree()
+    for name, leaf in t["leaves"].items():
+        for key in ("parset", "desc", "dim", "requires", "notes", "alt"):
+            assert key in leaf, "%s lacks %s" % (name, key)
+        assert isinstance(leaf["requires"], list) and isinstance(leaf["alt"], list), (
+            name
+        )
+
+
 def main():
     tests = [
         (n, f)
