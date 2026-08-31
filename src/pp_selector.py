@@ -135,3 +135,93 @@ def format_report(tree, name, answers, exists):
     lines.append(_row("Alternatives", alt_text))
     lines.append(_row("Your answers", " > ".join(answers)))
     return "\n".join(lines)
+
+
+TITLE = "pp_selector"
+MAX_BUTTONS = 4  # more options than this -> numbered list + text entry
+
+try:
+    from TopCmds import SELECT, INPUT_DIALOG, VIEWTEXT, MSG  # noqa: F401  (TopSpin builtins)
+
+    IN_TOPSPIN = True
+except ImportError:
+    IN_TOPSPIN = False
+
+    def _readline(prompt):
+        try:
+            return raw_input(prompt)  # noqa: F821 (Python 2)
+        except NameError:
+            return input(prompt)
+
+    def SELECT(title, message, buttons):  # noqa: N802 - mimic TopSpin API
+        print(title)
+        print(message)
+        for i, b in enumerate(buttons):
+            print("  %d) %s" % (i, b))
+        try:
+            return int(_readline("> "))
+        except ValueError:
+            return -1
+
+    def INPUT_DIALOG(title, header, items, values, comments, types, buttons):  # noqa: N802
+        print(title)
+        print(header)
+        raw = _readline("%s " % items[0])
+        return [raw] if raw.strip() else None
+
+    def VIEWTEXT(title, header, text):  # noqa: N802
+        print(title)
+        print(header)
+        print(text)
+
+    def MSG(text):  # noqa: N802
+        print(text)
+
+
+def ask_topspin(question, labels):
+    """Ask one question. Returns option index or BACK."""
+    if len(labels) <= MAX_BUTTONS:
+        idx = SELECT(TITLE, question, list(labels) + ["Back"])
+        if idx is None or idx < 0 or idx >= len(labels):
+            return BACK
+        return idx
+    header = (
+        question + "\n" + "\n".join("%d) %s" % (i + 1, l) for i, l in enumerate(labels))
+    )
+    result = INPUT_DIALOG(
+        TITLE, header, ["Choice number:"], ["1"], [""], ["1"], ["OK", "Back"]
+    )
+    if not result:
+        return BACK
+    try:
+        n = int(str(result[0]).strip())
+    except ValueError:
+        return BACK
+    if 1 <= n <= len(labels):
+        return n - 1
+    return BACK
+
+
+def _script_dir():
+    try:
+        return os.path.dirname(os.path.abspath(__file__))
+    except NameError:  # __file__ missing under some TopSpin invocations
+        return os.getcwd()
+
+
+def main():
+    path = os.path.join(_script_dir(), "pp_tree.json")
+    try:
+        tree = load_tree(path)
+    except TreeError as e:
+        MSG("pp_selector: tree error: %s" % e)
+        return
+    name, answers = walk(tree, ask_topspin)
+    if name is None:
+        return
+    exists = make_checker(find_topspin_home(tree))
+    VIEWTEXT(TITLE, "Recommendation", format_report(tree, name, answers, exists))
+
+
+if __name__ == "__main__":
+    main()
