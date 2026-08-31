@@ -30,6 +30,228 @@
       "parset": "C13APT",
       "requires": []
     },
+    "b_hncacbgp3d": {
+      "alt": [],
+      "desc": "best-HNCACB; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "B_HNCACBGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "b_hncacogp3d": {
+      "alt": [],
+      "desc": "best-HN(CA)CO; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "B_HNCACOGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "b_hncagp3d": {
+      "alt": [],
+      "desc": "best-HNCA; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "B_HNCAGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "b_hncocacbgp3d": {
+      "alt": [],
+      "desc": "best-HN(CO)CACB; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "B_HNCOCACBGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "b_hncocagp3d": {
+      "alt": [],
+      "desc": "best-HN(CO)CA; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "B_HNCOCAGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "b_hncogp3d": {
+      "alt": [
+        "b_trhncogp3d"
+      ],
+      "desc": "best-HNCO; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "BEST: amide-selective shaped 1H pulses; d1 0.2-0.4 s",
+      "parset": "B_HNCOGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "b_hsqcetf3gpsi": {
+      "alt": [],
+      "desc": "(best)-HSQC; 2D H-1/X correlation via double inept transfer; using sensitivity improvement; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "2D",
+      "notes": "",
+      "parset": "B_HSQCETF3GPSI",
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
+    },
+    "b_trhncogp3d": {
+      "alt": [],
+      "desc": "best-TROSY-HNCO; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "c_caco_ia": {
+      "alt": [],
+      "desc": "CaCO; 2D sequence with; 13C detected correlation for triple resonance using; inept transfer",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "c_canco_ia3d": {
+      "alt": [],
+      "desc": "CaNCO; 3D sequence with; 13C detected correlation for triple resonance using; multiple inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "c_cbcacon_ia3d": {
+      "alt": [],
+      "desc": "CbCaCON; 3D sequence with; 13C detected correlation for triple resonance using; multiple inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "c_con_iasq": {
+      "alt": [],
+      "desc": "CON; 2D sequence with; 13C detected correlation for triple resonance using; inept transfer steps",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "c_cosy": {
+      "alt": [],
+      "desc": "CC COSY; 2D sequence with; homonuclear COSY transfer; on/off resonance 13C pulses using shaped pulses",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "13C/15N labeled"
+      ]
+    },
+    "c_hnco_ia3d": {
+      "alt": [
+        "c_hncoca_ia3d"
+      ],
+      "desc": "HNCO; 3D sequence with; 13C detected correlation for triple resonance using; multiple inept transfer steps",
+      "dim": "3D",
+      "notes": "13C-detected; IPAP virtual decoupling (l0 parity); prosol triple_c",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "cbcaconhgp3d": {
+      "alt": [
+        "cbcaconhgpwg3d",
+        "trcbcaconhgp3d"
+      ],
+      "desc": "CBCACONH; 3D sequence with; inverse correlation for triple resonance using inept transfer steps",
+      "dim": "3D",
+      "notes": "Pair with HNCACB for sequential walk",
+      "parset": "CBCACONHGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "cbcaconhgpwg3d": {
+      "alt": [],
+      "desc": "CBCACONH; 3D sequence with; inverse correlation for triple resonance using inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "CBCACONHGPWG3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "cbcanhgp3d": {
+      "alt": [],
+      "desc": "CBCANH; 3D sequence with; inverse correlation for triple resonance using inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "CBCANHGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "ccconhgp3d": {
+      "alt": [],
+      "desc": "CCCONH; 3D sequence with; inverse correlation for triple resonance using; dipsi2 and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "CCCONHGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
     "cosydfesgpph": {
       "alt": [],
       "desc": "2D homonuclear shift correlation; with double quantum filter; phase sensitive; water suppression using excitation sculpting with gradients",
@@ -220,6 +442,18 @@
         "gradient"
       ]
     },
+    "dipsihsqcf3gpsi3d": {
+      "alt": [],
+      "desc": "TOCSY-HSQC; 3D sequence with; homonuclear Hartman-Hahn transfer using DIPSI2 sequence; for mixing",
+      "dim": "3D",
+      "notes": "",
+      "parset": "DIPSIHSQCF3GPSI3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
     "dstebpgp3s": {
       "alt": [],
       "desc": "2D sequence for diffusion measurement using double stimulated; echo for convection compensation and LED; using bipolar gradient pulses for diffusion; using 3 spoil gradients",
@@ -228,6 +462,92 @@
       "parset": null,
       "requires": [
         "gradient"
+      ]
+    },
+    "hbcbcgcdhdgp": {
+      "alt": [],
+      "desc": "(Hb)Cb(CgCd)Hd; 2D sequence with; inverse correlation for triple resonance using inept transfer steps",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hbhaconhgpwg3d": {
+      "alt": [],
+      "desc": "HBHACONH; 3D sequence with; inverse correlation for triple resonance using inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HBHACONHGPWG3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hbhanhgpwg3d": {
+      "alt": [],
+      "desc": "HBHANH; 3D sequence with; inverse correlation for triple resonance using inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hccconhgp3d2": {
+      "alt": [],
+      "desc": "HCCCONH; 3D sequence with; inverse correlation for triple resonance using; dipsi2 and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HCCCONHGP3D2",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hcchcosygp3d": {
+      "alt": [],
+      "desc": "soft HCCH-E.COSY; 3D sequence with; inverse correlation using multiple inept transfer and",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HCCHCOSYGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hcchdigp3d": {
+      "alt": [
+        "hcchdigp4d",
+        "hcchcosygp3d"
+      ],
+      "desc": "HCCH-TOCSY; 3D sequence with; inverse correlation using multiple inept transfer and; C-C DIPSI3 spinlock",
+      "dim": "3D",
+      "notes": "d9 = 13C DIPSI-3 mixing (approx 12-20 ms); 13C carrier at 40 ppm",
+      "parset": "HCCHDIGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hcchdigp4d": {
+      "alt": [],
+      "desc": "HCCH-TOCSY; 4D sequence with; inverse correlation using multiple inept transfer and; C-C DIPSI3 spinlock",
+      "dim": "4D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
       ]
     },
     "hjresqf": {
@@ -353,6 +673,69 @@
       "parset": "HMQCPH",
       "requires": []
     },
+    "hncacbgp3d": {
+      "alt": [
+        "hncacbgpwg3d",
+        "trhncacbgp3d"
+      ],
+      "desc": "HNCACB; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "cnst21/cnst22/cnst23 (Cb); Ca and Cb opposite sign",
+      "parset": "HNCACBGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncacbgpwg3d": {
+      "alt": [],
+      "desc": "HNCACB; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCACBGP2H3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncacbigp3d": {
+      "alt": [],
+      "desc": "intra-HNCACB; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCACBIGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncacogp3d": {
+      "alt": [],
+      "desc": "HN(CA)CO; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCACOGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncacogpwg3d": {
+      "alt": [],
+      "desc": "HN(CA)CO; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCACOGPWG3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
     "hncagp3d": {
       "alt": [
         "hncagpwg3d",
@@ -361,11 +744,120 @@
       ],
       "desc": "HNCA; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
       "dim": "3D",
-      "notes": "Set cnst21 (CO ppm), cnst22 (Ca ppm)",
+      "notes": "cnst21/cnst22; both i and i-1 Ca; use hncaigp3d for intra only",
       "parset": "HNCAGP3D",
       "requires": [
         "f3",
-        "gradient"
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncagpwg3d": {
+      "alt": [],
+      "desc": "HNCA; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCAGPWG3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncaigp3d": {
+      "alt": [],
+      "desc": "intra-HNCA; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCAIGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncannhgp3d": {
+      "alt": [],
+      "desc": "(H)N(CA)NNH; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCANNHGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncannhgpwg3d": {
+      "alt": [],
+      "desc": "(H)N(CA)NNH; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncocacbgp3d": {
+      "alt": [],
+      "desc": "HNCOCACB; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCOCACBGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncocacbgpwg3d": {
+      "alt": [],
+      "desc": "HNCOCACB; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCOCACBGPWG3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncocagp3d": {
+      "alt": [],
+      "desc": "HN(CO)CA; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCOCAGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncocagpwg3d": {
+      "alt": [],
+      "desc": "HN(CO)CA; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCOCAGPWG3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncocannhgp3d": {
+      "alt": [],
+      "desc": "(H)N(COCA)NNH; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
       ]
     },
     "hncogp3d": {
@@ -376,11 +868,76 @@
       ],
       "desc": "HNCO; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
       "dim": "3D",
-      "notes": "Set cnst21 (CO ppm), cnst22 (Ca ppm); getprosol after rpar",
+      "notes": "Set cnst21 (CO ppm), cnst22 (Ca ppm); getprosol after rpar; aqseq 321",
       "parset": "HNCOGP3D",
       "requires": [
         "f3",
-        "gradient"
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncogphb3d": {
+      "alt": [],
+      "desc": "HNCO - hydrogen bond; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNCOGPHB3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncogprc3d1": {
+      "alt": [
+        "hncogprcwg3d1"
+      ],
+      "desc": "IPAP-J-HNCO; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "IPAP: in-phase and anti-phase interleaved (F1I); record isotropic and aligned",
+      "parset": "HNCOGRPC3D1",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hncogpwg3d": {
+      "alt": [
+        "hncogp3d"
+      ],
+      "desc": "HNCO; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "WATERGATE back-transfer; States-TPPI in F2 (no EA)",
+      "parset": "HNCOGPWG3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hnhagp3d": {
+      "alt": [],
+      "desc": "HNHA; 3D sequence with; inverse correlation using heteronuclear zero and double quantum; coherence",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNHAGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "hnhbgp3d": {
+      "alt": [],
+      "desc": "HNHB; 3D sequence with; inverse correlation for triple resonance using inept transfer steps; and correlation via heteronuclear zero and double quantum coherence",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HNHBGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
       ]
     },
     "hsqcctetgpsp": {
@@ -461,11 +1018,12 @@
       ],
       "desc": "HSQC; 2D H-1/X correlation via double inept transfer; using sensitivity improvement; phase sensitive using Echo/Antiecho-TPPI gradient selection",
       "dim": "2D",
-      "notes": "",
+      "notes": "Standard 15N HSQC; water flip-back keeps water along z",
       "parset": "HSQCETFPF3GPSI",
       "requires": [
         "f3",
-        "gradient"
+        "gradient",
+        "15N labeled"
       ]
     },
     "hsqcetgp": {
@@ -537,6 +1095,56 @@
         "gradient"
       ]
     },
+    "hsqcf3gpiaphwg": {
+      "alt": [],
+      "desc": "HSQC - IPAP; 2D H-1/X correlation via double inept transfer; phase sensitive; with decoupling during acquisition",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
+    },
+    "hsqcfpf3gpphwg": {
+      "alt": [],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; phase sensitive; with decoupling during acquisition",
+      "dim": "2D",
+      "notes": "",
+      "parset": "HSQCFPF3GPPHWG",
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
+    },
+    "hsqcnoef3gpsi": {
+      "alt": [
+        "trnoef3gpsi"
+      ],
+      "desc": "2D H-1/X correlation via double inept transfer; using sensitivity improvement; for measuring H1-N15 NOEs; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "2D",
+      "notes": "Two interleaved spectra (sat / no sat); long d1 (>= 5 s)",
+      "parset": "HSQCNOEF3GPSI",
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
+    },
+    "hsqcnoesyhsqccngp4d": {
+      "alt": [],
+      "desc": "(C13)HSQC-NOESY-(N15)HSQC; 4D sequence with; homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.",
+      "dim": "4D",
+      "notes": "",
+      "parset": "HSQCNOESYHSQCCNGP4D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
     "hsqcph": {
       "alt": [],
       "desc": "HSQC; 2D H-1/X correlation via double inept transfer; phase sensitive; with decoupling during acquisition",
@@ -544,6 +1152,56 @@
       "notes": "",
       "parset": null,
       "requires": []
+    },
+    "hsqcrexetf3gpsi3d": {
+      "alt": [],
+      "desc": "3D H-1/X correlation via double inept transfer; using sensitivity improvement; for measuring N-15 R(exchange) using a CPMG train; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
+    },
+    "hsqct1etf3gpsi3d": {
+      "alt": [
+        "hsqct1etgpsi3d"
+      ],
+      "desc": "3D H-1/X correlation via double inept transfer; using sensitivity improvement; for measuring N-15 T1 relaxation times; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "3D",
+      "notes": "vdlist = relaxation delays; interleaved via nbl",
+      "parset": "HSQCT1ETF3GPSI3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
+    },
+    "hsqct2etf3gpsi3d": {
+      "alt": [],
+      "desc": "3D H-1/X correlation via double inept transfer; using sensitivity improvement; for measuring N-15 T2 relaxation times; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HSQCT2ETF3GPSI3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
+    },
+    "hsqctretf3gpsi3d": {
+      "alt": [],
+      "desc": "3D H-1/X correlation via double inept transfer; using sensitivity improvement; for measuring N-15 T1rho relaxation times; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "3D",
+      "notes": "",
+      "parset": "HSQCTRETF3GPSI3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
     },
     "inad1d": {
       "alt": [],
@@ -640,6 +1298,226 @@
       "parset": "MLEVPHSW",
       "requires": []
     },
+    "music_cm_3d": {
+      "alt": [],
+      "desc": "music: Met(M); 3D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_de_3d": {
+      "alt": [],
+      "desc": "music: Asp(D) or Glu(E); 3D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_fhyw_3d": {
+      "alt": [],
+      "desc": "music:  Phe(F)/His(H)/Tyr(Y) or Trp(W); 3D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_gly_3d": {
+      "alt": [
+        "music_gly_3d_2"
+      ],
+      "desc": "music: Gly(G) and/or Asn(N)/Gln(Q) sidechain; 3D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "3D",
+      "notes": "ZGOPTNS -DLABEL_GLY / -DLABEL_CO select t1 nucleus",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_ile_3d": {
+      "alt": [],
+      "desc": "music: Ile(I); 3D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_kr_3d": {
+      "alt": [],
+      "desc": "music: Lys(K) and/or Arg(R); 3D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_lavia_3d": {
+      "alt": [],
+      "desc": "music: Leu(L)/Ala(A) or Val(V)/Ile(I)/Ala(A); 3D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_pro_1_3d": {
+      "alt": [],
+      "desc": "music: Pro; 3D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_qn_3d": {
+      "alt": [],
+      "desc": "music: Gln(Q) and/or Asn(N); 3D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_ser_3d": {
+      "alt": [],
+      "desc": "music: Ser; 3D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_tavi_3d": {
+      "alt": [],
+      "desc": "music: Val(V)/Ile(I) and/or Thr(T)/Ala(A); music:; 3D sequence with; inverse correlation for triple resonance using inept",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "music_trpe_2d": {
+      "alt": [],
+      "desc": "music: Trp(W)e; 2D sequence with; inverse correlation for triple resonance using inept; transfer steps",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "na_hcnetgpsi3d": {
+      "alt": [
+        "na_hcnmqgpphpr"
+      ],
+      "desc": "HCN; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "Correlates H6/H8-C6/C8-N1/N9 and H1'-C1'-N1/N9",
+      "parset": "NA_HCNETGPSI3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled RNA/DNA"
+      ]
+    },
+    "na_hcnmqgpphpr": {
+      "alt": [],
+      "desc": "MQ-HCN; 2D inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "2D",
+      "notes": "",
+      "parset": "NA_HCNMQGPPHPR",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled RNA/DNA"
+      ]
+    },
+    "na_hcpetgpsi3d": {
+      "alt": [],
+      "desc": "HCP; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "NA_HCPETGPSI3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled RNA/DNA"
+      ]
+    },
+    "na_hnncosygpphwg": {
+      "alt": [],
+      "desc": "2D H-1/N-15 correlation via double inept transfer; for direct observation of hydrogen bonds in nucleic acid; base pairs by internucleotide 2J(N,N) couplings",
+      "dim": "2D",
+      "notes": "",
+      "parset": "NA_HNNCOSYGPPHWG",
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled RNA/DNA"
+      ]
+    },
+    "na_hsqcf3gpjrphxy": {
+      "alt": [],
+      "desc": "HSQC; 2D H-1/P-31 correlation; using XY16-CPMG for transfer; phase sensitive",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled RNA/DNA"
+      ]
+    },
+    "na_noesyhsqcf3gpwg3d": {
+      "alt": [],
+      "desc": "NOESY-HSQC; 3D sequence with; homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled RNA/DNA"
+      ]
+    },
     "noesyesgpph": {
       "alt": [
         "noesygpph19",
@@ -707,6 +1585,57 @@
         "gradient"
       ]
     },
+    "noesyhsqcetgpsi3d": {
+      "alt": [],
+      "desc": "NOESY-HSQC; 3D sequence with; homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.",
+      "dim": "3D",
+      "notes": "",
+      "parset": "NOESYHSQCETGPSI3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "noesyhsqcf3gpsi3d": {
+      "alt": [
+        "noesyhsqcetf3gp3d",
+        "noesyhsqcf3gpwg3d"
+      ],
+      "desc": "NOESY-HSQC; 3D sequence with; homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.",
+      "dim": "3D",
+      "notes": "d8 = NOESY mixing (80-150 ms)",
+      "parset": "NOESYHSQCF3GPSI3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "noesyhsqcf3gpwg3d": {
+      "alt": [],
+      "desc": "NOESY-HSQC; 3D sequence with; homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "noesytretf3gp3d": {
+      "alt": [],
+      "desc": "NOESY-TROSY; 3D sequence with; homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
     "p3919gp": {
       "alt": [
         "zggpwg"
@@ -717,6 +1646,32 @@
       "parset": "P3919GP",
       "requires": [
         "gradient"
+      ]
+    },
+    "rd_hnco_32": {
+      "alt": [
+        "rd_hncoca_42"
+      ],
+      "desc": "3,2 RD-HNCO (APSY); 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "Projection angle via cnst51; process with APSY software",
+      "parset": "APSY_HNCO_32",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "rd_hncoca_42": {
+      "alt": [],
+      "desc": "4,2 RD-HNCOCA (APSY); 4D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "4D",
+      "notes": "",
+      "parset": "APSY_HNCOCA_42",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
       ]
     },
     "roesyesgpph": {
@@ -802,6 +1757,20 @@
         "gradient"
       ]
     },
+    "sfhmqcf3gpph": {
+      "alt": [
+        "hetsfhmqcf3gpph"
+      ],
+      "desc": "SOFAST HMQC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; phase sensitive",
+      "dim": "2D",
+      "notes": "SOFAST: short d1 (0.1-0.3 s); band-selective 1H pulses",
+      "parset": "SFHMQCF3GPPH",
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
+    },
     "stddiff": {
       "alt": [],
       "desc": "pseudo 2D sequence; for saturation transfer difference; with shaped pulse train for saturation on f2 channel; alternating between on and off resonance",
@@ -873,6 +1842,93 @@
       "parset": null,
       "requires": []
     },
+    "trcbcaconhetgp3d": {
+      "alt": [],
+      "desc": "TROSY-CBCACONH; 3D sequence with; inverse correlation for triple resonance using; TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "trcbcaconhgp3d": {
+      "alt": [],
+      "desc": "TROSY-CBCACONH; 3D sequence with; inverse correlation for triple resonance using; TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRCBCACONHGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "trhncacbgp2h3d": {
+      "alt": [],
+      "desc": "TROSY-HNCACB; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRHNCACBGP2H3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled",
+        "2H labeled"
+      ]
+    },
+    "trhncacbgp3d": {
+      "alt": [],
+      "desc": "TROSY-HNCACB; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRHNCACBGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "trhncacogp2h3d": {
+      "alt": [],
+      "desc": "TROSY-HNCACO; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRHNCACOGP2H3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled",
+        "2H labeled"
+      ]
+    },
+    "trhncacogp3d": {
+      "alt": [],
+      "desc": "TROSY-HNCACO; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRHNCACOGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "trhncagp2h3d": {
+      "alt": [],
+      "desc": "TROSY-HNCA; 3D sequence with; inverse correlation for triple resonance; via TROSY and HMQC steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRHNCAGP2H3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled",
+        "2H labeled"
+      ]
+    },
     "trhncagp3d": {
       "alt": [
         "trhncaetgp3d",
@@ -884,7 +1940,97 @@
       "parset": "TRHNCAGP3D",
       "requires": [
         "f3",
-        "gradient"
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "trhncannhgp3d": {
+      "alt": [],
+      "desc": "TROSY-(H)N(CA)NNH; 3D sequence with; inverse correlation for triple resonance using multiple; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "trhncocacbgp2h3d": {
+      "alt": [],
+      "desc": "TROSY-HNCOCACB; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRHNCOCACBGP2H3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled",
+        "2H labeled"
+      ]
+    },
+    "trhncocacbgp3d": {
+      "alt": [],
+      "desc": "TROSY-HNCOCACB; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRHNCOCACBGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "trhncocagp2h3d": {
+      "alt": [],
+      "desc": "TROSY-HNCOCA; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRHNCOCAGP2H3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled",
+        "2H labeled"
+      ]
+    },
+    "trhncocagp3d": {
+      "alt": [],
+      "desc": "TROSY-HNCOCA; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRHNCOCAGP3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "trhncocannhgp3d": {
+      "alt": [],
+      "desc": "TROSY-(H)N(COCA)NNH; 3D sequence with; inverse correlation for triple resonance using multiple; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled"
+      ]
+    },
+    "trhncogp2h3d": {
+      "alt": [
+        "trhncogp3d"
+      ],
+      "desc": "TROSY-HNCO; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "Requires 2H lock-switch (pl17, cpd4:f4)",
+      "parset": "TRHNCOGP2H3D",
+      "requires": [
+        "f3",
+        "gradient",
+        "13C/15N labeled",
+        "2H labeled"
       ]
     },
     "trhncogp3d": {
@@ -894,11 +2040,12 @@
       ],
       "desc": "TROSY-HNCO; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
       "dim": "3D",
-      "notes": "No decoupling during acquisition (TROSY); set cnst21/cnst22",
+      "notes": "TROSY; no decoupling during acquisition; cnst21/cnst22",
       "parset": "TRHNCOGP3D",
       "requires": [
         "f3",
-        "gradient"
+        "gradient",
+        "13C/15N labeled"
       ]
     },
     "troesyph": {
@@ -918,11 +2065,48 @@
       ],
       "desc": "2D H-1/X correlation via TROSY; using sensitivity improvement; phase sensitive using Echo/Antiecho gradient selection; using f3 - channel",
       "dim": "2D",
-      "notes": "",
+      "notes": "TROSY: no 15N decoupling during acquisition; use above ~25 kDa or > 600 MHz",
       "parset": "TROSYETF3GPSI",
       "requires": [
         "f3",
-        "gradient"
+        "gradient",
+        "15N labeled"
+      ]
+    },
+    "trosyf3gpph19": {
+      "alt": [],
+      "desc": "2D H-1/X correlation via TROSY; phase sensitive; using f3 - channel; water suppression using 3-9-19 pulse sequence with gradients",
+      "dim": "2D",
+      "notes": "",
+      "parset": "TROSYF3GPPH19",
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
+    },
+    "trt1etf3gpsi3d": {
+      "alt": [],
+      "desc": "3D H-1/X correlation via TROSY and inept transfer; using sensitivity improvement; for measuring N-15 T1 relaxation times; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
+      ]
+    },
+    "trt2etf3gpsi3d": {
+      "alt": [],
+      "desc": "3D H-1/X correlation via TROSY and inept transfer; using sensitivity improvement; for measuring N-15 T2 relaxation times; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "3D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient",
+        "15N labeled"
       ]
     },
     "wet": {
@@ -1030,9 +2214,83 @@
         [
           "HNCA",
           "bio_hnca"
+        ],
+        [
+          "HN(CA)CO",
+          "bio_hncaco"
+        ],
+        [
+          "HN(CO)CA",
+          "bio_hncoca"
+        ],
+        [
+          "HNCACB",
+          "bio_hncacb"
+        ],
+        [
+          "CBCA(CO)NH",
+          "bio_cbcaconh"
+        ],
+        [
+          "HN(CO)CACB",
+          "bio_hncocacb"
+        ],
+        [
+          "HNCANNH / HN(COCA)NNH (sequential via 15N)",
+          "bio_hncannh"
         ]
       ],
       "q": "Experiment?"
+    },
+    "bio_cbcaconh": {
+      "opts": [
+        [
+          "PEP (< 25 kDa)",
+          "L:cbcaconhgp3d"
+        ],
+        [
+          "WATERGATE (better water suppression)",
+          "L:cbcaconhgpwg3d"
+        ],
+        [
+          "TROSY (> 25 kDa)",
+          "L:trcbcaconhgp3d"
+        ],
+        [
+          "TROSY, echo-antiecho",
+          "L:trcbcaconhetgp3d"
+        ]
+      ],
+      "q": "Version?"
+    },
+    "bio_cdet": {
+      "opts": [
+        [
+          "2D CACO (IPAP)",
+          "L:c_caco_ia"
+        ],
+        [
+          "2D CON",
+          "L:c_con_iasq"
+        ],
+        [
+          "3D CBCACON",
+          "L:c_cbcacon_ia3d"
+        ],
+        [
+          "3D HNCO 13C-detected (IPAP)",
+          "L:c_hnco_ia3d"
+        ],
+        [
+          "2D 13C-13C COSY",
+          "L:c_cosy"
+        ],
+        [
+          "3D CANCO",
+          "L:c_canco_ia3d"
+        ]
+      ],
+      "q": "Which?"
     },
     "bio_exp": {
       "opts": [
@@ -1041,11 +2299,93 @@
           "bio_hn"
         ],
         [
+          "3D NOESY / TOCSY-HSQC (X-edited)",
+          "bio_xedit"
+        ],
+        [
           "Backbone assignment (triple resonance)",
           "bio_bb"
+        ],
+        [
+          "Side-chain assignment",
+          "bio_sc"
+        ],
+        [
+          "HCCH (aliphatic side chains)",
+          "bio_hcch"
+        ],
+        [
+          "Relaxation (T1 / T2 / NOE)",
+          "bio_relax"
+        ],
+        [
+          "Coupling constants / RDC / H-bonds",
+          "bio_j"
+        ],
+        [
+          "Nucleic acids",
+          "bio_na"
+        ],
+        [
+          "Fast methods (SOFAST / BEST / APSY)",
+          "bio_fast"
+        ],
+        [
+          "Amino-acid selective (MUSIC)",
+          "bio_music"
+        ],
+        [
+          "13C-detected (paramagnetic / IDP)",
+          "bio_cdet"
         ]
       ],
       "q": "Experiment class?"
+    },
+    "bio_fast": {
+      "opts": [
+        [
+          "APSY (3,2)-HNCO",
+          "L:rd_hnco_32"
+        ],
+        [
+          "APSY (4,2)-HNCOCA",
+          "L:rd_hncoca_42"
+        ],
+        [
+          "BEST-HNCO",
+          "L:b_hncogp3d"
+        ],
+        [
+          "BEST-TROSY HNCO",
+          "L:b_trhncogp3d"
+        ],
+        [
+          "SOFAST-HMQC 2D",
+          "L:sfhmqcf3gpph"
+        ],
+        [
+          "BEST-HSQC 2D",
+          "L:b_hsqcetf3gpsi"
+        ]
+      ],
+      "q": "Which?"
+    },
+    "bio_hcch": {
+      "opts": [
+        [
+          "HCCH-TOCSY (DIPSI mixing)",
+          "L:hcchdigp3d"
+        ],
+        [
+          "HCCH-COSY",
+          "L:hcchcosygp3d"
+        ],
+        [
+          "4D HCCH-TOCSY",
+          "L:hcchdigp4d"
+        ]
+      ],
+      "q": "Which?"
     },
     "bio_hn": {
       "opts": [
@@ -1054,8 +2394,24 @@
           "L:hsqcetfpf3gpsi"
         ],
         [
+          "< 25 kDa: HSQC with WATERGATE",
+          "L:hsqcfpf3gpphwg"
+        ],
+        [
           "> 25 kDa or high field: TROSY",
           "L:trosyetf3gpsi"
+        ],
+        [
+          "TROSY with WATERGATE (deuterated / very large)",
+          "L:trosyf3gpph19"
+        ],
+        [
+          "Fast: SOFAST-HMQC",
+          "L:sfhmqcf3gpph"
+        ],
+        [
+          "Fast: BEST-HSQC",
+          "L:b_hsqcetf3gpsi"
         ]
       ],
       "q": "Protein size / conditions?"
@@ -1067,8 +2423,103 @@
           "L:hncagp3d"
         ],
         [
+          "WATERGATE (better water suppression)",
+          "L:hncagpwg3d"
+        ],
+        [
           "TROSY (> 25 kDa)",
           "L:trhncagp3d"
+        ],
+        [
+          "TROSY + 2H decoupling (deuterated)",
+          "L:trhncagp2h3d"
+        ],
+        [
+          "BEST (fast)",
+          "L:b_hncagp3d"
+        ],
+        [
+          "Intra-residue only (i)",
+          "L:hncaigp3d"
+        ]
+      ],
+      "q": "Version?"
+    },
+    "bio_hncacb": {
+      "opts": [
+        [
+          "PEP (< 25 kDa)",
+          "L:hncacbgp3d"
+        ],
+        [
+          "WATERGATE (better water suppression)",
+          "L:hncacbgpwg3d"
+        ],
+        [
+          "TROSY (> 25 kDa)",
+          "L:trhncacbgp3d"
+        ],
+        [
+          "TROSY + 2H decoupling (deuterated)",
+          "L:trhncacbgp2h3d"
+        ],
+        [
+          "BEST (fast)",
+          "L:b_hncacbgp3d"
+        ],
+        [
+          "Intra-residue only (i)",
+          "L:hncacbigp3d"
+        ]
+      ],
+      "q": "Version?"
+    },
+    "bio_hncaco": {
+      "opts": [
+        [
+          "PEP (< 25 kDa)",
+          "L:hncacogp3d"
+        ],
+        [
+          "WATERGATE (better water suppression)",
+          "L:hncacogpwg3d"
+        ],
+        [
+          "TROSY (> 25 kDa)",
+          "L:trhncacogp3d"
+        ],
+        [
+          "TROSY + 2H decoupling (deuterated)",
+          "L:trhncacogp2h3d"
+        ],
+        [
+          "BEST (fast)",
+          "L:b_hncacogp3d"
+        ]
+      ],
+      "q": "Version?"
+    },
+    "bio_hncannh": {
+      "opts": [
+        [
+          "PEP (< 25 kDa)",
+          "L:hncannhgp3d"
+        ],
+        [
+          "WATERGATE (better water suppression)",
+          "L:hncannhgpwg3d"
+        ],
+        [
+          "TROSY (> 25 kDa)",
+          "L:trhncannhgp3d"
+        ],
+        [
+          "HN(COCA)NNH (PEP)",
+          "L:hncocannhgp3d"
+        ],
+        [
+          "HN(COCA)NNH TROSY",
+          "L:trhncocannhgp3d"
         ]
       ],
       "q": "Version?"
@@ -1080,11 +2531,271 @@
           "L:hncogp3d"
         ],
         [
+          "WATERGATE (better water suppression)",
+          "L:hncogpwg3d"
+        ],
+        [
           "TROSY (> 25 kDa)",
           "L:trhncogp3d"
+        ],
+        [
+          "TROSY + 2H decoupling (deuterated)",
+          "L:trhncogp2h3d"
+        ],
+        [
+          "BEST (fast)",
+          "L:b_hncogp3d"
         ]
       ],
       "q": "Version?"
+    },
+    "bio_hncoca": {
+      "opts": [
+        [
+          "PEP (< 25 kDa)",
+          "L:hncocagp3d"
+        ],
+        [
+          "WATERGATE (better water suppression)",
+          "L:hncocagpwg3d"
+        ],
+        [
+          "TROSY (> 25 kDa)",
+          "L:trhncocagp3d"
+        ],
+        [
+          "TROSY + 2H decoupling (deuterated)",
+          "L:trhncocagp2h3d"
+        ],
+        [
+          "BEST (fast)",
+          "L:b_hncocagp3d"
+        ]
+      ],
+      "q": "Version?"
+    },
+    "bio_hncocacb": {
+      "opts": [
+        [
+          "PEP (< 25 kDa)",
+          "L:hncocacbgp3d"
+        ],
+        [
+          "WATERGATE (better water suppression)",
+          "L:hncocacbgpwg3d"
+        ],
+        [
+          "TROSY (> 25 kDa)",
+          "L:trhncocacbgp3d"
+        ],
+        [
+          "TROSY + 2H decoupling (deuterated)",
+          "L:trhncocacbgp2h3d"
+        ],
+        [
+          "BEST (fast)",
+          "L:b_hncocacbgp3d"
+        ]
+      ],
+      "q": "Version?"
+    },
+    "bio_j": {
+      "opts": [
+        [
+          "3J(HNHA) - HNHA",
+          "L:hnhagp3d"
+        ],
+        [
+          "RDC: IPAP 1H-15N HSQC",
+          "L:hsqcf3gpiaphwg"
+        ],
+        [
+          "RDC: IPAP-HNCO (1J CaC', 3J H(N)Ca)",
+          "L:hncogprc3d1"
+        ],
+        [
+          "Hydrogen bonds: 3hJ(NC') HNCO",
+          "L:hncogphb3d"
+        ],
+        [
+          "chi1: HNHB",
+          "L:hnhbgp3d"
+        ]
+      ],
+      "q": "Which?"
+    },
+    "bio_music": {
+      "opts": [
+        [
+          "Gly (and Asn/Gln side-chain NH2)",
+          "L:music_gly_3d"
+        ],
+        [
+          "Ala / Val / Ile / Leu (methyl)",
+          "L:music_lavia_3d"
+        ],
+        [
+          "Thr / Ala / Val / Ile",
+          "L:music_tavi_3d"
+        ],
+        [
+          "Cys / Met",
+          "L:music_cm_3d"
+        ],
+        [
+          "Asp / Glu",
+          "L:music_de_3d"
+        ],
+        [
+          "Ser",
+          "L:music_ser_3d"
+        ],
+        [
+          "Ile",
+          "L:music_ile_3d"
+        ],
+        [
+          "Lys / Arg",
+          "L:music_kr_3d"
+        ],
+        [
+          "Gln / Asn",
+          "L:music_qn_3d"
+        ],
+        [
+          "Pro (i+1)",
+          "L:music_pro_1_3d"
+        ],
+        [
+          "Aromatic (Phe / His / Tyr / Trp)",
+          "L:music_fhyw_3d"
+        ],
+        [
+          "Trp (2D)",
+          "L:music_trpe_2d"
+        ]
+      ],
+      "q": "Amino acid type?"
+    },
+    "bio_na": {
+      "opts": [
+        [
+          "Imino 1H-15N HSQC (jump-return)",
+          "L:na_hsqcf3gpjrphxy"
+        ],
+        [
+          "HCN 3D (base-sugar, PEP)",
+          "L:na_hcnetgpsi3d"
+        ],
+        [
+          "HCN 2D (multiple quantum)",
+          "L:na_hcnmqgpphpr"
+        ],
+        [
+          "HCP 3D (31P backbone)",
+          "L:na_hcpetgpsi3d"
+        ],
+        [
+          "HNN-COSY (hydrogen bonds)",
+          "L:na_hnncosygpphwg"
+        ],
+        [
+          "3D 15N-NOESY-HSQC (WATERGATE)",
+          "L:na_noesyhsqcf3gpwg3d"
+        ]
+      ],
+      "q": "Which?"
+    },
+    "bio_relax": {
+      "opts": [
+        [
+          "15N T1 (pseudo-3D, PEP)",
+          "L:hsqct1etf3gpsi3d"
+        ],
+        [
+          "15N T2 (CPMG)",
+          "L:hsqct2etf3gpsi3d"
+        ],
+        [
+          "15N T1rho",
+          "L:hsqctretf3gpsi3d"
+        ],
+        [
+          "1H-15N heteronuclear NOE",
+          "L:hsqcnoef3gpsi"
+        ],
+        [
+          "TROSY-based T1 (large proteins)",
+          "L:trt1etf3gpsi3d"
+        ],
+        [
+          "TROSY-based T2",
+          "L:trt2etf3gpsi3d"
+        ],
+        [
+          "Rex (CPMG relaxation dispersion)",
+          "L:hsqcrexetf3gpsi3d"
+        ]
+      ],
+      "q": "Which?"
+    },
+    "bio_sc": {
+      "opts": [
+        [
+          "CC(CO)NH (13C side chain to NH)",
+          "L:ccconhgp3d"
+        ],
+        [
+          "HCC(CO)NH (1H side chain to NH)",
+          "L:hccconhgp3d2"
+        ],
+        [
+          "HBHA(CO)NH",
+          "L:hbhaconhgpwg3d"
+        ],
+        [
+          "HBHANH",
+          "L:hbhanhgpwg3d"
+        ],
+        [
+          "CBCANH",
+          "L:cbcanhgp3d"
+        ],
+        [
+          "Aromatic (HB)CB(CGCD)HD",
+          "L:hbcbcgcdhdgp"
+        ]
+      ],
+      "q": "Which?"
+    },
+    "bio_xedit": {
+      "opts": [
+        [
+          "3D 15N-NOESY-HSQC (PEP)",
+          "L:noesyhsqcf3gpsi3d"
+        ],
+        [
+          "3D 15N-NOESY-HSQC (WATERGATE)",
+          "L:noesyhsqcf3gpwg3d"
+        ],
+        [
+          "3D 15N-TOCSY-HSQC",
+          "L:dipsihsqcf3gpsi3d"
+        ],
+        [
+          "3D 13C-NOESY-HSQC",
+          "L:noesyhsqcetgpsi3d"
+        ],
+        [
+          "3D 15N-NOESY-TROSY (large)",
+          "L:noesytretf3gp3d"
+        ],
+        [
+          "4D 13C/15N HSQC-NOESY-HSQC",
+          "L:hsqcnoesyhsqccngp4d"
+        ]
+      ],
+      "q": "Which?"
     },
     "domain": {
       "opts": [

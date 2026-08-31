@@ -457,6 +457,56 @@ def test_path_sm_zg30():
     assert leaf == "zg30", leaf
 
 
+def test_path_bio_hnco_pep():
+    leaf, _ = pp.walk(
+        real_tree(),
+        _path(
+            [
+                "Protein / nucleic acid (isotope labeled)",
+                "Backbone assignment (triple resonance)",
+                "HNCO",
+                "PEP (< 25 kDa)",
+            ]
+        ),
+    )
+    assert leaf == "hncogp3d", leaf
+
+
+def test_path_bio_hnco_trosy():
+    leaf, _ = pp.walk(
+        real_tree(),
+        _path(
+            [
+                "Protein / nucleic acid (isotope labeled)",
+                "Backbone assignment (triple resonance)",
+                "HNCO",
+                "TROSY (> 25 kDa)",
+            ]
+        ),
+    )
+    assert leaf == "trhncogp3d", leaf
+
+
+def test_bio_leaves_declare_labeling():
+    """Every leaf reachable under bio_exp must state an isotope requirement."""
+    t = real_tree()
+    stack, seen, leaves = ["bio_exp"], set(), set()
+    while stack:
+        nid = stack.pop()
+        if nid in seen:
+            continue
+        seen.add(nid)
+        for _, target in t["nodes"][nid]["opts"]:
+            if target.startswith(pp.LEAF_PREFIX):
+                leaves.add(target[len(pp.LEAF_PREFIX) :])
+            else:
+                stack.append(target)
+    bad = [
+        n for n in leaves if not any("labeled" in r for r in t["leaves"][n]["requires"])
+    ]
+    assert not bad, "bio leaves without labeling requirement: %s" % sorted(bad)
+
+
 def main():
     tests = [
         (n, f)
