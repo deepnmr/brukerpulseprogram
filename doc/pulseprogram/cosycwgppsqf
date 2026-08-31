@@ -1,0 +1,101 @@
+;cosycwgppsqf
+;avance-version (12/01/11)
+;2D homonuclear shift correlation
+;using gradient pulses for selection
+;using shaped pulse for off-resonance presaturation
+;with cw-decoupling on f2 - channel during t1 and t2
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<lcnmr>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+"d12=20u"
+"d13=4u"
+
+
+"in0=inf1"
+
+"d0=3u"
+
+
+"if (d1/p18 < 1) {l6=1;} else {l6=d1/p18;}"
+
+
+1 ze
+  d12 pl21:f2
+2 d11 do:f2
+3 d12 pl0:f1
+4 p18:sp6:f1 ph29
+  4u
+  lo to 4 times l6
+  d12 cw:f2 
+  d12 pl1:f1
+  p1 ph1
+  d0
+  50u UNBLKGRAD
+  p16:gp1
+  d16
+  p0 ph2
+  d13
+  p16:gp1
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  d11 do:f2 mc #0 to 2 F1QF(caldel(d0, +in0))
+exit
+
+
+ph1=0 2
+ph2=0 0 2 2
+ph29=0
+ph31=0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl21: f2 channel - power level for decoupling 
+;sp6: f1 channel - shaped pulse for presaturation
+;p0 : f1 channel -  20 to 90 degree high power pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;p18: f1 channel - presaturation using shaped pulse
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d12: delay for power switching                      [20 usec]
+;d13: short delay                                    [4 usec]
+;d16: delay for homospoil/gradient recovery
+;l6: p18 * l6 = total duration of presaturation
+;                  during relaxation delay           [16]
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns: 1 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: QF
+
+
+;use 100msec pulse of square shape defined by 1000 points
+
+
+;use gradient ratio:	gp 1
+;			  10
+
+;for z-only gradients:
+;gpz1: 10%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+
+
+
+;$Id:$

@@ -1,0 +1,268 @@
+;na_hnc6c5etgpsi
+;avance-version (21/09/15)
+;HNC6C5
+;2D sequence with
+;   inverse correlation for triple resonance
+;      via inept transfer steps
+;
+;   in G:
+;      F1(H1) -> F3(N1) -> F2(C6 -> C5,t1 -> C6)
+;                       -> F3(N1) -> F1(H1,t2)
+;
+;phase sensitive (t1)
+;water suppression using watergate sequence
+;(use parameterset NA_HNC6C5ETGPSI)
+;
+;B. Fuertig, C. Richter, W. Bermel & H. Schwalbe,
+;   J. Biomol. NMR 28, 69-79 (2004)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple_na>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+
+"d21=5.56m"
+"d23=25m"
+"d25=2.8m"
+"d26=2.78m"
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+
+"DELTA=d0*2+larger(p14,p22)-p14"
+"DELTA1=d26-p16-d16"
+"DELTA2=d23-d21-p26"
+"DELTA3=d26-p16-d16-p11-8u"
+
+
+"spoffs2=0"
+"spoffs3=0"
+"spoffs5=bf2*((cnst26-cnst25)/1000000)"
+"spoffs7=bf2*((cnst25-cnst26)/1000000)"
+"spoffs8=0"
+
+
+"o1_F1=bf2*cnst26/1000000"
+
+
+1 ze
+  d11 pl16:f3
+2 d11 do:f3
+
+3 d1 pl2:f2 pl3:f3
+  50u UNBLKGRAD
+  
+  (p1 ph1)
+  p16:gp3
+  d16
+  DELTA1
+  (center (p2 ph2) (p22 ph1):f3 )
+  DELTA1
+  p16:gp3
+  d16
+  (p1 ph2) 
+
+  4u
+  (p11:sp1 ph9):f1
+  p16:gp4
+  d16 fq=cnst25(bf ppm):f2
+
+  (p21 ph3):f3
+  d21 pl19:f1
+  (p26 ph2):f1
+  DELTA2 cpds1:f1 ph1
+  (center (p14:sp3 ph1):f2 (p22 ph1):f3 )
+  d23
+  (p21 ph1):f3
+
+  4u do:f1
+  (p26 ph10):f1
+  p16:gp5
+  d16
+  (p26 ph2):f1
+  20u cpds1:f1 ph1
+
+  (p13:sp2 ph6):f2
+  d25
+  (p14:sp5 ph1):f2
+  4u
+  (p14:sp3 ph1):f2
+  d25
+  (p14:sp5 ph1):f2
+  4u
+  (p13:sp8 ph2):f2
+
+  4u
+  30u fq=cnst26(bf ppm):f2
+
+  (p13:sp2 ph8):f2
+  d0 
+  (center (p14:sp7 ph7):f2 (p22 ph7):f3 )
+  d0 
+  4u
+  (p14:sp3 ph1):f2
+  DELTA
+  (p14:sp7 ph7):f2
+  4u
+  (p13:sp8 ph1):f2
+
+  4u do:f1
+  (p26 ph10):f1
+  p16:gp5*-1
+  d16 fq=cnst25(bf ppm):f2
+  (p26 ph2):f1
+  20u cpds1:f1 ph1
+
+  (p13:sp2 ph2):f2
+  4u
+  (p14:sp5 ph1):f2
+  d25
+  (p14:sp3 ph1):f2
+  4u
+  (p14:sp5 ph1):f2
+  d25
+  (p13:sp8 ph1):f2
+
+  (p21 ph1):f3
+  4u
+  d23
+  (center (p14:sp3 ph1):f2 (p22 ph1):f3 )
+  DELTA2
+  4u do:f1
+  (p26 ph10):f1
+  d21
+  (p21 ph4):f3
+
+  p16:gp4*-1
+  d16
+  (p11:sp1 ph9)
+  4u
+
+  (p1 ph1)
+  p16:gp6
+  d16
+  DELTA3
+  (p11:sp1 ph9:r):f1
+  4u
+  4u pl1:f1
+  (center (p2 ph1) (p22 ph1):f3 )
+  4u
+  (p11:sp1 ph9:r):f1
+  4u
+  DELTA3
+  p16:gp6
+  d16 pl16:f3
+  4u BLKGRAD
+
+  go=2 ph31 cpd3:f3
+  d11 do:f3 mc #0 to 2 
+     F1PH(calph(ph8, +90), caldel(d0, +in0))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=3 3 3 3 1 1 1 1
+ph6=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph7=0 0 2 2
+ph8=0 0 2 2
+ph9=2
+ph10=3
+ph31=0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;pl19: f1 channel - power level for CPD/BB decoupling
+;sp1: f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;sp2 : f2 channel - shaped pulse  90 degree  (on resonance)
+;sp3 : f2 channel - shaped pulse 180 degree (on resonance)
+;sp5 : f2 channel - shaped pulse 180 degree  (C5(G) off resonance)
+;sp7 : f2 channel - shaped pulse 180 degree  (C6(G) off resonance)
+;sp8 : f2 channel - shaped pulse  90 degree  (on resonance)
+;                  for time reversed pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse             [1 msec]
+;p13: f2 channel -  90 degree shaped pulse
+;p14: f2 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p26: f1 channel -  90 degree pulse at pl19
+;d0 : incremented delay (2D)                           [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                               [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d21: 1/(2J(NH))                                       [5.56 msec]
+;d23: 1/(4J(NC6))                                      [25 msec]
+;d25: 1/(4J(C6C5))                                     [2.8 msec]
+;d26: 1/(4J'(NH))                                      [2.78 msec]
+;cnst25: C6 (G) chemical shift (offset, in ppm)        [160 ppm]
+;cnst26: C5 (G) chemical shift (offset, in ppm)        [119 ppm]
+;o2p: C5 chemical shift (cnst26)
+;o3p: 160 ppm
+;inf1: 1/SW(C) = 2 * DW(C)
+;in0: 1/(2 * SW(C)) = DW(C)
+;nd0: 2
+;ns: 16 * n
+;ds: >= 32
+;td1: number of experiments
+;FnMODE: States-TPPI (or TPPI)
+;cpds1: decoupling according to sequence defined by cpdprg1
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd1: f1 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:	gp 3 : gp 4 : gp 5 : gp 6
+;			  60 :   40 :  -10 :   80
+
+;for z-only gradients:
+;gpz3: 60%
+;gpz4: 40%
+;gpz5: -10%
+;gpz6: 80%
+
+;use gradient files:   
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+
+
+;calculate pulselength according to:
+;
+;   (DeltaOmega * DeltaT) / (width of region[ppm] * SFOn{MHz})
+;
+;for p13 (sp2/sp8) use Q5/Q5tr pulse (DeltaOmega * DeltaT = 6.180)
+;      to cover 41.0ppm on resonance
+;      (pulselength: 1.0ms at 600.13 MHz)
+;for p14 (sp3, sp5, sp7) use Q3 pulse (DeltaOmega * DeltaT = 3.448)
+;      to cover 22.8ppm on or off resonance
+;      (pulselength: 1.0ms at 600.13 MHz)
+
+
+
+;$Id: $

@@ -1,0 +1,96 @@
+; mqhetcor
+;
+; TS3 / 25.07.2011
+;
+;
+; 3Q HETCOR experiment for spin-5/2, spin-7/2, and spin-9/2 nuclei
+; 3Q in the indirect dimension for the quadrupole nucleus
+; MAS in the direct dimension for the spin-1/2 nucleus
+; uses a saturation pulse train on the spin-1/2, which is important
+; if T1 of spin-1/2 is long
+;
+;
+; written by Stefan Steuernagel (031201)
+; adapted to Bruker convention from the original version of Christian Fernandez 
+;
+;
+;Avance III version
+;parameters:
+;pl1 : spin-1/2 power level for CP and 90 degree pulses
+;pl11 : power level for Al excitation and conversion pulses
+;pl2 : = 0, not used
+;pl3 : = 0, not used
+;pl12 : power level used in cw, tppm15, or pidec12 
+;pl13 : power level used in cw13, tppm13, or pidec13
+;sp0 : spin-n/2 power level for CP
+;p1 : 3Q excitation pulse
+;p2 : 3Q conversion pulse
+;p11 : spin-1/2 90 degree pulse at plw1
+;p15 : contact time
+;d0 : = 1u or longer
+;d1 : recycle delay, acc. to T1 of spin-5/2
+;d10 : = d0*cnst10, incremented within pulse program
+;d20 : delay in saturation pulse train
+;ns : 48 * n
+;l20 : # of pulses in saturation pulse train
+;cpdprg2 : decoupling sequence for quadrupole nucleus
+;cpdprg3 : optional decoupling for 3rd nucleus
+;pcpd2 : pulse length in f2 decoupling sequence
+;pcpd3 : pulse length in f3 decoupling sequence
+;spnam0 : square.100, to use ramp is not recommended here
+;cnst10 : =19/12 (I=5/2), =101/45 (I=7/2), =91/36 (I=9/2)
+;in0 : 1 rotation period for synchronised experiment
+;td1 : number of t1-experiments
+;FnMODE: States
+;zgoptns : -Dpidec, or -Dxix
+;
+;
+;$CLASS=Solids
+;$DIM=2D
+;$TYPE=half integer quadrupoles
+;$SUBTYPE=heteronuclear correlation
+;$COMMENT=3Q HETCOR (CP based) between spin-1/2 and spin-5/2, -7/2, or -9/2
+
+prosol relations=<solids_mqmas>
+
+
+# ifdef xix
+"pcpd=(1s*l31)/cnst31+p29"
+;p29 : 5 - 10 us, to avoid exact rotor synchronisation
+# endif /* xix */
+
+# ifdef pidec
+"d30=1s/cnst31-p22"
+;p22 : 180 degree pulse for pi-pulse decoupling
+# endif /* pidec */
+
+"acqt0=1u*cnst11"
+"in0=inf1"
+
+1 ze
+2 d1 do:f3 do:f2
+ "d10=d0*cnst10"
+  saturate, d20 
+  (p11 pl1 ph0):f1
+  lo to saturate times l20
+  (p1 pl11 ph1):f2
+  d0 
+  (p2 ph2):f2
+  d10 
+  (p15 pl1 ph15):f1 (p15:sp0 ph16):f2   
+  (1u cpds2):f2 (1u cpds3):f3 
+  go=2 ph31
+  3m do:f3 do:f2	
+  10m mc #0 to 2 F1PH(ip1,id0)
+exit
+
+ph0=0
+ph1=(12) {0 2 4 6 8 10}*4  { 2 4 6 8 10 0}*4
+ph2=  0 0 0 0 0 0   1 1 1 1 1 1   2 2 2 2 2 2   3 3 3 3 3 3    
+ph16= 1 3
+ph15= 0 
+ph31={0}*24  {2}*24
+
+
+
+;$Id:$

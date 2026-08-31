@@ -1,0 +1,98 @@
+;F19H1decC13filt (ODYSSEUS)
+;1H decoupled, 13C filtered, 19F spectra 
+
+;Moutzouri P., Kiraly P., Phillips A.R., Coombes S.R., Nilsson M. & Morris G.A., Chem. Chom. 53, 123-125, 2017.
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=19F NMR
+;$SUBTYPE= Impurity analysis
+;$COMMENT=19F NMR with 1H decoupling and 13C satellite suppression, process with proc_ody or xaup
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+
+"d2=1s/(cnst2*2)"
+"d11=30m"
+"d12=20u"
+"d19=p3+d12"
+"d0=3u"
+
+"DELTA1=d2-p16-d16-50u"
+"DELTA2=d2-p16-d16-50u-2*p3"
+
+"in0=inf1/2"
+
+1 ze
+  d11 pl16:f3
+2 30m do:f3
+
+  d1 
+  d12 pl1:f1 pl2:f2 
+
+  (p1 ph1):f1
+  50u UNBLKGRAD
+  DELTA1
+  p16:gp1
+  d16
+  (p2 ph2):f1
+  (p3 ph4):f2
+  p16:gp1
+  d16
+  DELTA2
+  50u BLKGRAD
+  (p3 ph5):f2
+  d19
+  d0
+  (center (p2 ph3):f1 (p4 ph6):f2)
+  d0
+  (p3 ph7):f2  
+  d12 pl16:f3
+  go=2 ph31 cpd3:f3
+  30m do:f3 mc #0 to 2 F1PH(calph(ph7, +90), caldel(d0, +in0))
+exit
+
+
+ph1={0}*4 {1}*4 {2}*4 {3}*4
+ph2=0  
+ph3=0 0 0 0 2 2 2 2
+ph4=0 2 
+ph5=0 0 2 2
+ph6=0 
+ph7=0  
+ph31={0}*4 {1}*4 {2}*4 {3}*4
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl16: f3 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p16: gradient pulse [1 msec] 
+;d1 : relaxation delay; 1-5 * T1
+;d0	: incremented delay (2D) [3 usec]
+;d2	: 1/(2J(FC))
+;d16: delay for homospoil/gradient recovery
+;cnst2: = one bond J(FC)
+;FnMODE: States 
+
+;ns: 2*n 
+;ds: 4
+
+;for z-only gradients:
+;gpz1: 35% (CTP)
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+
+

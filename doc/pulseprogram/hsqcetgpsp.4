@@ -1,0 +1,204 @@
+;hsqcetgpsp.4
+;avance-version (04/01/24)
+;1H/13C HSQC for 13C labeled molecules
+;1H/13C correlation via double INEPT transfer
+;
+;optimized for large 13C bandwidth (broadband shaped pulses for all purposes on 13C)
+;phase sensitive using Echo/Antiecho-TPPI gradient selection
+;optional 15N decoupling in F1 (use ZGOPTN LABEL_CN)
+;optional CO decoupling in F1 (use ZGOPTN CODEC)
+;for adiabatic decoupling set CDPRG2 to bi_p5m4sp_4sp.2 and execute getprosol (ns should be 
+;   at least 4 to suppress decoupling sidebands) 
+;To set center of 13C dimension (F1 dimension) independently of transmitter 
+;   frequency (o2p), use ZGOPTN SetF1Center: This allows for aliasing of aromatic
+;   signals into aliphatic spectral region, while keeping the transmitter frequecy 
+;   in the center of both regions (~75 ppm).
+;
+; S. Asami, W. Kallies, J.C. Guenther, M. Stavropoulou, S.J. Glaser & M. Sattler,
+;   Angew. Chem. Int. Ed. Engl. 57(44), 14498-14502 (2018)
+;
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+prosol relations=<triple>
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+require "TopSpin 4.1.0"
+
+"p2=p1*2"
+
+"p13=30u"
+"spnam2='Ram-COOP1_100.300'"
+"if ( (p3*totrot2)/(p13*90.0*integfac2) > 1 ) { spw2 = plw2; p13 = (p3*totrot2)/(90*integfac2); } else { spw2=plw2*pow((p3*totrot2)/(p13*90.0*integfac2),2);}"
+"spoffs2=0"
+"spoal2=1"
+
+"spnam8='Ram-COOP2_100.300'"
+"spw8=spw2"
+"spoffs8=0"
+"spoal8=0"
+
+
+"d0=1u"
+"in0=inf1/2"
+
+"d4=1s/(cnst2*4)"
+"d11=30m"
+
+#   ifdef SetF1Center
+"cnst63=(bf2*cnst23-(o2*1000000))*(inf1/1000000)*360.0"
+"cnst61=cnst63+180"
+"o1_F1=bf2*cnst23/1000000"
+#   else
+"cnst61=180"
+#   endif /*SetF1Center*/
+
+"DELTA=p16+d16-2*d0-0.529*p13*2"
+"DELTA2=d4-p1*2/PI"
+"DELTA3=d4-p16-d16-de-4u"
+"DELTA6=larger(p44/2+d0-p13*0.471,0)"
+"DELTA7=larger(p13*0.471-d0-p44/2,0)"
+"DELTA8=larger(DELTA6+p13, DELTA7+p44)"
+
+"spoffs20=bf2*cnst21/1000000-o2"
+"spoal20=0.5"
+"spoffs41=0"
+"spoal41=0.5"
+
+"acqt0=0"
+baseopt_echo
+
+1 ze
+  d11 pl1:f1
+2 d1 do:f2 
+  d11 UNBLKGRAD 
+  (p13:sp2 ph1):f2
+  p16:gp1
+  d16
+
+3 (p1 ph1)
+  d4
+  (center (p2 ph1) (p35:sp41 ph6):f2 )
+  d4
+  (p1 ph2) 
+  p16:gp2
+  d16
+
+#ifdef LABEL_CN
+   (lalign (DELTA6 p13:sp2 ph4 d0 DELTA ):f2 (DELTA7 d0 p44:sp30 ph7):f1 (DELTA8 d0 p56:sp39 ph1):f3)
+#else
+   (lalign (DELTA6 p13:sp2 ph4 d0 DELTA ):f2 (DELTA7 d0 p44:sp30 ph7):f1)
+#endif /*LABEL_CN*/
+
+#ifdef CODEC 
+  (p14:sp20):f2
+#endif
+
+  d0
+  (p35:sp41 ph1):f2
+  p16:gp3*EA*-1 
+  d16 pl1:f1
+
+#ifdef CODEC 
+  (p14:sp20):f2
+#endif
+
+  (p35:sp41 ph3):f2
+  (p13:sp8 ph5):f2
+
+  (p1 ph1)
+  DELTA2
+  (center (p2 ph1) (p35:sp41 ph1):f2 )
+  DELTA3 pl12:f2
+  p16:gp4
+  d16
+  4u BLKGRAD
+  go=2 ph31 cpd2:f2
+  d1 do:f2 mc #0 to 2 
+     F1EA(calgrad(EA), caldel(d0, +in0) & calph(ph4, cnst61) & calph(ph6, +180) & calph(ph31, +180))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=2
+ph4=0 2
+ph5=0 0 2 2 
+ph7=0 0 0 0 2 2 2 2
+ph6=0
+ph31=0 2 2 0
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp2 : f2 channel - shaped pulse 90 degree (Ram-COOP1)
+;sp8 : f2 channel - shaped pulse 90 degree (Ram-COOP2)
+;sp14: f2 channel - short pulse for bi-level adiabatic decoupling 
+;sp31: f2 channel - long pulse for bi-level adiabatic decoupling 
+;sp30: f1 channel - shaped pulse 180 degree 
+;sp39: f3 channel - shaped pulse 180 degree
+;sp41: f2 channel - shaped pulse 180 degree 
+;spnam39: Bip pulse
+;spnam41: Bip pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse (used for calculation of 90 degree shape pulses)
+;p13 : f2 channel -  90 degree shape pulse
+;p16: homospoil/gradient pulse
+;p35: f2 channel - 180 degree shaped pulse (adiab. inv.)
+;p44: f1 channel - 180 degree shaped pulse (adiab. inv.)
+;p56: f3 channel - 180 degree shaped pulse (adiab. inv.)
+;p63: f2 channel - pulse for bi-level adiabatic decoupling 
+;d0 : incremented delay (2D)                  [1 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J)CH
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(CH) (~150 for proteins, ~170 for nucleic acids)
+;       these values are a compromise between aromatic and aliphatic coupling constants
+;cnst21: CO chemical shift for CO decoupling (offset, in ppm)
+;cnst23: Center for carbon dimension (F1)
+;cnst61: TPPI phase shift for internal calculations
+;cnst63: TPPI phase increment to shift center of 13C dimension relative to carrier
+
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;nd0: 2
+;ns: 1 * n (4 * n for adiabatic decoupling) 
+;ds: >= 32
+;td1: number of experiments
+;FnMODE: echo-antiecho
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: -5%
+;gpz2: 3%
+;gpz3: 80%
+;gpz4: 20.1%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+                                          ;preprocessor-flags-start
+;the following options are available (eda: ZGOPTNS)
+;LABEL_CN: to enable 15N decoupling for 15N/13C labeled molecules use option -DLABEL_CN
+;CODEC: to enable CO decoupling use option -DCODEC
+;SetF1Center: Center of 13C dimension (F1 dimension) is set by cnst23 (independent of 13C 
+;   transmitter frequency (o2p)
+                                          ;preprocessor-flags-end
+
+;$Id:$

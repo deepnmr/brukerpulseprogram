@@ -1,0 +1,125 @@
+;PSYCHEiDOSY_2d
+;pseudo 3D sequence
+
+;Foroozandeh M., Adams R.W., Meharry N.J., Jeannerat D., Nilsson M. & Morris G.A., Angew. Chem. Int. Ed. 2014, 53, 6990.
+;Foroozandeh M., Adams R.W., Nilsson M. & Morris G.A., J. Am. Chem. Soc. 2014, 136, 11867.
+;Foroozandeh M., Castanar L., Martins L.G., Sinnaeve D., Dal Poggetto G., Tormena C.F., Adams R.W., Morris G.A. & Nilsson M., Angew. Chem. Int. Ed. 2016, 55, 15579
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+#include <De.incl>
+
+define list<gradient> diff=<Difframp>
+define delay tauJ
+define delay tau
+
+"p2=p1*2"
+"d11=30m"
+
+"l31=d24/(2*dw)" 
+"in0=dw*l31"  
+"DELTA=d24*td1"
+
+"tauJ=dw*l31/2-p16-d16"
+"tau=(dw*2*l30)+d16"
+
+"spnam37='Crp_singlepsyche'"
+
+"cnst50=(cnst48/360)*sqrt((2*cnst49)/(p45/1000000))"
+"p31=1000000.0/(cnst50*4)"
+"cnst31= (p31/p1) * (p31/p1)"
+"spw37=plw1/cnst31"
+
+"DELTA=d20-tau-p30-2*d16-2*p45-20u"
+
+aqseq 312
+
+1 ze
+2 d11
+  50u LOCKH_OFF
+  d1 pl1:f1
+  50u LOCKH_ON
+
+3 p1 ph1 
+
+  d0
+  tauJ UNBLKGRAMP
+  p16:gp2 
+  d16
+  p2 ph2 
+  p16:gp2 
+  d16
+  tauJ
+
+
+  p30:gp6*diff 
+  d16 pl0:f1
+  tau
+  ( center (p45:sp37 ph3):f1 (p45:gp10) )
+  DELTA
+  ( center (p45:sp37 ph3):f1 (p45:gp10) )
+  d16 pl1:f1
+  p30:gp6*diff 
+  d16 BLKGRAMP
+  d0
+
+  go=2 ph31
+  d11 mc #0 to 2
+  F1QF(id0)
+  F2QF(rd0, igrad diff)
+  50u LOCKH_OFF
+  DELTA
+exit
+
+ph1= 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0		
+ph2= 0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3		
+ph3= 0 1 2 3 0 1 2 3 0 1 2 3 0 1 2 3
+ph31=0 2 0 2 2 0 2 0 0 2 0 2 2 0 2 0
+
+;pl0 : zero power (120 dB)
+;pl1 : high power (dB) 
+;p1  : 90 degree high power pulse
+;p16 : duration of CTP gradients (1m)
+;p30 : duration of diffusion encoding gradient
+;p45 : duration of double-chirp PSYCHE pulse element (us) (normally 15000)
+;d0  : incremented delay
+;d1  : relaxation delay
+;d16 : recovery delay for gradients
+;d20 : diffusion delay
+;d24: chunk duration [10-25 ms]
+;DELTA: total duration of reconstructed FID
+;spnam37: file name for PSYCHE pulse element
+;cnst48: desired flip angle for PSYCHE pulse element (degree) (10-25) 
+;cnst49: bandwidth of each chirp in PSYCHE pulse element (Hz) (10000)
+
+;l30: number of complex points at the beginning not to be included 
+;        in reconstruction
+;l31: number of complex points along the acquisition dimension per block
+
+;BETA: flip angle (ca. 20 degree)
+;SWi: sweep width in the pseudo dimension 
+;        should be 2 to 3 times the width of the widest multiplett
+;in0 : half chunk length
+;td1 : number of t1 increments
+;MC2 : QF
+
+;for z-only gradients:
+;gpz6: 100%  (diffusion encoding gradient) 
+;gpz2:  49%  (CTP gradient)
+;gpz10:  1%  (weak gradient during PSYCHE element [1-3%])
+
+;use gradient files:
+;gpnam6: SMSQ.100 or Difframp
+;gpnam2: SMSQ.100
+;gpnam10: RECT.1
+
+
+
+;use AU-program proc_idosy to reconstruct data

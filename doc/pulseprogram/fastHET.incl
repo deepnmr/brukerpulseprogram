@@ -1,0 +1,19 @@
+;
+;avance-version (13/01/31)
+;
+;$CLASS=Solids INCL
+;$COMMENT=calculate current spinperiod/cycle time relation, recommend new spin rate and show values in ased
+
+
+"d31=1s/cnst31"
+"cnst30=d31/cycle"
+"cnst28=1/(1.5*cycle)"
+"cnst29=1/(2.5*cycle)"
+
+  1u fq=cnst30:f1
+  1u fq=cnst28:f1
+  1u fq=cnst29:f1
+
+
+
+;$Id:$

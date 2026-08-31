@@ -1,0 +1,27 @@
+;De4.incl
+;   for AV4
+;
+;avance-version (15/08/13)
+;
+;$CLASS=Common Incl
+;$COMMENT=
+
+
+
+#define DE1(phrec)   (de adc phrec syrec)
+#define DE2(phref)   (1u 1u phref:r):f1
+
+#define ACQ_START(phref,phrec) DE1(phrec) DE2(phref)
+
+
+
+;for multi receive
+
+#define ACQ_START1(phref1,phrec1) (de adc1 phrec1 syrec1) (1u 1u phref1:r):f1
+#define ACQ_START2(phref2,phrec2) (de adc2 phrec2 syrec2) (1u 1u phref2:r):f2
+#define ACQ_START3(phref3,phrec3) (de adc3 phrec3 syrec3) (1u 1u phref3:r):f3
+#define ACQ_START4(phref4,phrec4) (de adc4 phrec4 syrec4) (1u 1u phref4:r):f4
+
+
+
+;$Id:$

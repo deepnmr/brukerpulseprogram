@@ -1,0 +1,151 @@
+;dqseagp135
+;avance-version (12/09/26)
+;2D H-H correlation via double quantum spectroscopy
+;phase sensitive using Echo/Antiecho gradient selection 
+;45/135 degree conversion pulse for better sensitivity and remote 
+;   peak minimisation 
+;with gradients in DQ creation period for radiation damping suppression
+;
+;C. Dalvit and J-M. Boehlen, J. Magn. Reson. B111, 76 (1996)
+;C. Dalvit and J-M. Boehlen, J. Magn. Reson. B113, 195 (1996)
+;C. Dalvit and J-M. Boehlen, J. Magn. Reson, submitted
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d4=1s/(cnst1*4)"
+"d11=30m"
+"d12=20u"
+
+
+"in0=inf1"
+
+"d0=3u"
+
+
+"DELTA=p16+d16+8u"
+"DELTA1=d0+4u"
+
+"TAU=d4-p16-d16-4u"
+
+
+"l0=0"
+
+
+1 ze
+2 d11
+3 d1
+  50u UNBLKGRAD
+
+  p1 ph1
+  4u
+  p16:gp1
+  d16
+  TAU
+  p2 ph2
+  TAU
+  p16:gp1
+  d16
+  4u
+  p1 ph2
+
+  d0
+  4u
+  p16:gp2*EA
+  d16
+  p2 ph2
+  DELTA1
+  p16:gp2*-1*EA
+  d16
+
+  if "l0 %2 == 0"
+     {
+     (p1*0.5 ph2)
+     }
+  else
+     {
+     (p1*1.5 ph2)
+     }
+
+  DELTA
+  p2 ph3
+  4u
+  p16:gp3
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  d11 mc #0 to 2 
+     F1EA(calgrad(EA) & calclc(l0, 1) & calph(ph1, +180) & calph(ph31, +180), caldel(d0, +in0))
+exit
+   
+
+ph1=0
+ph2=0
+ph3=0 3 2 1
+ph31=0 2
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;p0 : f1 channel -  45/135 degree high power pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J)HH                                       [15 msec]
+;d11: delay for disk I/O                             [30 msec]
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;cnst1: = J(HH)
+;inp0: = 90 degree pulse length
+;inf1: 1/SW(H) = 2 * DW(H)
+;in0: 1/(2 * SW(H)) = DW(H)
+;nd0: 1
+;ns: 4 * n
+;ds: >= 8
+;td1: number of experiments
+;FnMODE: echo-antiecho
+
+
+;use gradient ratio:          gp 1 : gp 2 : gp 3
+;                                1 :  -15 :   60
+
+;for z-only gradients:
+;gpz1: 1%
+;gpz2: -15%
+;gpz3: 60%
+
+;for magic angle gradients (MAG) with xyz-gradientsystem use also:
+
+;gpx1: 0%
+;gpx2: -15%*k
+;gpx3: 60%*k
+
+;gpy1: 0%
+;gpy2: -15%*k
+;gpy3: 60%*k
+
+;   with k = calibration constant from 1D magic angle gradient 
+;      calibration
+;   very good suppression with magic angle gradients (MAG)
+
+;adjust MAG with pulseprogram "mqsgs1d"
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+;$Id:$

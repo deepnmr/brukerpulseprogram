@@ -1,0 +1,107 @@
+;zggpso
+;avance-version (20/06/25)
+;1D sequence
+;water suppression using soggy with gradients
+;
+;B.D. Nguyen, X. Meng, K.J. Donovan & A.J. Shaka, J. Magn. Reson. 184, 263 (2007) 
+;T.-L. Hwang & A.J. Shaka, J. Magn. Reson.,
+;   Series A 112 275-279 (1995)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"TAU=de+p1*2/PI"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+2 30m
+  20u pl1:f1 BLKGRAD
+  d1
+  50u UNBLKGRAD
+
+  p1 ph1
+  
+  p16:gp1
+  d16
+  (p12:sp1 ph2:r):f1
+  4u
+  4u pl10:f1
+
+  p6*0.9 ph3
+  p6*0.9 ph2
+  p6*3.8 ph3
+  p6*1.8 ph2
+
+  4u
+  p16:gp1
+  d16 
+  TAU
+  p16:gp2
+  d16
+  (p12:sp1 ph4:r):f1
+  4u
+  4u pl10:f1
+
+  p6*0.9 ph5
+  p6*0.9 ph4
+  p6*3.8 ph5
+  p6*1.8 ph4
+
+  4u
+  p16:gp2
+  d16
+
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+  4u BLKGRAD
+exit
+
+
+ph1=0
+ph2=0 1
+ph3=2 3
+ph4=0 0 1 1
+ph5=2 2 3 3
+ph31=0 2 2 0 
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;sp1 : f1 channel - shaped pulse 180 degree
+;p1 : f1 channel -  90 degree high power pulse
+;p6 : f1 channel -  90 degree low power pulse
+;p12: f1 channel - 180 degree shaped pulse (Squa100.1000)   [2 msec]
+;p16: homospoil/gradient pulse
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;ns: 8 * n, total number of scans: NS * TD0
+;ds: 4
+
+
+;for z-only gradients:
+;gpz1: 31%
+;gpz2: 11%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+
+;$Id:$

@@ -1,0 +1,17 @@
+;p20bio_prot.incl
+
+; Test the rf on-times for selective Ca-Cb pulses
+; 1 ms is maximum
+
+;$COMMENT=Protection against long RF on time
+;$CLASS=BioSolids PROT
+
+
+if "p20<1.1m" goto Passp20
+1u
+print "Ca-Cb selective 180 degree pulse p20 exceeds 1 msec limit!"
+goto HaltAcqu
+Passp20, 1m
+
+
+;$Id:$

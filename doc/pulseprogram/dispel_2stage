@@ -1,0 +1,124 @@
+;DISPEL (two stage)
+;	
+; Pulse sequence for the suppression of one-bond 13C satellites in 1H spectra
+; P. Moutzouri, P. Kiraly, A. R. Phillips, S. R. Coombes, M. Nilsson and G. A. Morris, Anal. Chem., 2017, 89, 11898-11901
+
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+"acqt0=-p1*2/3.1416"
+
+"p2=p1*2"
+"p4=p3*2"
+
+"d2=2100u"
+"d3=4000u"
+"d4=3300u"
+
+"d13=50u"
+
+"p17=p16-0.1m"
+
+"DELTA1=d2-d13-(p2/2)-d16-p16"
+"DELTA2=d3-d2-(p3/2)-(p2/2)-d16-p16"
+"DELTA3=(2*d2)-d3-(p3/2)-(p1/2)"
+"DELTA4=d2-(p2/2)-(p1/2)-d16-p17"
+"DELTA5=d4-d2-(p3/2)-(p2/2)-d16-p17"
+"DELTA6=(2*d2)-d4-(p3/2)"
+
+1 ze
+2 30m
+  20u BLKGRAD
+  d1 
+  d13 pl1:f1 pl2:f2 
+3 (p1 ph1):f1
+	d13 UNBLKGRAD
+  DELTA1
+	p16:gp1
+	d16
+  (center (p2 ph2):f1 (p4 ph7):f2 ) 
+	p16:gp1
+	d16
+	DELTA2 
+	(p3 ph5):f2
+  DELTA3
+  (p1 ph3):f1 
+	DELTA4
+	p17:gp2
+	d16
+  (center (p2 ph4):f1 (p4 ph8):f2 ) 
+	p17:gp2
+	d16
+  DELTA5
+	(p3 ph6):f2
+ 	DELTA6
+
+	if "cnst7 == 1"						;z-filter
+    { 	
+			(p1 ph9):f1
+ 		  10u gron0 pl0:f1
+  		(p32:sp29 ph10):f1
+  		20u groff
+			d16 pl1:f1
+			p16:gp3
+  		d16
+		  (p1 ph11):f1
+		}
+	else
+		{
+		}
+  go=2 ph31 
+  30m mc #0 to 2 F0(zd)
+  20u BLKGRAD
+exit
+   
+
+ph1=0 2 
+ph2=0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3
+ph3=1 
+ph4=2 2 3 3 0 0 1 1 
+ph5=0 2  
+ph6=0 0 2 2
+ph7=0 
+ph8=0 
+ph9=0 
+ph10=0
+ph11=0
+ph31=0 2 2 0 0 2 2 0 2 0 0 2 2 0 0 2
+  
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;sp29: f1 channel - power level of adiabatic pulse of ZQF element
+;spnam29 : f1 channel - file name for the adiabatic shaped pulse using in ZQF   [Crp60,20,20.10]
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p32: f1 channel - 180 degree shaped pulse (adiabatic)    [20 msec]
+;p16: duration of CTP gradients                      [1 msec]
+;p17: duration of CTP gradients                      [0.9 msec]
+;p18: homospoil gradient 							 [1 msec]
+;d1 : relaxation delay; 1-5 * T1
+;d13: delay for UNBLKGRAD/BLKGRAD
+;d16: delay for gradient recovery			[500usec]
+;cnst7: 0 / 1 (no ZQF / ZQF)
+;gpnam1 : SMSQ10.100
+;gpnam2 : SMSQ10.100
+;gpnam3 : SMSQ10.100
+;gpz0  : ZQF gradient 					  	[2-4%]
+;gpz1  : CTP gradient 						[43%]
+;gpz2  : CTP gradient				 		[37%]
+;gpz3  : homospoil gradient      			[31%]
+;ns: 1 * n, total number of scans: NS * TD0
+;ds: 2

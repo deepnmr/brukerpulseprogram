@@ -1,0 +1,69 @@
+;kx_zg2d
+;avance-version (19/09/26)
+;pseudo 2D sequence for kinetics experiments
+;using variable flip angle read pulse
+;with FLAG_TRIG option (trigger pulse from InisgthXpress unit)
+;using delay d21 to shift t=0 between different pseudo2d experiments
+;use zg0 for setup
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+
+
+"p0=p1*cnst18/90.0"
+
+
+"DELTA=d20-((d1+p0+de+aq)*(ns+ds))-30.02m"
+
+
+"acqt0=-p0*2/PI"
+
+
+1 ze
+
+#   ifdef FLAG_TRIG
+  1m trigpe1
+#  endif /*FLAG_TRIG*/
+
+  d21
+
+2 20u
+3 d1
+  p0 ph1
+  go=3 ph31
+  30m wr #0 if #0 ze
+  DELTA
+  lo to 2 times td1
+exit
+
+
+ph1=0 2 2 0 1 3 3 1
+ph31=0 2 2 0 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p0 : for any flip angle
+;p1 : f1 channel -  90 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d20: delay between start of different 1D spectra
+;d21: shift delay for the first increment
+;cnst18: flip angle in degree
+;ns: 1 * n, total number of scans: NS * TD0
+
+
+
+                                          ;preprocessor-flags-start
+;FLAG_TRIG: to use the trigger pulse from InsigtXpress
+;             start experiment with option -DFLAG_TRIG (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id:$

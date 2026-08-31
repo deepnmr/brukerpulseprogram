@@ -1,0 +1,155 @@
+;trosyf3gpph19
+;avance-version (12/01/11)
+;2D H-1/X correlation via TROSY
+;phase sensitive
+;using f3 - channel
+;water suppression using 3-9-19 pulse sequence with gradients
+;(use parameterset TROSYF3GPPH19)
+;
+;K. Pervushin, R. Riek, G. Wider & K.Wuethrich, Proc. Natl. Acad.
+;   Sci. USA, 12366-12371 (1997)
+;M. Piotto, V. Saudek & V. Sklenar, J. Biomol. NMR 2, 661 - 666 (1992)
+;V. Sklenar, M. Piotto, R. Leppik & V. Saudek, J. Magn. Reson.,
+;   Series A 102, 241 -245 (1993)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d12=20u"
+"d26=1s/(cnst4*4)"
+
+
+"d0=3u"
+
+"in0=inf1"
+
+
+"DELTA=d19-p22/2"
+"DELTA1=d26-p16-d16-p27*2.385-d19*5+p22/2"
+"DELTA2=d26-p16-d16-p27*2.154-p0*0.231-d19*5+p22/2-8u-p21"
+"DELTA3=d26-p16-4u"
+
+
+1 ze 
+2 d1
+3 d12 pl1:f1
+  50u UNBLKGRAD
+  (p1 ph1)
+  4u
+  p16:gp1
+  DELTA3
+  (center (p2 ph1) (p22 ph6):f3 )
+  4u
+  p16:gp1
+  DELTA3
+  (p1 ph2) 
+  3u
+  p16:gp2
+  d16
+  (p21 ph3):f3
+  d0
+  (p1 ph5)
+  4u
+  p16:gp3
+  DELTA3 
+  (center (p2 ph1) (p22 ph1):f3 )
+  4u
+  p16:gp3
+  DELTA3 
+  (center (p1 ph1) (p21 ph4):f3 )
+  DELTA1
+  p16:gp4
+  d16 pl18:f1
+  p27*0.231 ph7
+  d19*2
+  p27*0.692 ph7
+  d19*2
+  p27*1.462 ph7
+  DELTA
+  (p22 ph1):f3
+  DELTA
+  p27*1.462 ph8
+  d19*2
+  p27*0.692 ph8
+  d19*2
+  p0*0.231 ph8
+  4u
+  p16:gp4
+  d16
+  4u BLKGRAD
+  DELTA2
+  (p21 ph9):f3
+  go=2 ph31
+  d1 mc #0 to 2 F1PH(calph(ph3, +90) & calph(ph6, +90), caldel(d0, +in0))
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=1 3 2 0
+ph4=1
+ph5=1 1 1 1 3 3 3 3
+ph6=0
+ph7=0
+ph8=2
+ph9=0 0 0 0 2 2 2 2
+ph31=0 2 3 1 0 2 1 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl18: f1 channel - power level for 3-9-19-pulse (watergate)
+;p0 : f1 channel -  90 degree pulse at pl18
+;                      use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p27: f1 channel -  90 degree pulse at pl18
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;d26 : 1/(4J)YH
+;cnst4: = J(YH)
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(1 * SW(X)) = 2 * DW(X)
+;nd0: 1
+;ns: 8 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: States-TPPI (or TPPI)
+
+
+;use gradient ratio:    gp 1 : gp 2 : gp 3 : gp 4
+;                         24 :  -60 :   40 : 57.6
+
+;for z-only gradients:
+;gpz1: 24%
+;gpz2: -60%
+;gpz3: 40%
+;gpz4: 57.6%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+
+;$Id:$

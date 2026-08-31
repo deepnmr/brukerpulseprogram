@@ -1,0 +1,197 @@
+;idosyhmqc3d
+;avance-version (19/02/11)
+;iDOSY-HMQC 3D
+;3D sequence with
+;   diffusion measurement using spin echo
+;   H-1/X correlation via heteronuclear zero and double quantum
+;   coherence
+;diffusion dimension in F1
+;
+;M. J. Stchedroff, A. M. Kenwright, G. A. Morris, M. Nilsson & R. K. Harris, 
+;   Phys. Chem. Chem. Phys. 6, 3221-3227 (2004)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<gradient> diff=<Difframp>
+
+
+"p2=p1*2"
+"p4=p3*2"
+
+
+"in0=inf2/2"
+
+"d0=3u"
+
+
+"cnst2=1s/(d20)"
+
+
+#   ifdef LABEL_CONV
+"DELTA1=d20/4-p30-d16"
+#   else
+"DELTA1=d20/4-p30/2-d16/2"
+#   endif /*LABEL_CONV*/
+
+
+"DELTA=p2+d0*2"
+"DELTA2=p16*1.5+d16*1.5+d0+p2/2+6u"
+
+
+aqseq 321
+
+
+1 ze 
+  30m pl12:f2
+2 30m do:f2
+  10u BLKGRAD
+  d1 pl2:f2
+
+3 p1 ph1
+  10u UNBLKGRAD
+  p30:gp6*diff									
+  d16
+  DELTA1
+
+#   ifdef LABEL_CONV  
+  p30:gp6*-1*diff
+  d16
+  p30:gp6*-1*diff
+  d16
+#   else
+#   endif /*LABEL_CONV*/
+
+  DELTA1
+
+#   ifdef LABEL_CONV  
+  p30:gp6*diff
+#   else
+  p30:gp6*-1*diff
+#   endif /*LABEL_CONV*/
+
+  d16
+  10u BLKGRAD										
+  DELTA2 											
+  4u
+  (p4 ph5):f2
+  4u
+  DELTA2 				   		
+
+  (p3 ph3):f2									
+  d0
+  (p2 ph2)
+  d0 
+  10u UNBLKGRAD				
+  p16:gp1*EA
+  d16
+  (p4 ph4):f2
+  DELTA
+  p16:gp1*-1*EA
+  d16 
+  10u
+  (p3 ph4):f2
+
+  10u													
+  p16:gp2
+  d16 pl12:f2
+  p30:gp6*diff									
+  d16
+  DELTA1
+
+#   ifdef LABEL_CONV  
+  p30:gp6*-1*diff
+  d16
+  p30:gp6*-1*diff
+  d16
+#   else
+#   endif /*LABEL_CONV*/
+
+  DELTA1
+
+#   ifdef LABEL_CONV  
+  p30:gp6*diff
+#   else
+  p30:gp6*-1*diff
+#   endif /*LABEL_CONV*/
+
+  d16 
+  10u 										
+  go=2 ph31 cpd2:f2 
+  30m do:f2 mc #0 to 2 
+      F1QF(calgrad(diff))
+      F2EA(calgrad(EA), caldel(d0, +in0) & calph(ph3, +180) & calph(ph5, +180) & calph(ph31, +180))
+  4u BLKGRAD
+exit 
+ 
+
+ph1=0
+ph2=0 0 2 2
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=0
+ph31=0 2 0 2 2 0 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p30: gradient pulse (little DELTA)
+;d0 : incremented delay (2D)                           [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;d20: diffusion time (big DELTA)
+;cnst2: = calculated J(XH)
+;inf2: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;nd0: 2
+;ns: 2 * n
+;ds: 16
+;td1: number of experiments
+;td2: number of experiments in F2
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: echo-antiecho in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 80%
+;gpz2: 40.2% for C-13, 31.8% for Si-29, 64.8% for P-31
+;gpz6: 100%
+
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam6: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;LABEL_CONV: for convection compensation start experiment with 
+;            option -DLABEL_CONV (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+;Processing
+
+;use tf3, tf2 and DOSY processing
+
+
+
+;$Id:$

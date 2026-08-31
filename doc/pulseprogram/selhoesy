@@ -1,0 +1,120 @@
+;1H observe 19F-1H HOESY
+;selective version
+;no 19F CPD during 1H observe
+;with purging of initial 1H magnetization
+;180 pulses at the middle of the mixing time serve to minimize any longitudinal proton magnetisation generated through spin relaxation
+;using wavemaker to create the 19F selective pulse
+
+;set zgoptns to -DNON_SELECTIVE if non-selective 19F pulse needs to be applied
+
+;A.L. Thompson, V.Gouverneur & T.D.W. Claridge, Chem. Eur. J., 2012, DOI: 10.1002/chem.201201577
+
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=Selective Experiments
+;$SUBTYPE=1H-19F HOESY
+;$COMMENT=1H observe 19F-1H HOESY, run wvm -q before zg or launch with xaua
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+"p2=p1*2"
+"p4=p3*2"
+"d11=30m"
+"d12=20u"
+"d21=d8*0.5-p16-d16-53u"
+"d22=d8*0.5-p16-d16-d12-p3*2-53u"
+"d11=30m" 
+"d11=30m+1s/(1+cnst52)"
+
+create_shape(sp36, gaus180r, name= gaus180r, bandwidth= $cnst52 Hz)  
+
+1 ze
+2 30m
+  d1 pl2:f2
+  (p3 ph1):f2
+  50u UNBLKGRAD
+  p16:gp1
+  d16
+
+#   ifdef NON_SELECTIVE
+
+   3u 
+   (p4 ph2):f2
+   
+#   else
+
+   3u pl0:f2
+   p36:sp36:f2 ph2:r
+   
+#   endif /*NON_SELECTIVE*/
+
+  3u
+
+  p16:gp1
+  d16 pl2:f2
+  50u BLKGRAD
+  (p3 ph3):f2
+  (p1 ph1):f1
+  50u UNBLKGRAD
+  d21
+  p16:gp2
+  d16
+  3u
+  (p2 ph1):f1
+  (p4 ph1):f2
+  3u
+  p16:gp2*-1
+  d16
+  50u BLKGRAD
+  d22
+  (p3 ph5):f2
+  (p3 ph6):f2
+  (p1 ph4):f1
+
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+ph1=0
+ph2=0 1
+ph3=0 0 2 2 
+ph4=0 
+ph5=0 
+ph6=0 0 0 0 2 2 2 2
+ph10=0
+ph31=0 2 2 0 0 2 2 0 
+
+;plw0=0 watts
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;p1 : f1 channel - 90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel - 90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p36: f1 channel - shaped pulse 180 degree (refocussing)
+;p11: f2 channel - selective 180 degree pulse
+;p16: homospoil/gradient pulse [1 ms]
+;d1 : relaxation delay; 1-5 * T1
+;d8 : mixing time
+;d12: delay for power switching [20 usec]
+;d16: delay for homospoil/gradient recovery
+;SPNAM36: Gaus1_180r.1000
+;sp36: f1 channel - shaped pulse 180 degree (refocussing)
+;cnst52: band-width of the selective 180 refocusing pulse [in Hz]
+;NS: 16 * n
+;DS: 16
+
+;for z-only gradients:
+
+;gpz1: 33%
+;gpz2: 47%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+;$Id: hoesyph,v 1.6 2007/04/11 13:34:30 ber Exp $

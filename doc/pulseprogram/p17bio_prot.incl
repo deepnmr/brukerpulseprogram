@@ -1,0 +1,18 @@
+;p17_prot.incl
+
+; Test the rf on-time for NCO CP (w/H dec)
+; 10ms is maximum
+
+;$COMMENT=Protection against long NCO CP time
+;$CLASS=BioSolids PROT
+
+
+if "p17<10.1m" goto Passp17
+  1m 
+  print "NCO CP time p17 exceeds 10msec limit!"
+  goto HaltAcqu
+Passp17, 1m
+
+
+
+;$Id:$

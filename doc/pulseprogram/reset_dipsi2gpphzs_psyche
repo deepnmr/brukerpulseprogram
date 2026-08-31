@@ -1,0 +1,251 @@
+;reset_dipsi2gpphzs_psyche
+;avance-version (21/09/15)
+;pseudo 3D sequence
+;homonuclear Hartman-Hahn transfer using DIPSI2 sequence
+;   for mixing
+;phase sensitive
+;with zero quantum suppression
+;broadband homodecoupling using psyche element
+;
+;M. Foroozandeh, R.W. Adams, P. Kiraly, M. Nilsson and G.A. Morris,
+;   Chem. Commun. , x-x (2015)
+;M. Foroozandeh, R.W. Adams, M. Nilsson & G.A. Morris,
+;   J. Am. Chem. Soc. 136, 11867-9 (2014)
+;M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+
+
+define delay BETA
+define delay SWi
+define pulse P_in
+
+
+"d12=20u"
+
+
+"in0=dw*l31"
+"in10=inf2"
+
+"d0=3u"
+"d10=in10/2-p1*4/PI"
+
+
+"DELTA2=dw*l31*2"
+"DELTA3=p16+d16+d0*2-p1*2/PI+de+dw*2*l30+4u"
+
+"SWi=1000000/(l31*2*dw)"
+
+"TAU=dw*l31/2"
+
+
+"l29=2*l31*td1"
+
+"cnst62=(cnst61/360)*sqrt((2*cnst60)/(p49/2000000))"
+"P_in = 1000000.0 / (cnst62*4)"
+"BETA = cnst62 / (2.27 * 2) "
+"cnst63= (P_in/p1) * (P_in/p1)"
+"spw37=plw1/cnst63"
+
+
+"FACTOR1=(d9/(p6*115.112))/2"
+"l1=FACTOR1*2"
+
+
+"spoffs29=0"
+
+
+aqseq 312
+
+
+1 ze 
+2 d1 
+3 d12 pl1:f1
+  50u UNBLKGRAD
+
+  (p1 ph1)
+  d10
+  (p1 ph2)
+
+  10u gron10
+  (p32:sp29 ph4):f1
+  20u groff
+  d16 pl10:f1
+
+						;begin DIPSI2
+4 p6*3.556 ph23
+  p6*4.556 ph25
+  p6*3.222 ph23
+  p6*3.167 ph25
+  p6*0.333 ph23
+  p6*2.722 ph25
+  p6*4.167 ph23
+  p6*2.944 ph25
+  p6*4.111 ph23
+  
+  p6*3.556 ph25
+  p6*4.556 ph23
+  p6*3.222 ph25
+  p6*3.167 ph23
+  p6*0.333 ph25
+  p6*2.722 ph23
+  p6*4.167 ph25
+  p6*2.944 ph23
+  p6*4.111 ph25
+
+  p6*3.556 ph25
+  p6*4.556 ph23
+  p6*3.222 ph25
+  p6*3.167 ph23
+  p6*0.333 ph25
+  p6*2.722 ph23
+  p6*4.167 ph25
+  p6*2.944 ph23
+  p6*4.111 ph25
+
+  p6*3.556 ph23
+  p6*4.556 ph25
+  p6*3.222 ph23
+  p6*3.167 ph25
+  p6*0.333 ph23
+  p6*2.722 ph25
+  p6*4.167 ph23
+  p6*2.944 ph25
+  p6*4.111 ph23
+  lo to 4 times l1
+						;end DIPSI2
+
+  p16:gp1
+  d16
+  10u gron10*1.333
+  (p32*0.75:sp29 ph4):f1
+  20u groff
+  d16 pl1:f1
+  (p1 ph3)
+
+  4u
+  (p44:sp30 ph4):f1
+
+  d0
+  p16:gp2*0.5
+  d16
+  TAU
+
+  (p44:sp30 ph5):f1
+
+  TAU
+  p16:gp2*-0.5
+  d16
+  DELTA3
+  (p49:sp37 ph4):f1 (p49:gp0)
+  4u
+  p16:gp2*-1.0
+  d16
+  d0
+ 
+  4u BLKGRAD
+  go=2 ph31
+  d1 mc #0 to 2 
+     F1QF(caldel(d0, +in0))
+     F2PH(calph(ph1, +90), caldel(d10, +in10))
+
+ DELTA2
+exit 
+  
+
+ph1=0 2
+ph2=0 0 0 0 2 2 2 2
+ph3=0 0 2 2 
+ph4=0
+ph5=0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+ph23=3
+ph25=1
+ph31=0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;sp29: f1 channel - shaped pulse (adiabatic)
+;sp30: f1 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;sp37: f1 channel - shaped pulse 180 degree for psyche element (Crp_psyche.20)
+;spnam37: Crp_psyche.20
+;p1 : f1 channel -  90 degree high power pulse
+;p6 : f1 channel -  90 degree low power pulse
+;p16: homospoil/gradient pulse                                 [1 msec]
+;p32: f1 channel - 180 degree shaped pulse (adiabatic)         [20 msec]
+;     smoothed chirp (sweepwidth, 20% smoothing, 10000 points)
+;p44: f1 channel - 180 degree shaped pulse for refocussing
+;                      Bip720,50,20.1            (200us at 600.13 MHz)
+;p49: f1 channel - 180 degree shaped pulse for psyche element  [30 msec]
+;                      Crp_psyche.20
+;d0 : incremented delay (F1 in 3D)                             [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d9 : TOCSY mixing time
+;d10 : incremented delay (F2 in 3D) = in10/2-p1*4/PI
+;d12: delay for power switching                                [20 usec]
+;d16: delay for homospoil/gradient recovery
+;cnst60: sweepwidth of single chirp element in Crp_psyche.20   [10000 Hz]
+;cnst61: desired flip angle (ca. 20 degree)
+;cnst62: gammaB1/2PI value for p49:sp37 (in Hz)
+;cnst63: scaling factor for power (sp37)
+;l1: loop for DIPSI cycle: ((p6*115.112) * l1) = mixing time
+;l29: total number of points in reconstructed FID
+;l30: number of complex points at the beginning not to be included
+;        in reconstruction
+;l31: number of complex points along the acquisition dimension per block
+;        block length (DELTA2) about 8 to 10ms (kappa)
+;BETA: flip angle (ca. 20 degree)
+;SWi: sweep width in the pseudo dimension
+;        should be 2 to 3 times the width of the widest multiplett
+;inf2: 1/SW = 2 * DW
+;in0: = dw*l31
+;in10: 1/(1 * SW) = 2 * DW
+;nd10: 1
+;ns: 8 * n
+;ds: 16
+;td2: number of experiments in F2
+;FnMODE: QF in F1
+;FnMODE: States-TPPI, TPPI, States or QSEQ in F2
+
+
+;for z-only gradients:
+;gpz0: 2%
+;gpz1: 31%
+;gpz2: 23%
+;gpz10: ca. 11%
+
+;use gradient files:
+;gpnam0: RECT.1
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+
+;for sweepwidth of adiabatic shape and adjusting gpz0
+;   see supplementary material of M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+
+
+
+;use AU-program proc_reset to process data
+
+
+;Processing
+
+;PHC0(F2): 90
+;PHC1(F2): -180
+;FCOR(F2): 1
+
+
+
+;$Id: $

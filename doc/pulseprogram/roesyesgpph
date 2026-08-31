@@ -1,0 +1,133 @@
+;roesyesgpph
+;avance-version (12/01/11)
+;2D ROESY with cw spinlock for mixing
+;phase sensitive
+;water suppression using excitation sculpting with gradients
+;
+;A. Bax & D.G. Davis, J. Magn. Reson 63, 207-213 (1985)
+;T.-L. Hwang & A.J. Shaka, J. Magn. Reson.,
+;   Series A 112 275-279 (1995)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<default>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d12=20u"
+
+
+"in0=inf1"
+
+"d0=in0/2-p1*2/3.1416-4u"
+
+
+"TAU=de+p1*2/3.1416+54u"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+2 d1
+3 d12 pl1:f1
+  p1 ph1
+  d0 
+  4u pl11:f1
+  p15 ph2
+
+  50u UNBLKGRAD
+  p16:gp1
+  d16 pl0:f1
+  (p40:sp10 ph3:r):f1
+  4u
+  d12 pl1:f1
+
+  p2 ph4
+
+  4u
+  p16:gp1
+  d16
+  TAU
+  p16:gp2
+  d16 pl0:f1
+  (p40:sp10 ph5:r):f1
+  4u
+  d12 pl1:f1
+
+  p2 ph6
+
+  4u
+  p16:gp2
+  d16
+  4u BLKGRAD
+
+  go=2 ph31
+  d1 mc #0 to 2 F1PH(calph(ph1, +90), caldel(d0, +in0))
+exit
+
+
+ph1=0 2
+ph2=0
+ph3=0 0 1 1
+ph4=2 2 3 3
+ph5=0 0 0 0 1 1 1 1
+ph6=2 2 2 2 3 3 3 3
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl11: f1 channel - power level for ROESY-spinlock
+;sp10: f1 channel - shaped pulse 180 degree
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p15: f1 channel - pulse for ROESY spinlock
+;p16: homospoil/gradient pulse
+;p40: f1 channel - 180 degree shaped pulse (Squa100.1000)   [2 msec]
+;d0 : incremented delay (2D)
+;d1 : relaxation delay; 1-5 * T1
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns: 8 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+
+
+;use gradient ratio:	gp 1 : gp 2
+; 		          31 :   11
+
+;for z-only gradients:
+;gpz1: 31%
+;gpz2: 11%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+
+;Processing
+
+;PHC0(F1): 180
+;PHC1(F1): -180
+;FCOR(F1): 1
+
+
+
+;$Id:$

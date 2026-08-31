@@ -1,0 +1,97 @@
+;Daz.incl
+;
+;Dante-Z
+;version  00/02/07
+;
+;$CLASS=HighRes Incl
+;$COMMENT=
+
+
+define delay DZ_TAU
+define delay DZ_TAU2
+define delay DZ_TAU3
+define delay DZ_DELT			; 1/Bandwidth (cnst8)
+
+define pulse DZ_THET
+define pulse DZ_THE2
+define pulse DZ_THE3
+define pulse DZ_180
+define pulse DZ_180a
+define pulse DZ_180b
+define pulse DZ_180c
+
+define loopcounter DZ_LC1
+define loopcounter DZ_LC2
+define loopcounter DZ_LC3
+define loopcounter DZ_LC4
+define loopcounter DZ_LC5
+
+define pulse P_TOTAL
+
+
+"DZ_THET=10u"
+"DZ_THE2=10u*0.5"
+"DZ_THE3=10u*0.25"
+
+"DZ_DELT=1s/cnst8"
+
+"DZ_LC1=DZ_DELT/(dw)"
+"DZ_LC2=(DZ_DELT/(dw))/3"
+"DZ_LC3=(DZ_DELT/(dw))*2/3"
+"DZ_LC4=(DZ_DELT/(dw))*2/9"
+"DZ_LC5=(DZ_DELT/(dw))*6/9"
+
+"DZ_TAU=dw*0.5"
+"DZ_TAU2=dw*0.5*(DZ_LC1/(DZ_LC2*2+DZ_LC3))"
+"DZ_TAU3=dw*0.5*(DZ_LC1/(DZ_LC4*4+DZ_LC5))"
+
+"DZ_180=DZ_THET*DZ_LC1*2"
+"DZ_180a=DZ_THET*DZ_LC1*2"
+"DZ_180b=DZ_THET*DZ_LC2*2+DZ_THET*DZ_LC3*2" 	
+				;=DZ_THE2*DZ_LC2*4+DZ_THET*DZ_LC3*2
+"DZ_180c=DZ_THET*DZ_LC4+DZ_THET*DZ_LC4*2+DZ_THET*DZ_LC5*2"
+				;=DZ_THE3*DZ_LC4*4+DZ_THE2*DZ_LC4*4+DZ_THET*DZ_LC5*2
+
+
+
+
+
+#define DAZ11(phase1,phase2)                    \n\
+        1001 (DZ_TAU) (DZ_THET phase1):f1     \n\
+             (DZ_TAU) (DZ_THET phase2):f1     \n\
+             lo to 1001 times DZ_LC1            
+
+
+;#define DAZ363(phase1,phase2)                  \n\
+;        1011 (DZ_TAU2) (DZ_THE2 phase1):f1     \n\
+;             (DZ_TAU2) (DZ_THE2 phase2):f1     \n\
+;             lo to 1011 times DZ_LC2           \n\ 
+;        1012 (DZ_TAU2) (DZ_THET phase1):f1     \n\
+;             (DZ_TAU2) (DZ_THET phase2):f1     \n\
+;             lo to 1012 times DZ_LC3           \n\ 
+;        1013 (DZ_TAU2) (DZ_THE2 phase1):f1     \n\
+;             (DZ_TAU2) (DZ_THE2 phase2):f1     \n\
+;             lo to 1013 times DZ_LC2            
+
+
+;#define DAZ22622(phase1,phase2)                \n\
+;        1021 (DZ_TAU3) (DZ_THE3 phase1):f1     \n\
+;             (DZ_TAU3) (DZ_THE3 phase2):f1     \n\
+;             lo to 1021 times DZ_LC4           \n\ 
+;        1022 (DZ_TAU3) (DZ_THE2 phase1):f1     \n\
+;             (DZ_TAU3) (DZ_THE2 phase2):f1     \n\
+;             lo to 1022 times DZ_LC4           \n\ 
+;        1023 (DZ_TAU3) (DZ_THET phase1):f1     \n\
+;             (DZ_TAU3) (DZ_THET phase2):f1     \n\
+;             lo to 1023 times DZ_LC5           \n\ 
+;        1024 (DZ_TAU3) (DZ_THE2 phase1):f1     \n\
+;             (DZ_TAU3) (DZ_THE2 phase2):f1     \n\
+;             lo to 1024 times DZ_LC4           \n\ 
+;        1025 (DZ_TAU3) (DZ_THE3 phase1):f1     \n\
+;             (DZ_TAU3) (DZ_THE3 phase2):f1     \n\
+;             lo to 1025 times DZ_LC4            
+;
+
+
+
+;$Id:$

@@ -1,0 +1,69 @@
+;cosyppqf
+;avance-version (12/01/11)
+;2D homonuclear shift correlation
+;using purge pulses before d1
+;
+;W.P. Aue, E. Bartholdi, R.R. Ernst, J. Chem. Phys. 64, 2229 (1976)
+;K. Nagayama et al., J. Magn. Reson. 40, 321 (1980)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"d11=30m"
+"d12=20u"
+
+
+"in0=inf1"
+
+"d0=3u"
+
+
+1 ze
+2 d11
+
+3 d12 pl10:f1
+  p17 ph3
+  p17*2 ph4
+  d1 pl1:f1
+
+  p1 ph1
+  d0
+  p0 ph2
+  go=2 ph31
+  d11 mc #0 to 2 F1QF(caldel(d0, +in0))
+exit
+
+
+ph1=0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph2=0 1 2 3
+ph3=0
+ph4=1
+ph31=0 2 0 2 3 1 3 1 2 0 2 0 1 3 1 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;p0 : f1 channel -  20 to 90 degree high power pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p17: f1 channel - trim pulse                             [2.5 msec]
+;d0 : incremented delay (2D)                              [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d12: delay for power switching                           [20 usec]
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns: 4 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: QF
+
+
+
+;$Id:$

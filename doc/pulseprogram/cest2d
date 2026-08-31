@@ -1,0 +1,151 @@
+;cest2d
+;avance-version (24/11/28)
+;  
+; for measuring CEST
+; with optional suppression of ringing artifacts
+; interleaved recording of FIDs
+; as pseudo2D
+;
+; Set ns to 8. Total number of scans is set by l1 (= l1 * ns).
+; Offsets for saturation are given by fqlist. An additional reference 
+; experiment (no saturation) is performed first. Consequently, set td1 to 
+; the number of offsets in fqlist + 1. The B1 field for saturation in Hz
+; is set by cnst9. Saturation power is calculated internally based on p1/plw1.
+; Alternatively use ZGOPTNS PL_MANUAL to set the saturation power manually.
+; Use ZGOPTNS ARING to include anti ringing.
+
+; for 19F CEST use parameterset (19FCEST2D)
+
+
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+
+define list<frequency> CEST_offset=<$FQ1LIST> 
+
+"l11=0"
+"l2=ns*l1"
+"l3=td1"
+
+"d11=30m"
+"d50=l2*1u"
+
+#ifndef PL_MANUAL 
+"p25 = 1000000.0/(4.0*cnst9)" 
+"plw19 = plw1 * pow((p1/p25),2)"
+#endif
+
+"acqt0=-2*p1/PI"
+
+"nbl=td1"
+
+1 ze
+
+  if "td1 != CEST_offset.len+1" 
+     {
+     2u
+     print "Warning: td1 is not equal to the number of CEST offsets in the frequency list + 1"
+     }
+
+  30m pl1:f1
+2 6m 
+3 3m
+  d11
+4 3m
+
+  if "l11 > 0"
+  {
+  "CEST_offset.idx=(l11-1)"
+   d1
+   4u pl19:f1 fq=CEST_offset:f1 
+   d21 cpds8:f1 
+   4u do:f1 UNBLKGRAD
+   4u pl1:f1  fq=0:f1 
+  }
+  else
+  {
+  d1
+  d21
+  12u UNBLKGRAD
+  }
+
+ p16:gp1
+ d16 
+ 4u BLKGRAD
+
+#ifdef ARING 
+  p1 ph1
+  p1 ph2
+#endif
+
+  p1 ph3
+
+; start of acquisition
+  goscnp ph31
+  3m iu11
+  3m st
+  lo to 2 times nbl
+  3m ipp1 ipp2 ipp3 ipp31
+  "l11=0"
+  3m
+  lo to 3 times ns 
+  d11 wr #0
+  3m  zd
+  lo to 4 times l1
+  d50
+exit
+
+ph1= 0 2
+ph2= 0 0 2 2
+
+#ifdef ARING 
+ph3= 0 0 0 0 2 2 2 2
+ph31=0 2 2 0 2 0 0 2
+#else
+ph3= 0 1 2 3
+ph31=0 1 2 3
+#endif
+
+
+;plw1 : f1 channel - power level for pulse (default)
+;plw19: power for CEST saturation (set by cnst9)
+;p1 : f1 channel - 90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse   [1 msec]
+;cpdprg8: cwp
+
+;l1: l1 * ns = total number of scans (see l2)
+;l2: = total number of scans
+;l11: loop counter for CEST frequency
+
+;cnst9: CEST cw frequency (Hz)
+
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O [30 msec]
+;d21: CEST saturation delay
+
+;ns: 8 (final ns = l2 * 8)
+;ds: 2 (total ds = td1 *ds)
+
+;FnMODE: QF(no freq) in F1
+
+;for z-only gradients:
+;gpz1: 20%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+
+                                          ;preprocessor-flags-start
+;PL_MANUAL: allows to set 19F powerlevel for saturaion manually instead of calculating it from p1/plw1
+;             option -DPL_MANUAL (eda: ZGOPTNS)
+;ARING: to include anti ringing element
+;             option -DARING (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+;$Id:$

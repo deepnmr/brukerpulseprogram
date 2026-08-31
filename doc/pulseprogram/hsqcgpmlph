@@ -1,0 +1,190 @@
+;hsqcgpmlph
+;avance-version (20/03/03)
+;HSQC-TOCSY
+;2D H-1/X correlation via double inept transfer using MLEV17 
+;   for homonuclear Hartman-Hahn mixing
+;phase sensitive
+;with decoupling during acquisition
+;with compensation of initial X chemical shift evolution
+;using trim pulses in inept transfer
+;peak type selection using gradient pulses with coherence selection 
+;   step after t1
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"p5=p6*.667"
+"p7=p6*2"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+
+"DELTA=p16+d16"
+"DELTA1=d0*2+p2"
+
+"SCALEF=p7*2/p5"
+"FACTOR1=((d9-p17*2)/(p6*64+p5))/SCALEF"
+"l1=FACTOR1*SCALEF"
+
+
+1 ze 
+  d11 pl12:f2
+2 d1 do:f2
+3 d11 pl1:f1
+  (p1 ph1)
+  d4 pl2:f2
+  (center (p2 ph2) (p4 ph6):f2 )
+  d4
+
+#   ifdef TRIMP
+  p28 ph1
+#   endif /* TRIMP */
+
+  (p1 ph3) (p3 ph7):f2
+  DELTA UNBLKGRAD
+  (p4 ph8):f2
+  p16:gp1
+  d16
+  (p3 ph9):f2
+  p16:gp2
+  d16
+  (p3 ph10):f2
+  d0
+  (p2 ph4)
+  d0
+  (p4 ph11):f2
+  DELTA1
+  (p3 ph11):f2
+  (p1 ph14) 
+  4u
+
+#   ifdef TRIMP
+  p28 ph15
+#   endif /* TRIMP */
+
+  d4
+  (center (p2 ph15) (p4 ph12):f2 )
+  d4 pl10:f1 pl12:f2
+  (p17 ph26)
+						;begin MLEV17
+4 (p6 ph22 p7 ph23 p6 ph22)
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p5 ph23)
+  lo to 4 times l1
+						;end MLEV17
+  (p17 ph26)
+  DELTA pl1:f1
+  (p2 ph2)
+  4u
+  p16:gp3
+  d16
+  4u BLKGRAD
+  go=2 ph31 cpd2:f2 
+  d1 do:f2 mc #0 to 2 F1PH(calph(ph10, +90) & calph(ph13, +90), caldel(d0, +in0))
+exit 
+  
+
+ph1=0
+ph2=0
+ph3=1
+ph4=0 0 2 2
+ph5=0
+ph6=0
+ph7=1 3
+ph8=0
+ph9=3
+ph10=0
+ph11=0 0 0 0 2 2 2 2
+ph12=0
+ph14=1
+ph15=0
+ph22=0 
+ph23=1 
+ph24=2 
+ph25=3 
+ph26=1 
+ph31=0 2 0 2 2 0 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;pl12: f2 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p5 : f1 channel -  60 degree low power pulse
+;p6 : f1 channel -  90 degree low power pulse
+;p7 : f1 channel - 180 degree low power pulse
+;p16: homospoil/gradient pulse
+;p17: f1 channel - trim pulse in spinlock part            [2.5 msec]
+;p28: f1 channel - trim pulse in inept transfer           [1 msec]
+;d0 : incremented delay (2D)                  [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J)XH
+;d9 : TOCSY mixing time
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(XH)
+;l1: loop for MLEV cycle: (((p6*64) + p5 ) * l1) + (p17*2) = mixing time
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;nd0: 2
+;ns: 4 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 80%
+;gpz2: 30%
+;gpz3: 20.1% for C-13, 8.1% for N-15
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;TRIMP: to use trimpulse p28@pl1 start experiment with
+;          option -DTRIMP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id:$

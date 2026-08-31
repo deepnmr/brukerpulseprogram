@@ -1,0 +1,179 @@
+;selgp_clco
+;avance-version (21/09/15)
+;1D homonuclear Clean In-phase COSY (CLIP-COSY)
+;   using selective refocussing with a shaped pulse
+;with zero quantum suppression
+;
+;(M.R.M. Koos, G. Kummerloewe, L. Kaltschnee, C.M. Thiele & B. Luy,
+;   Angew. Chem. Int. Ed. 55, 7655-7659 (2016) )
+;H. Kessler, H. Oschkinat, C. Griesinger & W. Bermel,
+;   J. Magn. Reson. 70, 106 (1986)
+;J. Stonehouse, P. Adell, J. Keeler & A.J. Shaka, J. Am. Chem. Soc 116,
+;   6037 (1994)
+;K. Stott, J. Stonehouse, J. Keeler, T.L. Hwang & A.J. Shaka,
+;   J. Am. Chem. Soc 117, 4199-4200 (1995)
+;M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d4=1s/(cnst1*4)"
+
+
+"l0=l8+1"
+
+
+"spoffs29=0"
+"spoffs30=0"
+
+
+#   ifdef CALC_SPOFFS
+"spoffs2=bf1*(cnst21/1000000)-o1"
+#   else
+#   endif /*CALC_SPOFFS*/
+
+
+"acqt0=-p1*2/PI"
+
+
+1 ze
+2 30m
+  
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u  
+#   endif /*FLAG_BLK*/
+
+  d1 pl1:f1
+  50u UNBLKGRAD
+
+  (p1 ph1):f1
+  3u
+  p16:gp1
+  d16
+  p12:sp2:f1 ph2:r
+  3u
+  p16:gp1
+  d16 pl1:f1
+
+  p1 ph3
+  10u gron0
+  (p32:sp29 ph3):f1
+  20u groff
+  d16 pl1:f1
+
+  p1 ph4 
+4 d4
+  p2 ph5 
+  d4  
+  p1 ph5 
+  d4  
+  p2 ph6 
+  d4  
+  lo to 4 times l0
+  p1 ph7
+
+  p16:gp2
+  d16
+  10u gron0*1.333
+  (p32*0.75:sp29 ph3):f1
+  20u groff
+
+  d16 pl1:f1
+
+#   ifdef FLAG_BLK
+  4u  
+#   else
+  4u BLKGRAD
+#   endif /*FLAG_BLK*/
+
+  p1 ph3
+  
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u  
+#   endif /*FLAG_BLK*/
+
+  20u BLKGRAD
+exit
+
+
+ph1=0 2 
+ph2=0 0 1 1 2 2 3 3
+ph3=0
+ph4=0
+ph5=1
+ph6=3
+ph7=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph31=0 2 2 0 0 2 2 0 2 0 0 2 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp2: f1 channel - shaped pulse
+;sp29: f1 channel - shaped pulse (adiabatic)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p12: f1 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                       [1 msec]
+;p32: f1 channel - 180 degree shaped pulse (adiabatic)    [20 msec]
+;     smoothed chirp (sweepwidth, 20% smoothing, 10000 points)
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(HH))
+;d16: delay for homospoil/gradient recovery
+;cnst1: > J(HH)                                        [30 Hz]
+;cnst21: chemical shift for selective pulse (offset, in ppm)
+;l8: number of relay steps
+;ns: 8 * n, total number of scans: NS * TD0
+;ds: 4
+
+
+;phcor 2 : phasedifference between power levels sp1 and pl1
+
+;choose p12 according to desired selectivity
+;the flip-angle is determined by the amplitude
+;set O1 on resonance on the multiplet to be excited or use spoffs
+
+
+;for z-only gradients:
+;gpz0: ca. 11%
+;gpz1: 15%
+;gpz2: 31%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+
+;for sweepwidth of adiabatic shape and adjusting gpz0
+;   see supplementary material of M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+
+
+
+                                          ;preprocessor-flags-start
+;CALC_SPOFFS: automatically calcuate spoffs for selective pulses
+;             start experiment with option -DCALC_SPOFFS (eda: ZGOPTNS)
+;FLAG_BLK: for BLKGRAD before d1 rather than go
+;             option -DFLAG_BLK: (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: $

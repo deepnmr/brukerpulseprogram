@@ -1,0 +1,309 @@
+;na_ghcchfwdigp3d 
+;avance-version (19/02/08)
+;forward directed quantitative gamma HCCH-TOCSY
+;3D sequence with
+;   inverse correlation for triple resonance using multiple
+;      inept transfer steps
+;      CC-TOCSY using DIPSI3
+;
+;      F1(H,t1) -> F2(C) -> F2(C,t2) -> F1(H,t3)
+;
+;phase sensitive (t1)
+;phase sensitive (t2)
+;using constant time in t2
+;with decoupling during acquisition
+;(use parameterset NA_GHCCHFWDIGP3D)
+;
+;I.C. Felli, C. Richter, C. Griesinger & H. Schwalbe,
+;   J. Am. Chem. Soc. 121, 1956 - 1957 (1999)
+;C. Richter, C. Griesinger, I.C. Felli, P.T. Cole, G. Varani &
+;   H.Schwalbe, J. Bimol. NMR 15, 241 - 250 (1999)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"p22=p21*2"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+"d12=20u"
+"d13=4u"
+"d23=1s/(cnst3*8)"
+
+
+"p16=1m"
+"p19=5m"
+"p29=4.4m"
+
+
+"d0=3u"
+"d10=d4"
+"d30=d22/2"
+
+"in0=inf1/2"
+"in10=inf2/2"
+
+"in30=in10"
+
+"td2=tdmax(td2,d30*2,in30)"
+
+
+"DELTA=d4-d0*2-p22-p4"
+"DELTA1=d22/2"
+"DELTA2=d25/4+d27/4"
+"DELTA3=d25/4-d27/4-p16-d16"
+"DELTA4=d25/4+d27/4-p16-d16"
+"DELTA5=d25/4-d27/4"
+"DELTA6=d4-p16-d16"
+"DELTA7=d4-p16-d16-4u"
+
+
+aqseq 321
+
+
+1 ze 
+  d11 pl12:f2 pl16:f3
+2 d11 do:f2 do:f3
+3 d1 pl2:f2 pl3:f3
+  (p1 ph3)
+  d0
+  (p22 ph1):f3
+  DELTA  
+  (p4 ph1):f2
+  d0  
+  (p2 ph1) 
+  d4 
+  (p1 ph2) (p3 ph4):f2
+  d4 UNBLKGRAD
+  (center (p2 ph1) (p4 ph1):f2 )
+  d4 pl15:f2
+
+  (p20 ph10):f2
+						;begin DIPSI3
+9 (p9*2.722 ph10):f2
+  (p9*4.389 ph12):f2
+  (p9*2.778 ph10):f2
+  (p9*3.056 ph12):f2
+  (p9*0.333 ph10):f2
+  (p9*2.556 ph12):f2
+  (p9*4.000 ph10):f2
+  (p9*2.722 ph12):f2
+  (p9*4.111 ph10):f2
+  (p9*3.778 ph12):f2
+  (p9*3.889 ph10):f2
+  (p9*2.889 ph12):f2
+  (p9*3.000 ph10):f2
+  (p9*0.333 ph12):f2
+  (p9*2.500 ph10):f2
+  (p9*4.050 ph12):f2
+  (p9*2.830 ph10):f2
+  (p9*4.389 ph12):f2
+  (p9*2.722 ph12):f2
+  (p9*4.389 ph10):f2
+  (p9*2.778 ph12):f2
+  (p9*3.056 ph10):f2
+  (p9*0.333 ph12):f2
+  (p9*2.556 ph10):f2
+  (p9*4.000 ph12):f2
+  (p9*2.722 ph10):f2
+  (p9*4.111 ph12):f2
+  (p9*3.778 ph10):f2
+  (p9*3.889 ph12):f2
+  (p9*2.889 ph10):f2
+  (p9*3.000 ph12):f2
+  (p9*0.333 ph10):f2
+  (p9*2.500 ph12):f2
+  (p9*4.050 ph10):f2
+  (p9*2.830 ph12):f2
+  (p9*4.389 ph10):f2
+  (p9*2.722 ph12):f2
+  (p9*4.389 ph10):f2
+  (p9*2.778 ph12):f2
+  (p9*3.056 ph10):f2
+  (p9*0.333 ph12):f2
+  (p9*2.556 ph10):f2
+  (p9*4.000 ph12):f2
+  (p9*2.722 ph10):f2
+  (p9*4.111 ph12):f2
+  (p9*3.778 ph10):f2
+  (p9*3.889 ph12):f2
+  (p9*2.889 ph10):f2
+  (p9*3.000 ph12):f2
+  (p9*0.333 ph10):f2
+  (p9*2.500 ph12):f2
+  (p9*4.050 ph10):f2
+  (p9*2.830 ph12):f2
+  (p9*4.389 ph10):f2
+  (p9*2.722 ph10):f2
+  (p9*4.389 ph12):f2
+  (p9*2.778 ph10):f2
+  (p9*3.056 ph12):f2
+  (p9*0.333 ph10):f2
+  (p9*2.556 ph12):f2
+  (p9*4.000 ph10):f2
+  (p9*2.722 ph12):f2
+  (p9*4.111 ph10):f2
+  (p9*3.778 ph12):f2
+  (p9*3.889 ph10):f2
+  (p9*2.889 ph12):f2
+  (p9*3.000 ph10):f2
+  (p9*0.333 ph12):f2
+  (p9*2.500 ph10):f2
+  (p9*4.050 ph12):f2
+  (p9*2.830 ph10):f2
+  (p9*4.389 ph12):f2
+  lo to 9 times l1
+						;end DIPSI3
+  d12 pl10:f1
+  (p9 ph2):f2
+
+  (p17 ph1)
+  (p17*2 ph2)
+  4u
+  p19:gp1
+  d16 pl1:f1
+  (p1 ph1)
+  d13
+  p29:gp1
+  d16 pl2:f2
+
+  (p3 ph2):f2
+  (DELTA1) (d10 p2 ph1) (d10 p22 ph1):f3
+  (p4 ph5):f2 
+  d30
+  (p3 ph6):f2
+
+  DELTA2
+  (p2 ph1)
+  DELTA3
+  p16:gp2          
+  d16
+  (p4 ph7):f2
+  DELTA4
+  p16:gp2          
+  d16
+  (p2 ph1)
+  DELTA5
+  (p3 ph8):f2
+  
+  d23    
+  (p4 ph7):f2
+  d23    
+  (ralign (p1 ph2) (p3 ph9):f2 )
+  DELTA6
+  p16:gp3     
+  d16
+  (center (p2 ph2) (p4 ph2):f2 )
+  DELTA7
+  p16:gp3         
+  d16 pl12:f2 pl16:f3
+  4u BLKGRAD
+  go=2 ph31 cpd2:f2 cpd3:f3
+  d11 do:f2 do:f3 mc #0 to 2
+     F1PH(calph(ph3, +90), caldel(d0, +in0))
+     F2PH(calph(ph5, +90) & calph(ph6, +90) & calph(ph7, +90) & calph(ph8, +90) & calph(ph9, +90), caldel(d10, +in10) & caldel(d30, -in30))
+exit
+  
+
+ph1 = 0
+ph2 = 1
+ph3 = 0 0 2 2
+ph4 = 0 2 
+ph5 = 0
+ph6 = 0
+ph7 = 0
+ph8 = 0
+ph9 = 0
+ph10= 0
+ph12= 2
+ph31= 0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock (trim pulse)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl15: f2 channel - power level for TOCSY-spinlock
+;pl16: f3 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p9 : f2 channel -  90 degree low power pulse
+;p16: homospoil/gradient pulse 1 			[1 ms]
+;p17: f1 channel - trim pulse                           [2.5 ms]
+;p19: gradient pulse 2                                  [5 ms]
+;p20: f2 channel - trim pulse                           [2 ms]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p29: gradient pulse 3                                  [4.4 ms]
+;d0 : incremented delay (F1 in 3D)			[3 us]
+;d1 : relaxation delay; 1-5 * T1		
+;d4 : 1/(4J(HC))					[1.6 ms]
+;d10: incremented delay (F2 in 3D) = d4
+;d11: delay for disk I/O                               	[30 ms]
+;d12: delay for power switching                        	[20 us] 
+;d13: short delay                                      	[4 us]
+;d16: delay for homospoil/gradient recovery
+;d22: constant time delay for directed transfer
+;        C1'-C4'                                   [8.3 ms]
+;        C1'-C5'                                   [7.6 ms]
+;d23: 1/(8J(CC))                                        [3.1 ms]
+;d25: mixing time for developement of 
+;        cross correlated relaxation 			[25 ms]
+;d27: reference exepriment: 1/(2J(HC))		        [3.1 ms]	
+;     cross peak experiment:				[0 us]
+;d30: decremented delay (F2 in 3D) = d22/2
+;cnst2: = J(HC)
+;cnst3: = J(CC)
+;l1: loop for DIPSI cycle:
+;       mixing time = ((p9*54.33*4) * l1) + (p20)
+;       for the directed transfer:
+;          C1'-C4'                                 [9.2 ms]
+;          C1'-C5'                                 [13.5 ms]
+;inf1: 1/SW(H) = 2 * DW(H)
+;inf2: 1/SW(C) = 2 * DW(C)
+;in0: 1/(2 * SW(H)) =  DW(H)
+;nd0: 2
+;in10: 1/(2 * SW(C)) = DW(C)
+;nd10: 2
+;in30: = in10
+;ns: 4 * n
+;ds: >= 32 
+;td1: number of experiments in F1
+;td2: number of experiments in F2       td2 max = 2 * d30 / in30  
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:  	gp 1 : gp 2 : gp 3 
+;			  60 :   25 :   20  
+
+;for z-only gradients:
+;gpz1: 60%
+;gpz2: 20%
+;gpz3: 25%
+
+;use gradient files:
+;gpname1: SMSQ10.100
+;gpname2: SMSQ10.100
+;gpname3: SMSQ10.100
+
+
+
+;$Id:$

@@ -1,0 +1,11 @@
+;$CLASS=Solids INCL
+;$COMMENT=calculation of LG parameters for LG-contact
+
+
+"cnst21=0"			;make sure cp ist done with proton freq.
+				;set by O2
+"cnst19=cnst17/sqrt(2)"		;cnst20=desired RF field in Hz
+"cnst18=-cnst17/sqrt(2)"	;negative offset is cnst23
+"cnst16=sqrt(cnst17*cnst17+cnst19*cnst19)"
+
+;$Id:$

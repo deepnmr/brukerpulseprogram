@@ -1,0 +1,233 @@
+;wpmlgd2dqsq
+;avance-version (21/02/18)
+; DQ-SQ correlation using PostC7, wPMLG homonuclear decoupling during t1 and t2,
+;    digital acquisition for t2, 
+; time reversal (z-rotation) for center spike suppression
+; windowed PMLG (5 step phase ramp) during t1 and t2 
+; digital data sampling, time reversal during PMLG in t1 and t2
+;written by GALT 2018/01/24
+
+;setup: 
+;set: p1 to 1.4-2.2 usec depending on probe arcing limit
+;set: p9 to 2.5-4.5 usec, depending on probe deadtime, usually:
+;	- for 200 and 300 MHz, CRAMPS probe required or use 4.5 usec
+;	- for 400, 500 MHz CP probes use 3-3.5  usec, 2.5-3 usec with CRAMPS probes
+; - for 600 MHZ or higher CP probes use 2.5-3 usec
+
+
+;chemical shift scaling:
+;F2:
+;use dw corresponding to 20 kHz to 50 kHz (typically) for measurement
+;before xf2 change status dw to dw*(scale factor)
+;for approximately true scaling set 1s dw=scaleddw as shown in ased, this value is calculated using a typical scale factor of 0.47
+;for precise true scaling set 1s dw=dw*(experimental scale factor)
+;
+;F1:
+;inf=realdwell1 is set for measurement
+;before xf1 change status inf to inf*(scale factor)
+;for approximately true scaling set 1s inf=scaleddwell1 as shown in ased, this value is calculated using a typical scale factor of 0.47
+;for precise true scaling set 1s inf=inf*(experimental scale factor)
+;
+;usually: scale factor F2 = scale factor F1
+
+;parameters:
+;swh : typically 20 kHz to 50 kHz
+;d1 : recycle delay
+;d3 : =p9, set automatically
+;d5 : z-filter delay, typically 20 us to 100 us
+;p1 : initial 90 degree pulse
+;p9 : half of total interpulse window, entered as a pulse to have it in us by default
+;pl1 : =0, not used
+;pl7 : f1 power level for PostC7
+;pl12 : f1 power level for 90 degree pulse
+;pl13 : f1 power level for PMLG
+;cnst20 : on resonance RF field strength in Hz at pl13
+;cnst28 : spinning speed for rotor period = 1.75 x cycle time
+;cnst29 : spinning speed for rotor period = 2.75 x cycle time
+;cnst31 : MAS spin rate in Hz
+;l1 : number of PostC7 blocks (i. e. 720 deg pulse, 2/7 rotor periods)
+;l3 : for increment in F1, usually l3=1,2 
+;o1 : f1 observe and pulse offset, optimize for resolution
+;digmod : digital
+;FnMode : undefined
+;zgoptns : -Drun_as_1D for setup, blank for 2D
+;mc2 : States-TPPI
+;$OWNER=Bruker
+
+;$COMMENT=homonuclear decoupling with w-pmlg
+;$CLASS=Solids
+;$DIM=2D
+;$TYPE=homonuclear decoupling
+;$SUBTYPE=homonuclear correlation
+
+			
+
+#include <Avance.incl>
+#include<De.incl>
+#include<Delayssolids.incl>
+#include<lgcalc.incl>
+
+
+
+"spw1=plw13"							;set PMLG power level
+"d8=2*p9"									;set wPMLG interpulse window
+
+define delay dead
+"dead=1.1u"
+define delay switch
+"switch=0.1u"
+define delay preacqu
+"preacqu=1.5u"
+define delay postacqu
+"postacqu=1.0u"
+define delay acqu
+"acqu=d8-dead-preacqu-switch-postacqu"
+define pulse wpmlg
+"wpmlg=2*p5"
+define delay cycle
+"cycle=d8+wpmlg"
+define loopcounter ncycles
+"ncycles=aq/cycle-1"
+define delay totaltime
+"totaltime=(ncycles+1)*cycle"
+define delay rest
+
+define delay scaleddw
+"scaleddw=dw*0.47"											;a chemical shift scaling factor or 0.47 is assumed here
+define delay realdw1
+"realdw1=cycle"
+define delay scaleddw1
+"scaleddw1=realdw1*0.47"
+
+"blktr1 = 0.7u"
+;this opens the transmitter gate 0.7 usec before the pulse, so the transmitter noise is not sampled
+
+
+#include <fastCRAMPS.incl>
+;the ratio of the rotor period and the cycle time is calculated here, 
+;for convenience the spinning speed for (rotor period) = 1.75 x (cycle time) for (rotor period= 2.75 x (cycle time) is displayed in ased
+
+
+"l0=0"										;reset F1 dwell counter
+"d31=1s/(cnst31)"					;one rotor period
+
+#ifndef run_as_1D				  /* omit calculation if run as 1D for setup */
+define loopcounter nrows
+"nrows=td1/2"
+#endif
+
+;calculate PostC7 pulse width
+define pulse pul360
+"pul360=((1s/cnst31)/7)"
+define pulse pul90
+"pul90=((0.25s/cnst31)/7)"
+define pulse pul270
+"pul270=((0.75s/cnst31)/7)"
+
+
+define delay realdwell1
+  "realdwell1=l3*2.0*(wpmlg+d8)"						;effective dwell is cycle time *scaling factor
+define delay scaleddwell1
+ "scaleddwell1=realdwell1*0.45"
+define delay scaleddwell
+  "scaleddwell=0.45*dw"
+
+#ifndef run_as_1D
+;"inf1=l3*2.0*(wpmlg+d8)"
+;"inf1=realdwell1"
+#endif
+
+;calculate and set t1 dependent part of the overall reconversion block phase 
+"cnst11=180.0*(l0*2.0*(wpmlg+d8))/d31"		;initialize phase for reconversion
+"l10=cnst11/360"													;make sure t1 dependent phase increment is less or equal to 360 degrees
+"cnst10=cnst11-l10*360"
+
+1 ze															;acquire into a cleared memory
+  1m ip13+cnst10									;set overall phase of reconversion block for first t1 increment
+  1m ip14+cnst10
+
+  cycle														;to show cycle in ased
+2 d1 															;recycle delay
+  d31															;to show d31, scaleddwell1, and scaleddwell in ased
+  scaleddwell1
+  scaleddwell
+  50u rpp11												;reset PostC7 phase list pointers
+  50u rpp12
+  50u rpp13
+  50u rpp14
+  10u pl7:f1
+3 pul90:f1 ph11 ipp13 ipp14				;double quantum excitation
+  pul360:f1 ph12 ipp12
+  pul270:f1 ph11 ipp11
+  lo to 3 times l1
+4 d8
+  (wpmlg:sp1 ph20^):f1
+  d8
+  (wpmlg:sp1 ph20^):f1
+  lo to 4 times l0
+
+5 pul90:f1 ph13	pl7:f1				;double quantum reconversion
+  pul360:f1 ph14 ipp14
+  pul270:f1 ph13 ipp13
+  lo to 5 times l1
+
+  d5 													;z-filter
+
+  ACQ_START(ph30,ph31)
+  (p1 pl12 ph1):f1
+  dead START_NEXT_SCAN
+  preacqu
+  switch REC_UNBLK
+  acqu
+  postacqu REC_BLK
+6 (wpmlg:sp1 ph2^):f1
+  dead
+  preacqu
+  switch REC_UNBLK
+  acqu
+  postacqu REC_BLK
+  lo to 6 times ncycles
+  rest
+  
+
+  1m
+  1m ip13														;double quantum filter
+  1m ip14
+  rcyc=2
+#ifndef run_as_1D									/* omit 2D acquisition if run as 1D */
+  100m wr #0 if #0 zd
+  1m ip11																		;for STATES-TPPI
+  1m ip12
+  lo to 2 times 2
+															;for t1 increment
+8 1m iu0
+  lo to 8 times l3
+  "cnst11=180.0*(l0*2.0*(wpmlg+d8))/d31"		;recalculate phase for reconversion
+  "l10=cnst11/360"
+  "cnst10=cnst11-l10*360"
+  ip14+cnst10
+  ip13+cnst10	  
+  lo to 2 times nrows
+#else
+  100m wr #0
+#endif 
+exit
+
+
+
+ph0 = 0
+ph1 =  0 1 2 3 2 3 0 1 1 2 3 0 3 0 1 2
+ph2 = 0 2
+
+ph11 = (degree,45.0) 0.00 51.43 102.86 154.29 205.71 257.14 308.57
+ph12 = (degree,45.0) 180.00 231.43 282.86 334.29 385.71 437.14 488.57
+ph13 = (degree,90.0) 90.00 141.43 192.86 244.29 295.71 347.14 398.57
+ph14 = (degree,90.0) 270.00 321.43 372.86 424.29 475.71 527.14 578.57
+
+ph20= 0 2
+ph30= 0
+ph31 = 0 3 2 1 2 1 0 3 1 0 3 2 3 2 1 0
+ 
+
+
+;$Id:$

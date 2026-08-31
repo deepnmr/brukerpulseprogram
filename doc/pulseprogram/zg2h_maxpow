@@ -1,0 +1,58 @@
+;zg2h_maxpow	-*-pulsprog-*-
+;avance-version (10/04/29)
+;1D sequence
+;using 2H lockswitch unit or BSMS 2H-TX board
+;
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$HIDE=y
+
+; ATTENTION: this pulse program just pulses with the maximum possible
+; transmitter power;
+; it may be used for output power measurement on the 2H channel 
+
+#include<Avance.incl>
+#include<Sysconf.incl>
+
+define list<power> maxPower = {dBo -6}
+
+"d11=30m"
+
+
+"acqt0=-p1*2/3.1416"
+
+
+1 ze
+  d11 LOCKDEC_ON
+  d11 H2_PULSE
+
+2 30m maxPower:D
+  30m H2_LOCK 
+  d1
+  d11 H2_PULSE 
+  p1:D ph1
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+
+  d11 H2_LOCK
+  d11 LOCKDEC_OFF
+exit
+
+
+ph1=0 2 2 0 1 3 3 1
+ph2=0 2 2 0 1 3 3 1
+ph3=2 0 0 2 3 1 1 3
+ph31=0 2 2 0 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                             [30 msec]
+;NS: 1 * n, total number of scans: NS * TD0
+
+;locnuc: off
+
+
+
+;$Id:$

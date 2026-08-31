@@ -1,0 +1,50 @@
+;o1calib		-*-pulsprog-*-
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$HIDE=y
+
+
+#include <Avance.incl>
+#include <De.incl>
+
+
+    ze
+    1u pl9:f1
+    d1 cw:f1 ph29 ; start irradiation to generate the steady state
+
+3   1u resume_calc
+    1u fq=0:f1 blockrequest ; set frequency and request next FID from DRU
+    d29 
+    1u stop_calc do:f1	; switch off cw during acquisition
+    "ph30=cnst30"
+
+    ACQ_START(ph30, ph31)
+    1u REC_UNBLK
+
+    ; now acquire one FID
+    aq START_NEXT_SCAN   
+
+    1u REC_BLK
+    1u sytra	  ; next frequency from list
+    0.1u eoscnp
+
+    1u cw:f1 ph29 ; switch on cw again as soon as possible
+
+    ; everything can be repeated here
+    5m wr #0
+    1u zd 
+    lo to 3 times ns
+
+    1u do:f1
+    exit
+
+ph1=0
+ph29=0
+ph30=0
+ph31=0
+
+;pl9 : power level for cw
+;d29 : relaxation delay; ca. 0.5s to ensure new steady state
+;d1 : initial irradiation time (ca. 10s)
+
+;$Id:$

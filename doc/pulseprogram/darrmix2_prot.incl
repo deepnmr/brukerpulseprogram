@@ -1,0 +1,23 @@
+;darrmix_prot.incl
+;Test the rf on-time and duty cycle
+; rotect against misset cnst31, rotation speed below 1000 Hz and too long a mixing period
+;
+;
+;$CLASS=BioSolids INCL
+;$COMMENT=protect against mixing time  >500 msec 
+
+
+1u
+if "darrmix<501m"  goto Passdarr;  
+
+ /*protect against too long DARR mixing*/ 
+1u
+if "cnst59<5"  goto Passdarr; TS 3.0
+1u 
+print "error: DARR mixing time exceeds 500 msec with plw14 not below 5 W"
+goto HaltAcqu
+Passdarr, 1m
+
+
+
+;$Id:$

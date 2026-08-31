@@ -1,0 +1,44 @@
+;o1calib_prep		-*-pulsprog-*-
+;
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$HIDE=y
+
+
+#include <Avance.incl>
+#include <De.incl>
+
+    ze
+
+3   d1  
+    p1 ph1
+    "ph30=cnst30"
+
+    ACQ_START(ph30, ph31)
+    1u REC_UNBLK
+
+    ;sample loop acquire tdh * 2 points
+    aq START_NEXT_SCAN   
+
+    1u REC_BLK
+    1u sytra	; next frequency from list
+    0.1u eoscnp
+
+    ; everything can be repeated here
+    5m wr #0
+    1u zd 
+    lo to 3 times ns
+    exit
+
+ph1=0
+ph30=0
+ph31=0
+
+
+;pl9 : power level for cw
+;d29 : relaxation delay; ca. 0.5s to ensure new steady state
+;d1 : initial irradiation time (ca. 10s)
+
+
+
+;$Id:$

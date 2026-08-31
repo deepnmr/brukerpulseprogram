@@ -1,0 +1,44 @@
+;syszg2df2gppr
+;avance-version (04/12/21)
+;2D sequence
+;O1 calibration
+;
+;$CLASS=HighRes HWT
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+"d12=20u"
+
+
+1 ze
+2 6m
+3 3m fq2:f2
+  d12 pl9:f2
+  d1 cw:f2 ph29
+  d12 do:f2
+  50u UNBLKGRAD
+  p16:gp1
+  d16 pl1:f1
+  4u BLKGRAD
+  p1 ph1
+  go=2 ph31
+  6m wr #0 if #0 zd
+  lo to 3 times td1
+exit
+
+
+ph1=0
+ph29=0
+ph31=0
+
+
+
+;$Id:$

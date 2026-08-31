@@ -1,0 +1,241 @@
+;afhmqcgpphsf
+;avance-version (21/09/15)
+;ALSOFAST-HMQC
+;2D H-1/X correlation via heteronuclear zero and double quantum
+;   coherence
+;phase sensitive
+;with decoupling during acquisition
+;using shaped pulses for inversion on f2 - channel
+;with optional excipient supression (SIERRA)
+;
+;L. Mueller, J. Biomol. NMR, 42, 129, (2008)
+;L.W. Arbogast, F. Delaglio, J.R. Tolman, & J.P. Marino,
+;    J. Biomol. NMR, 72,  149-161 (2018)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+#   ifdef SIERRA
+define list<frequency> f1_zero={sfo hz, 0.0}
+define list<frequency> f2_zero={sfo hz, 0.0}
+define list<frequency> sierraf1=<$FQ1LIST>
+define list<frequency> sierraf2=<$FQ2LIST>
+#   endif /*SIERRA*/
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d4=1s/(cnst2*4)"
+"d12=20u"
+
+"p29=250u"
+
+
+"in0=inf1/2"
+
+"d0=in0/2-p3*2/3.1415-p2/2"
+
+
+#   ifdef CALC_SP
+"p48=(bwfac21/cnst44)*inf1"
+"spw21=plw2*pow((p3*totrot21)/(p48*90.0*integfac21),2)"
+"spoal21=0.5"
+"spoffs21=0"
+#   endif /*CALC_SP*/
+
+
+"p12=p11"
+"spw11=spw1*4"
+"spoffs11=0"
+
+
+"DELTA1=d4*(cnst11/90)-p29-d16-4u-p48*cnst42"
+"DELTA2=d4-p29-d16-4u"
+"DELTA3=d4-p12-p29-d16-8u-de-p1*2/PI"
+
+
+#   ifdef SIERRA
+"cnst9=cnst5*0.433"
+
+"plw33=plw1*pow(cnst9*4*p1*0.000001,2)"
+"plw34=plw2*pow(cnst9*4*p3*0.000001,2)*(cnst1/100)"
+
+"p42=1s/cnst5"
+
+"spoffs33=0"
+"spoffs34=0"
+
+"l3 = sierraf1.len"
+#   endif /*SIERRA*/
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze 
+2 d1 do:f2 
+
+#   ifdef SIERRA
+  50u UNBLKGRAD
+  p16:gp4
+  d16
+3 2u  
+
+  2u sierraf1:f1 sierraf2:f2 
+  2u pl33:f1 pl34:f2
+  (center (p42 ph1):f1 (p42 ph1):f2)
+  2u
+  2u pl1:f1
+  p2 ph2
+  2u
+  2u pl33:f1
+  (p42 ph1):f1
+  2u sierraf1.inc sierraf2.inc
+  2u pl1:f1
+  p2 ph2
+  2u f1_zero:f1 f2_zero:f2
+
+  lo to 3 times l3
+  2u sierraf1.res sierraf2.res
+#   else
+  50u UNBLKGRAD
+#   endif /*SIERRA*/
+
+  d12 pl1:f1 pl2:f2
+  (p3 ph1):f2
+  p16:gp3
+  d16
+
+4 p1 ph1
+  4u
+  DELTA1
+  p29:gp1
+  d16 
+  (center (p2 ph1) (p48:sp21 ph1):f2)
+  4u
+  p29:gp1
+  d16
+  DELTA1 pl2:f2
+  (lalign (p1 ph1):f1 (p3 ph3 d0):f2)
+  (p2 ph7)
+  (lalign (p12:sp11 ph6:r):f1 (d0 p3 ph4 DELTA2):f2)
+  4u
+  p29:gp2
+  d16 pl1:f1
+  (center (p2 ph1) (p4 ph1):f2)
+  (p12:sp11 ph5:r):f1
+  4u
+  p29:gp2
+  d16
+  DELTA3 pl14:f2
+  4u BLKGRAD
+  go=2 ph31 cpd2:f2 
+  d1 do:f2 mc #0 to 2 
+     F1PH(calph(ph3, +90), caldel(d0, +in0))
+  DELTA4
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=2
+ph6=2 2 3 3
+ph7=0 0 1 1
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl14: f2 channel - power level for CPD/BB decoupling (low power)
+;pl33: f1 channel - power level for selective CP
+;pl34: f2 channel - power level for selective CP
+;sp1 : f1 channel - shaped pulse 90 degree
+;sp11: f1 channel - shaped pulse 180 degree
+;sp21: f2 channel - shaped pulse 180 degree  (on resonance, Methyl)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p12: f1 channel - 180 degree shaped pulse             [1 msec]
+;p16: homospoil/gradient pulse                         [1 msec]
+;p29: gradient pulse 3                               [250 usec]
+;p42: selective CP duration 1/cnst5
+;p48: f2 channel - 180 degree shaped pulse (Methyl selective)
+;d0 : incremented delay (2D) = (in0/2-p3*4/3.1415-p2)/2
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(CmeH))
+;d12: delay for power switching                       [20 usec]
+;d16: delay for homospoil/gradient recovery
+;cnst1: selective CP power scaling (13C) in percent   [100 %]
+;           e.g. 100: B1(13C) = B1(1H) 
+;           optimize if excipient supression fails
+;cnst2: = 1J(CmeH)                                    [125 Hz]
+;cnst5: = 1J(CH) to be supressed                      [125 Hz]
+;cnst11: excitation flip angle                    [60-70 deg.]
+;cnst42: compensation of chemical shift evolution during p48
+;           Reburp.1000: 0.5
+;           Q3(_surbop).1000: 0
+;cnst44: Bandwidth scaling e.g. cnst44=0.9:  BW(C)=0.9*SW(C)
+;l3: number of entries in sierra list
+;o2p: Cme chemical shift
+;inf1: 1/SW(Cme) = 2 * DW(Cme)
+;in0: 1/(2 * SW(Cme)) = DW(Cme)
+;nd0: 2
+;ns: 4 * n
+;ds: >=32
+;aq: <= 75 msec
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEC
+;cpd2: decoupling according to sequence defined by cpdprg2: garp4.p61
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;cpdprg2: garp4.p61
+
+
+;FQ1LIST: Proton frequencies of excipient signals
+;FQ2LIST: Carbon freuqnecies of excipients (order has to match FQ1LIST)
+
+
+;for z-only gradients:
+;gpz1: 38%
+;gpz2: 54%
+;gpz3: 70%
+;gpz4: 40%
+
+;use gradient files:
+;gpnam1: SMSQ10.32
+;gpnam2: SMSQ10.32
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;CALC_SP: for calculation of bandselective Carbon pulses based on Carbon spectral width * cnst44
+;             option -DCALC_SP (eda: ZGOPTNS)
+;SIERRA: enables excipient filter (requires FQ1LIST, FQ2LIST and cnst5 to be set)
+;             option -DSIERRA (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+;Processing
+
+;PHC0(F1): 90
+;PHC1(F1): -180
+;FCOR(F1): 1
+
+
+;$Id: $

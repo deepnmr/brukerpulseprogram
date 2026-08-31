@@ -1,0 +1,203 @@
+;trhcchcogp3d
+;avance-version (15/02/27)
+;TROSY-HCCH-COSY - for aromatic residues
+;3D sequence with
+;   inverse correlation using multiple inept transfer and
+;
+;      F1(H) -> F2(C,t1) -> F2(C',t2) -> F1(H',t3)
+;
+;phase sensitive (t1)
+;phase sensitive (t2)
+;constant time version
+;water suppression using watergate sequence
+;(use parameterset )
+;
+;K. Pervushin, R. Riek, G. Wider & K.Wuethrich, 
+;   J. Am. Chem. Soc. 120, 6394-6400 (1998)
+;(L.E. Kay, G.Y. Xu, A.U. Singer, D.R. Muhandiram & J. D. Forman-Kay
+;   J. Magn. Reson. B 101, 333 - 337 (1993))
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+
+"d22=6.8m"
+"d23=6.6m"
+"d24=0.8m"
+
+
+"d0=d23"
+"d10=d24"
+"d20=d23"
+"d30=d22+p2"
+
+"in0=inf1/2"
+"in10=inf2/2"
+
+"in20=in0"
+"in30=in10"
+
+"td1=tdmax(td1,d20*2,in20)"
+"td2=tdmax(td2,d30*2,in30)"
+
+
+"DELTA1=d4-p16-d16"
+"DELTA2=d4/2-p19-d16"
+"DELTA3=d4-p19-d16-p11-8u"
+"DELTA4=d22-d10"
+
+
+aqseq 321
+
+
+1 ze
+  d11 pl12:f2
+2 d11 do:f2
+3 d1
+  50u UNBLKGRAD
+  (p11:sp1 ph2):f1
+  4u
+  4u pl1:f1
+  (p1 ph1)
+  p16:gp1
+  d16
+  DELTA1 pl2:f2
+  (center (p2 ph1) (p4 ph1):f2 )
+  DELTA1
+  p16:gp1
+  d16
+  (center (p1 ph2) (p3 ph3):f2 )
+
+  p19:gp2
+  d16
+  DELTA2
+  (center (p2 ph1) (p4 ph1):f2 )
+  DELTA2
+  p19:gp2
+  d16
+  (p3 ph4):f2
+  4u
+
+  (p3 ph5):f2
+  d0
+  (p4 ph9):f2
+  d20
+  (p3 ph6):f2
+  d30
+  (p4 ph9):f2
+  DELTA4
+  (p2 ph1)
+  d10
+  (p3 ph7):f2
+
+  p16:gp3
+  d16
+
+  (p1 ph1) 
+  p19:gp4
+  d16
+  DELTA3
+  (p11:sp1 ph8:r):f1
+  4u
+  4u pl1:f1
+  (center (p2 ph1) (p4 ph1):f2 )
+  4u pl0:f1
+  (p11:sp1 ph8:r):f1
+  DELTA3
+  p19:gp4
+  d16 pl12:f2
+  4u BLKGRAD
+  go=2 ph31 cpd2:f2
+  d11 do:f2 mc #0 to 2 
+     F1PH(calph(ph3, -90) & calph(ph4, -90) & calph(ph5, -90), caldel(d0, +in0) & caldel(d20, -in20))
+     F2PH(calph(ph7, -90), caldel(d10, +in10) & caldel(d30, -in30))
+exit 
+  
+
+ph1=0
+ph2=3
+ph3=(8) 1 5
+ph4=0 1
+ph5=2 1
+ph6=0 0 0 0 2 2 2 2
+ph7=0 0 2 2
+ph8=2
+ph9=0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+ph31=0 0 2 2
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp1: f1 channel - shaped pulse  90 degree
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse
+;p16: homospoil/gradient pulse                       [1 msec]
+;p19: gradient pulse 2                               [500 usec]
+;d0 : incremented delay (F1 in 3D) = d23
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(CH))
+;d10: incremented delay (F2 in 3D) = d24
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d20: decremented delay (F1 in 3D) = d23
+;d22=3/(8J'(CC))                                     [6.8 msec]
+;d23=3/(8J(CC))                                      [6.6 msec]
+;d24=1/(4J(CH))                                      [0.8 msec]
+;d30: decremented delay (F2 in 3D) =  d22 + p2
+;cnst2: = J(CH)
+;inf1: 1/SW(C) = 2 * DW(C)
+;inf2: 1/SW(C) = 2 * DW(C)
+;in0: 1/(2 * SW(C)) = DW(C)
+;nd0: 2
+;in10: 1/(2 * SW(C)) = DW(C)
+;nd10: 2
+;in20: = in0
+;in30: = in10
+;ns: 8 * n
+;ds: 32
+;td1: number of experiments       td1 max = 2 * d20 / in20
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:    gp 1 : gp 2 : gp 3 : gp 4
+;                         11 :   18 :   80 :   50
+
+;for z-only gradients:
+;gpz1: 11%
+;gpz2: 18%
+;gpz3: 80%
+;gpz4: 50%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.50
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.50
+
+
+
+;$Id:$

@@ -1,0 +1,243 @@
+;hsqc_dest_fpf3gpphwg3d
+;avance-version (29/09/15)
+;pseudo3D H-1/X correlation via double inept transfer
+;for measuring N-15 dark state saturation transfer
+;phase sensitive
+;with decoupling during acquisition
+;using f3 - channel
+;using flip-back pulse
+;water suppression using watergate sequence
+;(use parameterset )
+;
+;N.L. Fawzi, J. Ying, R. Ghirlando, D.A. Torchia & G.M. Clore, Nature 480, 268-272 (2011)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+  
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+
+
+define list<frequency> f3_list=<$FQ3LIST>
+define list<frequency> f3_zero={sfo hz, 0.0}
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+"d26=1s/(cnst4*4)"
+
+
+"d10=3u"
+
+"in10=inf2/2"
+
+"td1=(f3_list.len+1)*2"
+
+"DELTA1=d26-p16-d16"
+"DELTA2=d26-p16-d16-p11-8u"
+
+#   ifdef LABEL_CN
+"DELTA3=d26-d10*2-larger(p42,p8)/2"
+"DELTA4=d26+larger(p42,p8)/2"
+#   else
+"DELTA3=d26-d10*2-p42/2"
+"DELTA4=d26+p42/2"
+#   endif /*LABEL_CN*/
+
+"DELTA5=d26-p16-d16-p11-8u-de+p1*2/PI"
+
+
+"TAU=50m-p44/2"
+"l3=d21/100m"
+
+"l11=0"
+
+"plw33=plw3*pow(cnst9*4*p21*0.000001,2)"
+"plw34=plw3*pow(cnst10*4*p21*0.000001,2)"
+
+
+"spoffs26=bf1*(cnst54/1000000)-o1"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+aqseq 312
+
+
+1 ze 
+  d11 pl16:f3
+2 d1 do:f3
+3 d12 pl1:f1 pl3:f3
+  20u
+  "f3_list.idx=larger((l11%16)-1, 0)"
+  50u UNBLKGRAD
+  (p21 ph1):f3
+  p16:gp1
+  d16
+  (p1 ph1)
+  p16:gp2
+  d16
+  DELTA1
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA1
+  p16:gp2
+  d16
+  (lalign (p1 ph4) (p21 ph1):f3 )
+  d26
+  (center (p2 ph1) (p22 ph1):f3 )
+  d26
+  (ralign (p1 ph7) (p21 ph2):f3 )
+  2u f3_list:f3
+  if "l11 % 16 > 0"
+     {
+     if "l11 >= 16"
+        {
+        2u pl34:f3
+        }
+     else
+        {
+        2u pl33:f3
+        }
+     2u cpd7:f3
+     }
+8 TAU
+  (p44:sp30 ph1):f1
+  TAU
+  lo to 8 times l3
+  2u do:f3
+  p16:gp3
+  d16 f3_zero:f3
+  2u pl3:f3
+
+  (p21 ph3):f3
+  DELTA3
+  d10
+
+#   ifdef LABEL_CN
+  (center (p42:sp26 ph5):f1 (p8:sp13 ph1):f2 )
+#   else
+  (p42:sp26 ph5):f1
+#   endif /*LABEL_CN*/
+
+  d10
+  (p22 ph6):f3
+  DELTA4
+  (p21 ph2):f3
+
+  p16:gp4
+  d16
+  (p11:sp1 ph7:r):f1
+  4u pl1:f1
+
+  (p1 ph1) 
+  4u
+  p16:gp5
+  d16
+  DELTA2
+  (p11:sp1 ph7:r):f1
+  4u pl1:f1
+  (center (p2 ph1) (p22 ph1):f3 )
+  (p11:sp1 ph7:r):f1
+  4u
+  p16:gp5
+  d16
+  DELTA5 pl16:f3
+  4u BLKGRAD
+
+  go=2 ph31 cpd3:f3
+  d1 do:f3 mc #0 to 2
+    F1QF(calclc(l11, 1))
+    F2PH(calph(ph3, +90), caldel(d10, +in10))
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=0
+ph4=1 3
+ph5=0 0 0 0 2 2 2 2
+ph6=0 0 1 1 2 2 3 3
+ph7=2
+ph8=0
+ph31=0 2 2 0
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;sp1: f1 channel - shaped pulse  90 degree
+;sp13: f2 channel - shaped pulse 180 degree (adiabatic)
+;sp26: f1 channel - shaped pulse 180 degree (Reburp.1000)
+;sp30: f1 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p8 : f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;p11: f1 channel -  90 degree shaped pulse
+;p16: homospoil/gradient pulse
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p42: f1 channel - 180 degree shaped pulse for refocussing
+;                      Reburp.1000               (1.4ms at 600.13 MHz)
+;p44: f1 channel - 180 degree shaped pulse
+;di0 : incremented delay (3D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                             [30 msec]
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d21: DEST mixing time
+;d26 : 1/(4J)YH
+;cnst4: = J(YH)
+;cnst9: First DEST B1 field strength in Hz          [170 Hz]
+;cnst10: Second DEST B1 field strength in Hz        [350 Hz]
+;cnst54: H(N) chemical shift (offset, in ppm)    [~ 8.3 ppm]
+;inf2: 1/SW(X) = 2 * DW(X)
+;in10: 1/(2 * SW(X)) = DW(X)
+;nd10: 2
+;ns: 4 * n
+;ds: 16
+;td1: number of experiments (length of fq3list+1)*2
+;td2: number of experiments in F2
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: States-TPPI in F2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;cpd7: decoupling according to sequence defined by cpdprg7: cwp
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+;cpdprg7: cwp
+
+
+;for z-only gradients:
+;gpz1: 42%
+;gpz2: 17%
+;gpz3: 50%
+;gpz4: 80%
+;gpz5: 30%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with
+;             option -DLABEL_CN (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id:$

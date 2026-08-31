@@ -1,0 +1,171 @@
+;hmqcjgp
+;avance-version (19/02/08)
+;ct-HMQC-J
+;2D correlation via zero and double quantum coherence
+;for determination of 3J H(N)Ha (Phi) using J-modulation
+;phase sensitive 
+;with decoupling during acquisition
+;using f3 - channel
+;(use parameterset HMQCJGP)
+;
+;H. Kuboniwa, S. Grzesiek, F. Delaglio & A. Bax,
+;   J. Biomol NMR 4, 871-878 (1994)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+
+"d21=5.3m"
+"d29=2m"
+
+
+"d0=(d23-d21*2)/4-p16-d16-p2/2-p22/2-4u"
+"d20=(d23-d21*2)/4-p16-d16-p22/2-p21*2/3.1416-4u"
+
+"in0=inf1/4"
+
+"in20=in0"
+
+"td1=tdmax(td1,d20*2,in20)"
+
+
+"DELTA1=d21-p16-d16-4u"
+"DELTA2=d29-p16-d16-4u"
+
+"TAU=(d23-d21*2)/4"
+
+
+1 ze 
+2 d11 do:f3
+3 d12 pl32:f1 pl3:f3
+  d1 cw:f1 ph29
+  4u do:f1
+  d12 pl1:f1
+  50u UNBLKGRAD
+
+  p1 ph1
+  4u
+  p16:gp1
+  d16
+  DELTA1
+  p21:f3 ph2
+  4u
+  p16:gp2
+  d16
+  d20
+  p22:f3 ph1
+  4u
+  p16:gp2
+  d16
+  d0
+  p2 ph1
+  d0
+  p16:gp2
+  d16
+  4u
+  p22:f3 ph1
+  d20
+  p16:gp2
+  d16
+  4u
+  p21:f3 ph3
+  DELTA1
+  p16:gp1
+  d16
+  4u
+  p1 ph1
+  4u
+  p16:gp3
+  d16
+  DELTA2 pl16:f3
+  p1 ph4
+  d19 BLKGRAD
+  p0 ph5
+  go=2 ph31 cpd3:f3
+  d11 do:f3 mc #0 to 2
+     F1PH(calph(ph3, +90), caldel(d0, +in0) & caldel(d20, -in20))
+
+  TAU
+exit 
+  
+
+ph1=0 
+ph2=0 2
+ph3=0
+ph4=0 0 1 1 2 2 3 3
+ph5=2 2 3 3 0 0 1 1
+ph29=0
+ph31=0 2 1 3 2 0 3 1
+
+  
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: F3 channel - power level for CPD/BB decoupling
+;pl32: f1 channel - power level for low power presaturation
+;p0 : f1 channel -  90 degree high power pulse
+;                   use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;d0 : incremented delay (2D) = (d23-d21*2)/4-p16-d16-p2/2-p22/2-4u
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;d20: decremented delay (2D) = (d23-d21*2)/4-p16-d16-p22/2-p21*2/3.1416-4u
+;d21: 1/(2J(NH)                                        [5.3 msec]
+;d23: overall constant time for J-modulation : 4*T + 2*d21
+;d29: z-filter delay (delta)                           [2 msec]
+;TAU: constant time delay (T) = (d23-d21*2)/4
+;inf1: 1/SW(N) = 2 * DW(N)
+;in0: 1/(4 * SW(N)) = DW(N)
+;nd0: 4
+;in20: = in0
+;ns: 8 * n
+;ds: 32
+;td1: number of experiments         td1 max = 2 * d20 / in20
+;FnMODE: States-TPPI (or TPPI)
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:    gp 1 : gp 2 : gp 3
+;                         20 :   30 :   35
+
+;for z-only gradients:
+;gpz1: 20%
+;gpz2: 30%
+;gpz3: 35%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+;set pl32 to 0W when presaturation is not required
+;   use pl1 + 75 to 80dB to reduce radiation damping
+
+
+
+;$Id:$

@@ -1,0 +1,17 @@
+;Define Frequencies and other common variables 
+;Use with Carbon (X-channel) Detection  
+
+
+;$COMMENT=Frequency and Timing definitions
+;$CLASS=BioSolids INCL
+;$DIM=
+;$TYPE=Definitions
+;$SUBTYPE=Carbon Detect
+
+
+#define X f1
+#define H f2
+
+
+
+;$Id:$

@@ -1,0 +1,54 @@
+;aring2
+;avance-version (14/08/22)
+;antiring sequence
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"p2=p1*2"
+"d13=4u"
+
+
+1 ze
+2 d1
+  p1 ph1
+  go=2 ph31 
+  wr #0
+  3m ze
+3 d1
+  p2 ph2
+  d13
+  p1 ph3
+  go=3 ph31 
+  wr #0
+  lo to 1 times l4
+exit
+
+
+ph1= 0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3 
+     2 2 2 2 3 3 3 3 0 0 0 0 1 1 1 1
+ph2= 0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3 
+ph3= 2 2 2 2 3 3 3 3 0 0 0 0 1 1 1 1
+     0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3 
+ph31= 0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3 
+      2 2 2 2 3 3 3 3 0 0 0 0 1 1 1 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d13: short delay                                    [4 usec]
+;l4: set l4 for total number of scans
+;ns:  32 * n
+
+
+
+;$Id:$

@@ -1,0 +1,216 @@
+;sf_menoesyhmqchch3d
+;avance-version (22/04/22)
+;3D NOESY SOFAST HMQC (HCH)
+;using methyl selective 1H pulses in F1 and F2 (only methyl/methyl crosspeaks)
+;
+;   H(methyl),t1 -> NOE -> H(methyl) -> C(methyl),t2 -> H(methyl),t3
+;
+;set cnst54 to the center of methyl region (~1 ppm), this is also the center 
+;of the F1 dimension (1H NOE dimension)
+;(use parameterset SF_MENOESYHMQCHCH3D)
+;
+;P. Rossi, Y. Xia, N. Khanra & G. Veglia & G. Kalodimos,
+;  J. Biomol. NMR 66, 259 (2016)
+;P.Schanda and B. Brutscher, J. Am. Chem. Soc. 127, 8014 (2005)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"d11=30m"
+"d12=20u"
+"d2=1s/(cnst2*2)"
+"p4=p3*2"
+
+#   ifdef CALC_SP
+
+;cnst44/45: scaling factors for bandwidth, used in calculation of shaped pulses in orignal
+;publication (cnst44 for Pc9_4_90.1000: 1.172, cnst45 for Reburp.1000: 1.426),
+;set to 1.0 in case other shapes are used:
+"cnst44=1.172"
+"cnst45=1.426"
+
+
+"p39=(bwfac23/(cnst55*cnst44*bf1))*1000000"
+"spw23=plw1/(((p39*90.0)/(p1*cnst10))*((p39*90.0)/(p1*cnst10))*(integfac23*integfac23))"
+"spoal23=1"
+
+"p42=(bwfac26/(cnst55*cnst45*bf1))*1000000"
+"spw26=plw1/(((p42*90.0)/(p1*totrot26))*((p42*90.0)/(p1*totrot26))*(integfac26*integfac26))"
+"spoal26=0.5"
+
+"p43=(bwfac28/(cnst55*bf1))*1000000"
+"spw28=plw1/(((p43*90.0)/(p1*96))*((p43*90.0)/(p1*96))*(integfac28*integfac28))"
+"spw29=plw1/(((p43*90.0)/(p1*96))*((p43*90.0)/(p1*96))*(integfac29*integfac29))"
+"spoal28=1"
+"spoal29=0"
+#   endif /*CALC_SP*/
+
+
+"in0=inf1"
+"in10=inf2"
+
+"d0=in0/2"
+"d10=in10/2-p3*4/3.1415"
+
+
+"DELTA2=d2-p16-d16-p39*cnst39"
+"DELTA3=p39*cnst39-de-4u"
+
+"TAU=d8-p3-p16-d16-p39*(1-cnst39)"
+
+"spoffs23=bf1*(cnst54/1000000)-o1"
+"spoffs26=bf1*(cnst54/1000000)-o1"
+"spoffs28=0"
+"spoffs29=0"
+"o1_F1=bf1*cnst54/1000000"
+
+
+"acqt0=0"
+baseopt_echo
+
+aqseq 321
+
+1 ze 
+  d11 pl12:f2
+2 d1 do:f2
+3 d12 pl2:f2 fq=cnst54(bf ppm):f1
+  50u UNBLKGRAD
+  (p3 ph1):f2
+  p16:gp0
+  d16
+
+  (p43:sp28 ph3)
+  (center (d0)  (p4 ph1):f2)
+  (p43:sp29 ph1)
+
+  4u BLKGRAD
+  TAU
+  50u UNBLKGRAD fq=0:f1
+  (p3 ph1):f2
+  p16:gp1
+  d16
+
+  (p39:sp23 ph1):f1
+  p16:gp2
+  d16
+  (center (p42:sp26 ph1):f1 (DELTA2 p3 ph4 d10 p3 ph1 DELTA2):f2 )
+  DELTA3
+  p16:gp2
+  d16 pl12:f2
+  4u BLKGRAD
+
+  go=2 ph31 cpd2:f2 
+  d1 do:f2 mc #0 to 2 
+     F1PH(calph(ph3, +90), caldel(d0, +in0))
+     F2PH(calph(ph4, +90), caldel(d10, +in10))
+exit 
+  
+
+ph1=0 
+ph2=0 
+ph3=0 0 2 2
+ph4=0 2 0 2
+ph5=0 0 0 0 
+ph6=0 0 0 0 
+ph31=0 2 2 0 
+
+;pl1 : f1 channel - power level for pulse
+;pl2 : f2 channel - power level for pulse 
+;pl12: f2 channel - power level for decoupling (high power = 4 * plw14)
+;pl14: f2 channel - power level for decoupling (low power)
+;sp23: f1 channel - shaped pulse 90 degree (Pc9_4_90.1000)
+;sp26: f1 channel - shaped pulse 180 degree (Reburp.1000)
+;sp28: f1 channel - shaped pulse 90 degre (Eburp2.1000)
+;spnam28: Eburp2.1000
+;sp29: f1 channel - shaped pulse 90 degree (Eburp2tr.1000)
+;spnam29: Eburp2tr.1000
+;
+;p1 : f1 channel -  90 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse 
+;p4 : f2 channel -  180 degree high power pulse 
+;p16: homospoil/gradient pulse                       [1 msec]
+;p39: f1 channel - 90 degree shaped pulse for excitation (Pc9_4_90.1000) 
+;p42: f1 channel - 180 degree shaped pulse for refocussing (Reburp.1000)
+;p43: f1 channel - 90 degree shaped pulse for excitation (Eburp2/Eburp2tr)
+;p61: f2 channel -  90 degree pulse at pl14 (low power decoupling) 
+;
+;d1 : relaxation delay [0.3-1 s]
+;d2 : 1/(2J) CH
+;d8 : NOESY mixing time
+;d11: delay for disk I/O                             [30 msec]
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+
+;cnst2: = J(CH) in Hz [130]
+;cnst10: Excitation flip angle                 [90 - 110 deg.]
+
+;cnst39: compensation of chemical shift evolution during PC9 pulse [~0.52] 
+;        optimize for 0 first order phase in F3
+;cnst44: scaling factor for Pc9 bandwidth (Pc9_4_90.1000: 1.172)  
+;cnst45: scaling factor for Reburp bandwidth (Reburp.1000: 1.426)
+;cnst54: H(methyl) chemical shift (offset, in ppm) [~1]
+;cnst55: H(methyl) bandwidth (in ppm) [~4]
+;
+;d0 : incremented delay (F1)
+;inf1: 1/SW(C) = 2 * DW(C)
+;in0: 1/SW(C) = 2 * DW(C)
+;nd0: 1
+;d10 : incremented delay (F2)
+;inf2: 1/SW(C) = 2 * DW(C)
+;in10: 1/SW(C) = 2 * DW(C)
+;nd10: 1
+;ns: 4 * n
+;ds: >16
+;td1: number of experiments
+;FnMODE: States-TPPI in F1
+;FnMODE: States-TPPI in F2
+;cpd2: decoupling according to sequence defined by cpdprg2: bi_garp4_2plcp.p61
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;cpdprg2: bilevel decoupling (bi_garp4_2plcp.p61)
+
+
+;for z-only gradients:
+;gpz0: 40%
+;gpz1: 20%
+;gpz2: 35%
+
+
+;use gradient files:   
+;gpnam0: SMSQ10.100
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+
+
+                                          ;preprocessor-flags-start
+;CALC_SP: for calculation of all bandselective Proton pulses based on cnst54 and cnst55
+;             option -DCALC_SP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+;Processing
+
+;PHC0(F1): 90
+;PHC1(F1): -180
+;FCOR(F1): 1
+
+;PHC0(F2): 90
+;PHC1(F2): -180
+;FCOR(F2): 1
+
+
+
+;$Id: $

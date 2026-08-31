@@ -1,0 +1,226 @@
+;zg_bbhd
+;avance-version (16/11/30)
+;1D reset-HSQC
+;using 1H broadband homodecoupling during acquisition with [BIRD]d element
+;CH2 groups may be left as doubletts with 2J(HH) spliting
+;
+;L. Paudel, R.W. Adams, P. Kiraly, J.A. Aguilar, M. Foroozandeh,
+;   M.J. Cliff, M. Nilsson, P. Sandor, J.P. Waltho & G.A. Morris,
+;   Angew. Chem. 125, 11830-11833 (2013)
+;J.A. Aguilar, M. Nilsson & G.A. Morris, Angew. Chem. 123, 9716-9717 (2011)
+;P. Sakhaii, B. Haase & W. Bermel, J. Magn. Reson. 199, 192-198 (2009)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+#include <De.incl>
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+"d11=30m"
+
+"p29=300u"
+
+
+"d62=aq/l0"
+"d63=d62/2"
+
+
+"l1=l0-1"
+
+
+"DELTA1=d2-p16-d16-8u"
+"DELTA2=d2-larger(p2,p14)/2"
+"DELTA3=d2-larger(p2,p39)/2"
+
+"TAU=p14"
+"TAU1=p2"
+"TAU2=p39"
+
+
+"l30=0"
+
+
+1 ze
+  d11 pl12:f2
+2 d11 do:f2
+  4u BLKGRAD
+  d1 pl1:f1
+  50u UNBLKGRAD
+
+  (p1 ph1):f1
+  d2
+
+  if "l30 %2 == 0"
+     {
+     (center (p2 ph1):f1 (p14:sp3 ph1):f2 )
+     }
+  else
+     {
+     (center (p2 ph1):f1 (TAU):f2 )
+     }
+
+  4u iu30
+  p16:gp1
+  d16
+  (p2 ph1):f1
+  4u
+  p16:gp2
+  d16
+
+  (p1 ph3)
+  DELTA2
+  (center (p2 ph3) (p14:sp3 ph1):f2 )
+  DELTA2
+  (p1 ph3)
+
+  p16:gp3
+  d16
+  DELTA1 pl12:f2
+  4u
+  4u cpd2:f2
+
+  ACQ_START(ph30,ph31)
+  0.1u START_NEXT_SCAN
+
+  0.1u REC_UNBLK
+  0.05u DWELL_RELEASE
+  d63
+  0.05u DWELL_HOLD
+  0.1u REC_BLK
+
+  10u do:f2
+  p29:gp4
+  d16
+  TAU2
+  (p1 ph1)
+  DELTA3
+  4u
+  (center (p2 ph2) (p39:sp4 ph1):f2 )
+  4u
+  DELTA3
+  (p1 ph7)
+  (p39:sp4 ph1):f2
+  p29:gp4
+  d16 pl12:f2
+  20u
+  p29:gp5
+  d16
+  4u
+  (p2 ph1)
+  4u
+  p29:gp5
+  d16
+  10u cpd2:f2
+
+4 0.1u REC_UNBLK
+  0.05u DWELL_RELEASE
+  d62
+  0.05u DWELL_HOLD
+  0.1u REC_BLK
+  
+  10u do:f2
+  p29:gp4
+  d16
+  TAU2
+  (p1 ph1)
+  DELTA3
+  4u
+  (center (p2 ph2) (p39:sp4 ph1):f2 )
+  4u
+  DELTA3
+  (p1 ph7)
+  (p39:sp4 ph1):f2
+  p29:gp4
+  d16 pl12:f2
+  20u
+  p29:gp5
+  d16
+  4u
+  (p2 ph1)
+  4u
+  p29:gp5
+  d16
+  10u cpd2:f2
+
+  lo to 4 times l1
+
+  0.1u REC_UNBLK
+  0.05u DWELL_RELEASE
+  d62*2
+  0.05u DWELL_HOLD
+  0.1u REC_BLK
+
+  rcyc=2
+
+  d11 do:f2 mc #0 to 2 F0(zd)
+
+  4u BLKGRAD
+exit
+
+
+ph1=0 
+ph2=1
+ph3=0 0 1 1 2 2 3 3
+ph4=0
+ph7=2
+ph30=0
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp3: f2 channel - shaped pulse (180degree inversion)
+;spnam3: Crp60,0.5,20.1 (Crp80,0.5,20.1)
+;sp4: f2 channel - shaped pulse (180degree refocussing)
+;spnam4: Bip720,100,10.1
+;p1 : f1 channel -  high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion
+;     = 500usec for Crp60,0.5,20.1
+;p16: homospoil/gradient pulse                            [1 msec]
+;p29: gradient pulse 3                                    [300 usec]
+;p39: f2 channel - 180 degree shaped pulse for refocussing
+;                      Bip720,100,10.1 (160us at 600.13 MHz)
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)XH
+;d11: delay for disk I/O                                  [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d62: length of block between decoupling pulses : = aq/l0 [< 20-25 msec]
+;d63: = d62/2
+;cnst2: = J(XH)
+;l0 : number of blocks during acquisition time
+;        adjust to get d62 as required
+;ns: 1 * n, total number of scans: NS * TD0
+;ds: >= 16
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 20%
+;gpz2: 80%
+;gpz3: 60%
+;gpz4: 3%
+;gpz5: 5%
+
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.50
+;gpnam5: SMSQ10.50
+
+
+
+;$Id:$

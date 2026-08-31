@@ -1,0 +1,42 @@
+;p11
+;avance-version (12/01/11)
+;water suppression using 1-1 pulse sequence
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+1 ze
+2 30m
+  d1
+  p1 ph1
+  d19
+  p0 ph2
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+
+ph1=0 2 2 0 1 3 3 1
+ph2=2 0 0 2 3 1 1 3
+ph31=0 2 2 0 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p0 : f1 channel -  90 degree high power pulse
+;                   use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;ns: 1 * n, total number of scans: NS * TD0
+
+
+
+;$Id:$

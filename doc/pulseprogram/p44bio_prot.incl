@@ -1,0 +1,18 @@
+;p44bio_prot.incl
+
+; Test the rf on-time for the second CP in an hChhC.cp
+; 10ms is maximum
+
+;$COMMENT=Protection against long CP time
+;$CLASS=BioSolids PROT
+
+
+if "p44<10.1m" goto Passp44
+1u
+print "Second CP time p44 exceeds 10 msec limit!"
+goto HaltAcqu
+Passp44, 1m
+
+
+
+;$Id:$

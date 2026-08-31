@@ -1,0 +1,13 @@
+;Desolids.incl
+;   for Avance Neo
+;
+;avance-version (20/11/23)
+;
+;$CLASS=Solids Incl
+;$COMMENT=
+
+
+#include <De.incl>
+
+
+;$Id:$

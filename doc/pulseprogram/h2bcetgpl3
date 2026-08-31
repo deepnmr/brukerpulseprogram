@@ -1,0 +1,159 @@
+;h2bcetgpl3
+;avance-version (15/02/27)
+;H2BC (HMQC-COSY)
+;2D H-1/X correlation via heteronuclear zero and double quantum
+;   coherence
+;phase sensitive using Echo/Antiecho gradient selection
+;with three-fold low-pass J-filter to suppress one-bond correlations
+;
+;N.T. Nyberg, J.O. Duus & O.W. Soerensen,
+;   J. Am. Chem. Soc. 127, 6154-6155 (2005)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+"cnst30=sfo1/(sfo2*4)"
+
+define list<gradient> EA1 = {cnst30 -cnst30}
+
+
+"p2=p1*2"
+"d0=3u"
+"d11=30m"
+
+
+"DELTA1=1s/(2 * (cnst6 + 0.07 * (cnst7-cnst6) ) )"
+"DELTA2=1s/(cnst7 + cnst6)"
+"DELTA3=1s/(2 * (cnst7 - 0.07 * (cnst7-cnst6) ) )"
+
+
+"in0=inf1/2"
+
+"in20=in0"
+"in28=in0"
+
+"d20=d21/2-d0*3-p16*2-d16*2-p24-p2-p3-DELTA2"
+"d28=d21/2-DELTA2-4u-p3-d0"
+
+"td1=tdmax(td1,d20*2,in20)"
+
+
+"DELTA=p2+d0*2"
+"DELTA4=DELTA3-p16-d16-larger(p1,p3)+p1"
+"DELTA5=DELTA2-p16-d16"
+"DELTA6=DELTA1-p16-d16-larger(p2,p3)+p2"
+"DELTA7=DELTA2+DELTA3+p3-DELTA1-4u"
+
+
+1 ze 
+  d11 pl12:f2
+2 d11 do:f2
+3 d1
+  50u UNBLKGRAD
+  20u cpd2:f2
+
+  (p1 ph1)
+  d20
+  (p2 ph1)
+  d28
+  DELTA2 do:f2
+  4u pl2:f2
+  (p3 ph3):f2
+  d0
+  (p2 ph1)
+  d0
+  p16:gp1*EA1
+  d16
+  (p24:sp7 ph4):f2
+  p16:gp1*EA1*-1
+  d16
+  DELTA pl2:f2
+  (p3 ph5):f2
+  DELTA2
+  (p1 ph2) (p3 ph1):f2
+  p16:gp1*0.15
+  d16
+  DELTA4
+  (p3 ph1):f2
+  p16:gp1*0.35
+  d16
+  DELTA5
+  (p2 ph1) (p3 ph1):f2
+  p16:gp1
+  d16
+  DELTA6 pl12:f2
+  DELTA7 cpd2:f2
+
+  4u BLKGRAD
+  go=2 ph31
+  d11 do:f2 mc #0 to 2 
+     F1EA(calgrad(EA1), caldel(d0, +in0) & caldel(d20, -in20) & caldel(d28, -in28) & calph(ph3, +180) & calph(ph31, +180))
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=0 0 2 2
+ph4=0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph5=0 2
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp7: f2 channel - shaped pulse (180degree refocussing)
+;spnam7: Crp60comp.4
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p24: f2 channel - 180 degree shaped pulse for refocussing
+;     = 2msec for Crp60comp.4
+;d0 : incremented delay (2D)                           [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                               [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d20: decremented delay (2D) = d21/2-d0*3-p16*2-d16*2-p24-p2-p3-DELTA2
+;d21: constant time (evolution of J(HH))               [16 - 22 msec]
+;d28: decremented delay (2D) = d21/2-DELTA2-4u-p3-d0
+;cnst6: = 1J(XH)min
+;cnst7: = 1J(XH)max
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;in20: = in0
+;in28: = in0
+;nd0: 2
+;ns: 2 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: echo-antiecho
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 80%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+
+
+
+;Processing
+
+;PH_mod(F1): pk (or no)
+
+;use xfb and xf2m
+
+
+
+;$Id:$

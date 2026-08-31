@@ -1,0 +1,75 @@
+;cppi (TopSpin 3.0)
+;
+; TS3 / 03.06.2011
+;
+; checked by SEWE 02.08.2011
+;
+;
+;cp editing experiment by phase inversion
+;see: X. Wu and K. W. Zilm, J. Magn. Reson. A 102, 205, (1993).
+;
+;
+;Avance III version
+;parameters:
+;pl1 : X power level
+;pl2 : 1H power for CP
+;pl12 : 1H power for decoupling
+;pl13 : e.g. used in spinal64_13
+;p3 : proton 90 at power level plw2
+;p15 : contact time at plw1 (f1) and plw2 (f2)
+;p16 : polarization inversion time, may be set to about 40u to obtain negative CH2, null CH, and positive C and CH3
+;d1 : recycle delay
+;pcpd2 : pulse length in decoupling sequence
+;cpdprg2 : cw, spinal64 (at plw12)
+;zgoptns : -Dlacq, -Dlcp15, or blank
+;
+;
+;$CLASS=Solids
+;$DIM=1D
+;$TYPE=cross polarisation
+;$SUBTYPE=editing
+;$COMMENT=cp editing experiment by phase inversion
+
+prosol relations=<solids_cp>
+
+
+"acqt0=0"
+
+1 ze
+2 d1 do:f2
+#ifndef lcp15
+#include <p15_prot.incl>
+			;make sure p15 does not exceed 10 msec 
+			;let supervisor change this pulseprogram if 
+			;more is needed
+#endif
+
+#ifndef lacq		
+			;disable protection file for long acquisition change decoupling power !!! or you risk probe damage
+			;if you set the label lacq (ZGOPTNS -Dlacq), the protection is disabled
+
+#include <aq_prot.incl>	
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#endif
+  (p3 pl12 ph1):f2
+  (p15 pl1 ph2):f1 (p15:sp0 ph3):f2 ; e.g. use ramp100.100
+  (p16 ph2):f1 (p16:sp1 ph4):f2 ;e.g. use ramp50100.100
+  1u cpds2:f2		;pl12 is used here
+  go=2 ph31
+  1m do:f2
+  wr #0
+HaltAcqu, 1m
+exit
+
+ph0= 0
+ph1= 1 3
+ph2= 0 0 2 2 1 1 3 3
+ph3=  0
+ph4=  2
+ph31= ph1+ph2
+
+
+
+;$Id:$

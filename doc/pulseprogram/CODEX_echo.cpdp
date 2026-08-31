@@ -1,0 +1,172 @@
+;CODEX_echo.cpdp
+;05/11/2018 IVS
+;11/07/2024 JOS
+
+;$CLASS=SolidsIcon
+;$DIM=1D
+;$TYPE=CODEX
+;$SUBTYPE=CP or DP
+;$COMMENT= Direct Polarization or Cross Polarization
+
+prosol relations=<solids_ICON_QN>
+#include <Delay.incl>
+#include <trigg.incl>
+		; definition of external trigger output$
+#include <hX_cp.incl>
+#include <Decoup_Solids.incl>
+
+"plw13=plw0*pow(((cnst20+cnst38)*4*p0/(1000000)),2)"
+
+"p2=2*p1"
+"TAU1=0.5s/cnst31-p1-p1/2"
+"TAU2=0.25s/cnst31-p1"
+"TAU3=0.25s/cnst31-p1/2"  
+"TAU4=1s/cnst31-1.5*p1"
+"TAU5=1s/cnst31-p1-de"
+"d14=0"
+"in14=1s/(cnst31*l5)"
+"COUNTER=d8*1s*cnst31"
+"FACTOR1=2*l0"
+#ifdef Scodex
+  "DELTA=(1s/cnst31)-p1-1u"
+  "DELTA1=(COUNTER*1s/cnst31)-p1-1u"
+#else
+  "DELTA1=(1s/cnst31)-p1-1u"
+  "DELTA=(COUNTER*1s/cnst31)-p1-1u"
+#endif /* Scodex */
+"DELTA2=2*l0*1s/cnst31"
+#include <trigg.incl>	/*10 usec trigger pulse at TCU connector I cable 6 */
+"acqt0=0"
+baseopt_echo
+
+1 ze
+DELTA2
+2 10m 
+  d1 do:f2								;recycle delay
+ 
+  1m rpp5								;reset phase for xy-8
+#ifdef DPOL
+
+#else
+3 (p3 pl2 ph1):f2						;1H 90 excitation
+  (p15:sp1 ph2):f1 (p15:sp0 ph10):f2		;Normal CP
+
+  (p1 pl1 ph6):f1				
+  d10 pl13:f2							;dephasing transverse M, ~10ms
+#endif
+ trigpe4
+  (p1 pl1 ph7):f1 (1u cw):f2			;read out, same phase as after ph2
+
+;-----------  excitation  ---------------------------
+4 TAU1
+  (p2 pl1 ph5^):f1
+  TAU2
+
+5 TAU2
+  (p2 pl1 ph5^):f1
+  TAU2
+lo to 5 times FACTOR1						;even number
+  TAU3									;texc=(n+1)tr=(L0/2+1)tr
+;------------ exchange mixing time ------------------------
+  (p1 pl1 ph8):f1 (1u do):f2
+  DELTA1 pl13:f2										;mixing time, rotor synchronized to keep phase same
+trigpe4
+  (p1 pl1 ph9):f1 (1u cw):f2
+
+;----------- reconversion ---------------------------
+  TAU3 									;tr/4	
+6 TAU2
+  (p2 pl1 ph5^):f1						;13C 180 deg. pulse
+  TAU2
+lo to 6 times FACTOR1						;even number
+
+  TAU2
+  (p2 pl1 ph5^):f1
+  TAU1					
+
+;------------ z-filter, to control for T1 relaxation -----------------
+7 (p1 pl1 ph3):f1 (1u do):f2           
+  DELTA									;z-filter
+ d14
+trigpe4
+  (p1 pl1 ph4):f1 (1u cpds2):f2
+
+  TAU4
+  (p2 pl1 ph11):f1 	;Hahn echo detection to remove pulse ringdown
+  TAU5
+
+  go=2 ph31 finally do:f2
+  
+  10m id14            ;increment d14 by in14=tr/L5 //gamma integral//
+lo to 2 times l5
+  10m mc #0 to 2 F0(zd)
+  
+HaltAcqu, 1m
+exit
+
+ph0= 0										;reference phase for detection
+ph1= 0 2									;1H 90 excitation
+ph10= 1										;1H CP
+ph2= 0 0 1 1 2 2 3 3			;F1 CP
+ph5= 0 1 0 1 1 0 1 0			;xy-8
+ph6= {1 1 2 2 3 3 0 0}^2	;store to z-axis
+ph7= 3 3 0 0 1 1 2 2			;read out 
+
+ph8= {{3 3 0 0 1 1 2 2}*2}^3^2^1	;store for tm
+ph9= {1 1 2 2 3 3 0 0}^2^3^1		  ;read-out after tm
+
+ph3= 3 3 0 0 1 1 2 2			;store for second z period
+ph4= 1 1 2 2 3 3 0 0			;readout after second z period
+ph11= 0 0 1 1 2 2 3 3 		;hahn echo before detection
+#ifdef DPOL
+ph31= {{{0 0 1 1 2 2 3 3}^2}*2}^2
+#else
+ph31= {{0 2 1 3 2 0 3 1}*4}^2 	;receiver
+#endif
+
+;Avance NEO
+;parameters:
+;p1      : X 90 at pl1(acqt0-calculation & -DX90)
+;p3      : H 90 at pl2
+;p15     : HX CP at sp41 (f1,C) and sp40 (f2,H)
+;pl1     : X 90 at pl1
+;pl2     : H pulse power
+;pl12    : H dec power
+;pl30	: H for 10 kHz spinlock field
+;pl31	: X for 10 kHz spinlock field
+;sp0    : H CP pulse shape
+;sp1    : X CP pulse shape
+;cnst31 : MAS rate in Hz 
+;cnst32  :1H decoupling field correction in Hz
+;cnst33 : 1H spinlock field correction in Hz
+;cnst34 : X spinlock field correction in Hz
+;cnst50	: specified spinlock field Hz  X
+;cnst51  : 1H homonuclear decoupling field in Hz for pl13 decoupling = cnst20 for FSLG experiments
+;cnst52  : 1H heteronuclear decoupling field in Hz for pl12 decoupling
+;cnst53  : fast MAS CP condition n*cnst53*MASR condition for C and n*(cnst53+1) for H (ZQ) or n*(1-cnst53) for DQ cnst53 <1!
+;cnst54	 : calculated  cnst54=cnst53+1 or cnst54=1-cnst53 
+;d1      : recycle delay; 1 to 5 times T1
+;d8			: mixing delay DELTA
+;in14: tr/L5
+;zgoptns: 
+;l0			: recoupling duration check delay DELTA2
+;l5: gamma integral loop, 2 or 4
+;pcpd2   : (calculated) 
+;cpdprg2 : swftppm, spinal64, tppm etc. decoupling program
+;spnam0 : H amplitude modulated contact pulse use tan modulated pulse tanhc60 or tanhc
+;spnam1 : X amplitude modulated contact pulse use constant amplitude square.100
+;ZGOPTNS : -DScodex for S0 expt. (DELTA1 & DELTA swapped)
+;		 : -DDPOL for direct polarization
+;          or -Dlacq : aq is longer than 50 ms 
+;		   or -DfastMASDQ for fastMAS double quantum Cat fast MAS >20 kHz   
+;          or -Dfastmas for x zero quantum CP 
+;          or blank
+;		   for decoupling use:
+;		       -Dlpdec for 1/4MASR low power decoupling
+;				or -Dpidec for pi -pulse decoupling with pidecTAU_12 
+;			or -Ddiydec for home built decoupling
+;			or -DXiX for XiX decoupling
+;ns 		: 64 x n really, ns=ns*l5
+
+
+;$Id: CODEX_echo.cpdp,v1.0   Exp $

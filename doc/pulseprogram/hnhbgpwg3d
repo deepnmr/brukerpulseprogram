@@ -1,0 +1,231 @@
+;hnhbgpwg3d
+;avance-version (15/09/21)
+;HNHB
+;3D sequence with
+;   inverse correlation for triple resonance using inept transfer steps
+;      and correlation via heteronuclear zero and double quantum coherence
+;
+;      F1(H) -> F3(N,t1), HMQC(H,t2) -> F1(H,t3)
+;
+;for determination of 3J NHb (Chi1) (and 3J NHa (Psi)) using quantitative J
+;Ca and C=O pulses using adiabatic shaped pulse
+;phase sensitive using Echo/Antiecho gradient selection (t1)
+;phase sensitive (t2)
+;using constant time in t1
+;delays according to Duex et al.
+;(use parameterset )
+;
+;S.J. Archer, M. Ikura, D.A. Torchia & A. Bax,
+;   J. Magn. Reson. 95, 636-641 (1991)
+;P.Duex, B. Whitehead, R. Boelens, R. Kaptein & G.W. Vuister,
+;   J. Biomol. NMR 10, 301-306 (1997)
+;F. Loehr & H. Rueterjans, J. Biomol. NMR 13, 263 - 274 (1999)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+
+"d21=2.66m"
+"d23=31.9m"
+"d26=2.5m"
+
+
+"d0=3u"
+"d10=3u"
+"d20=d23"
+
+"in0=inf1/2"
+"in10=inf2/4"
+
+"in20=in0"
+
+"td1=tdmax(td1,d20*2,in20)"
+
+
+#   ifdef LABEL_CN
+"DELTA1=d10*2+p35+p22/2-p1*2/PI-4u"
+"DELTA4=d21-d0-p35-p21*2/PI"
+#   else
+"DELTA1=d10*2+p22/2-p1*2/PI-4u"
+"DELTA4=d21-d0-p21*2/PI"
+#   endif /*LABEL_CN*/
+
+"DELTA2=d23-d21-p21*2/PI"
+"DELTA3=d26-p16-d16-p11-p1*2/PI-12u"
+"DELTA5=d26-p16-d16-p11-de-12u"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+aqseq 312
+
+
+1 ze
+  d11 pl16:f3
+2 d11 do:f3
+3 d1 pl1:f1 pl3:f3
+
+  (p1 ph1)
+  d26
+  (center (p2 ph2) (p22 ph1):f3 )
+  d26 UNBLKGRAD
+  (p1 ph2) 
+
+  4u
+  p16:gp1
+  d16 pl1:f1
+
+  (p21 ph3):f3
+  d0 
+
+#   ifdef LABEL_CN
+  (p35:sp41 ph1):f2 
+#   endif /*LABEL_CN*/
+
+  DELTA4
+  (center (p2 ph4):f1 (p22 ph1):f3 )
+  d20
+
+  (p1 ph5):f1
+  4u
+  DELTA1
+  (p44:sp30 ph9)
+  d10
+
+#   ifdef LABEL_CN
+  (p35:sp41 ph1):f2 
+  d10
+  (p22 ph1):f3
+  d10
+  (p35:sp41 ph1):f2 
+#   else
+  d10
+  (p22 ph1):f3
+  d10
+#   endif /*LABEL_CN*/
+
+  d10
+  (p44:sp30 ph2)
+  4u
+  DELTA1 pl1:f1
+  (p1 ph6):f1
+
+  DELTA2
+  (p21 ph7):f3
+
+  p16:gp2
+  d16
+
+  (p1 ph1)
+  4u
+  p16:gp3
+  d16
+  DELTA3
+  (p11:sp1 ph8):f1
+  4u
+  4u pl1:f1
+  (center (p2 ph1) (p22 ph1):f3 )
+  4u
+  (p11:sp1 ph8):f1
+  4u
+  DELTA5
+  p16:gp3
+  d16 pl16:f3
+  4u BLKGRAD
+  go=2 ph31 cpd3:f3
+  d11 do:f3 mc #0 to 2 
+     F1PH(calph(ph3, +90), caldel(d0, +in0) & caldel(d20, -in20))
+     F2PH(calph(ph5, +90) & calph(ph9, +90), caldel(d10, +in10))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+ph5=(8) 7 7 3 3
+ph6=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph7=0 0 0 0 2 2 2 2
+ph8=2
+ph9=1
+ph31=0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;sp1 : f1 channel - shaped pulse  90 degree
+;sp41: f2 channel - shaped pulse (180degree refocussing)
+;spnam41: Bip720,100,10.1
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p35: f2 channel - 180 degree shaped pulse for refocussing
+;                      Bip720,100,10.1 (160us at 600.13 MHz)
+;p44: f1 channel - 180 degree shaped pulse for refocussing
+;                      Bip720,50,20.1            (200us at 600.13 MHz)
+;d0 : incremented delay (F1 in 3D)                     [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d10: incremented delay (F2 in 3D)                     [3 usec]
+;d11: delay for disk I/O                               [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d20: decremented delay (F1 in 3D) = d23
+;d21: 1/(4J(NH)                                        [2.66 msec]
+;d23: constant time delay T(N)                         [31.9 msec]
+;d26: 1/(4J'(NH)                                       [2.5 msec]
+;o2p: Call chemical shift (cnst26)
+;inf1: 1/SW(N) = 2 * DW(N)
+;inf2: 1/SW(H) = 2 * DW(H)
+;in0: 1/(2 * SW(N)) = DW(N)
+;nd0: 2
+;in10: 1/(4 * SW(H)) = (1/2) DW(H)
+;nd10: 4
+;in20: = in0
+;ns: 8 * n
+;ds: >= 16
+;td1: number of experiments       td1 max = 2 * d20 / in20
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 70%
+;gpz2: -20%
+;gpz3: 40%
+
+;use gradient files:   
+;gpnam1: SINE.100
+;gpnam2: SINE.100
+;gpnam3: SINE.100
+
+
+                                           ;preprocessor-flags-start
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with
+;             option -DLABEL_CN (eda: ZGOPTNS)
+                                           ;preprocessor-flags-end
+
+
+
+;$Id:$

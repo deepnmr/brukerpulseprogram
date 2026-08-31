@@ -1,0 +1,51 @@
+;$Id:$
+;1D Gradient Echo for gradshim-procedure
+;using 2H lockswitch unit or BSMS 2H-TX board
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$HIDE=y
+
+#include<Avance.incl>
+#include<Grad.incl>
+#include<De.incl>
+#include<Sysconf.incl>
+
+"d11=30m"
+
+1 ze
+  d11 LOCKDEC_ON
+  d11 UNBLKGRAMP
+2 d1 H2_PULSE
+  4u reset:f1
+  d12 reset:D
+  (p0 ph1):D
+  d27 gron1
+  5u groff
+  d15 ;H2_LOCK
+  d21 gron2
+  ACQ_START(ph30,ph31)
+  aq DWELL_GEN:f1
+  5u groff
+  rcyc=2
+  400m wr #0
+  d11 H2_LOCK
+  d11 BLKGRAMP
+  d11 LOCKDEC_OFF
+exit
+
+ph1=0 2 1 3
+ph30=0
+ph31=0 2 1 3
+
+;pl_ : f_ channel - power level for pulse (default)
+;p0 : f_ channel -  small flip angle                 [2 usec]
+;d1 : relaxation delay
+;d11: delay for disk I/O                             [30 msec]
+;d15: echo time
+;d21: gradient stabilisation delay
+;d27: length of dephasing gradient (phase encode time)
+;NS: 1
+;DS: 0
+
+;define channel number in Sysconf.incl (default is f1)
+;this program can be used for dmx as well

@@ -1,0 +1,49 @@
+;Update_common.info
+;avance-version (21/06/11)
+;
+;difference to previous versions 
+;
+;$CLASS=Common Info
+;$COMMENT=
+
+********************************************************************
+differences to 21/01/19
+
+changed         XmlManifest.incl
+
+********************************************************************
+differences to 20/11/23
+
+changed         XmlManifest.incl
+
+********************************************************************
+differences to 20/09/24
+
+added           Avance4.incl
+                De4.incl
+                Delay.incl
+                Grad4.incl
+                Polariser4.incl
+                Sysconf.incl
+                WeightedSampling.incl
+                XmlManifest.incl
+
+                Update_common.info
+
+
+                aring
+                noesyph
+                zg
+                zgbs
+                zg2h
+                zg2h.2
+
+********************************************************************
+
+20/09/24        created
+
+********************************************************************
+
+
+
+;$Id: $

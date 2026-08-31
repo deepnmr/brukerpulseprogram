@@ -1,0 +1,97 @@
+;p3919fpgp
+;avance-version (12/01/11)
+;1D sequence
+;water suppression using 3-9-19 pulse sequence with gradients
+;with additional flipback pulse
+;
+;M. Piotto, V. Saudek & V. Sklenar, J. Biomol. NMR 2, 661 - 666 (1992)
+;V. Sklenar, M. Piotto, R. Leppik & V. Saudek, J. Magn. Reson., 
+;   Series A 102, 241 -245 (1993)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"TAU=p1*2/3.1416-(p0-p27)*0.231-de+46u"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+2 30m pl1:f1
+  d1
+  50u UNBLKGRAD
+
+  (p29:sp11 ph2):f1
+  2u
+  2u pl1:f1
+  (p1 ph1)
+  50u
+  p16:gp1
+  d16 pl18:f1
+  (p27*0.231 ph3)
+  d19*2
+  (p27*0.692 ph3)
+  d19*2
+  (p27*1.462 ph3)
+  d19*2
+  (p27*1.462 ph4)
+  d19*2
+  (p27*0.692 ph4)
+  d19*2
+  (p0*0.231 ph4)
+  TAU
+  p16:gp1
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  30m pl1:f1 mc #0 to 2 F0(zd)
+exit
+
+
+ph1=0 2
+ph2=2 0
+ph3=0 0 1 1 2 2 3 3 
+ph4=2 2 3 3 0 0 1 1
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl18: f1 channel - power level for 3-9-19-pulse (watergate)
+;sp11: f1 channel - shaped pulse  90 degree
+;p0 : f1 channel -  90 degree pulse at pl18
+;                      use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;p27: f1 channel -  90 degree pulse at pl18
+;p29: f1 channel -  90 degree shaped pulse (flipback pulse)
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;ns: 8 * n, total number of scans: NS * TD0
+;ds: 4
+
+
+;use gradient ratio:	gp 1
+;			  31
+
+;for z-only gradients:
+;gpz1: 31%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+
+
+
+;$Id:$

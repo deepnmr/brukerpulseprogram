@@ -1,0 +1,253 @@
+;na_hcnetgpsisp3d
+;avance-version (21/09/15)
+;HCN
+;3D sequence with
+;   inverse correlation for triple resonance using multiple
+;      inept transfer steps
+;
+;      F1(H6/8) -> F2(C6/8) -> F3(N1/9,t1) 
+;                    -> F2(C6/8,t2) -> F1(H6/8,t3)
+;      and/or
+;      F1(H1') -> F2(C1') -> F3(N1/9,t1) 
+;                    -> F2(C1',t2) -> F1(H1',t3)
+;
+;using shaped pulses on f2 and f3
+;phase sensitive (t1)
+;phase sensitive using Echo/Antiecho gradient selection (t2)
+;using constant time in t2
+;with decoupling during acquisition
+;(use parameterset NA_HCNETGPSISP3D)
+;
+;V. Sklenar, R.D. Peterson, M.R. Rejante & J. Feigon,
+;   J. Biomol. NMR 3, 721 - 727 (1993)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple_na>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"p22=p21*2"
+"d11=30m"
+
+
+"d0=3u"
+"d10=3u"
+"d30=d22-p16-d16-larger(p14,p30)/2-4u"
+
+"in0=inf1/2"
+"in10=inf2/2"
+
+"in30=in10"
+
+"td2=tdmax(td2,d30*2,in30)"
+
+
+"DELTA=d0*2+larger(p2,p4)"
+"DELTA1=d22-p16-d16-larger(p14,p30)/2-4u"
+"DELTA2=d22-p2-d16-p16-larger(p14,p30)/2-d10"
+"DELTA3=p16+d16-p1*2/3.1416+de+8u"
+
+
+"spoffs3=0"
+"spoffs9=0"
+
+
+aqseq 321
+
+
+1 ze 
+  d11 pl12:f2 pl16:f3
+2 d11 do:f2 do:f3
+3 d1
+  (p1 ph1)
+  d4 pl2:f2 pl3:f3
+  (center (p2 ph1) (p4 ph1):f2 )
+  d4 UNBLKGRAD             
+
+#   ifdef TRIMP
+  p28 ph1
+#   endif /* TRIMP */
+
+  (p1 ph2)
+
+  4u
+  p16:gp1
+  d16
+  
+  (p3 ph3):f2
+  DELTA1
+  4u
+  p16:gp2
+  d16
+  (center (p14:sp3 ph1):f2 (p30:sp9 ph1):f3 )
+  4u
+  p16:gp2
+  d16 pl2:f2 pl3:f3
+  DELTA1
+  (p3 ph2):f2
+ 
+  (p21 ph5):f3
+  d0
+  (center (p2 ph1) (p4 ph6):f2 )
+  d0
+  (p22 ph1):f3
+  DELTA
+  (p21 ph1):f3
+
+  4u
+  p16:gp5
+  d16
+  
+  (p3 ph7):f2
+  d10
+  (p2 ph1)
+  DELTA2
+  p16:gp3*EA*-1
+  d16
+  (center (p14:sp3 ph1):f2 (p30:sp9 ph1):f3 )
+  4u
+  p16:gp3*EA
+  d16 pl2:f2
+  d30
+ 
+  (center (p1 ph1) (p3 ph8):f2 )
+  d4
+  (center (p2 ph1) (p4 ph1):f2 )
+  d4
+  (center (p1 ph2) (p3 ph9):f2 )
+  d4
+  (center (p2 ph1) (p4 ph1):f2 )
+  d4
+  (p1 ph1)  
+  DELTA3
+  (p2 ph1) 
+  4u
+  p16:gp4
+  d16 pl12:f2 pl16:f3
+  4u  BLKGRAD                 
+  go=2 ph31 cpd2:f2 cpd3:f3
+  d11 do:f2 do:f3 mc #0 to 2
+     F1PH(calph(ph4, +90) & calph(ph5, +90), caldel(d0, +in0))
+     F2EA(calgrad(EA) & calph(ph9, +180), caldel(d10, +in10) & caldel(d30, -in30) & calph(ph6, +180) & calph(ph7, +180) & calph(ph31, +180))
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=0 0 0 0 2 2 2 2 
+ph4=0   
+ph5=0 2
+ph6=0
+ph7=1
+ph8=0 0 2 2 
+ph9=3 3 1 1 
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl16: f3 channel - power level for CPD/BB decoupling
+;sp3: f2 channel - shaped pulse 180 degree (on resonance)
+;sp9: f3 channel - shaped pulse 180 degree (on resonance)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse				[1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p28: f1 channel - trim pulse                           [1 msec]
+;p30: f3 channel - 180 degree shaped pulse for inversion
+;d0 : incremented delay (F1 in 3D)			[3 usec]
+;d1 : relaxation delay; 1-5 * T1		
+;d4 : 1/(4J(HC)) for both:                              [1.4 msec]
+;                for H1':                               [1.56 msec]
+;                for H8':                               [1.25 msec]
+;d10: incremented delay (F2 in 3D)			[3 usec]
+;d11: delay for disk I/O                               	[30 msec]
+;d16: delay for homospoil/gradient recovery
+;d22: 1/(4J(CN))
+;        C1':                                           [19 msec]
+;        C6/C8:                                         [16 msec]
+;        both                                           [17.5 msec]
+;d30: decremented delay (F2 in 3D) = d22-p16-d16-p14/2-4u
+;o2p: 90(C1') or 137(C6/C8) or 113.5 ppm(both)
+;o3p: 157 ppm
+;inf1: 1/SW(N) = 2 * DW(N)
+;inf2: 1/SW(C) = 2 * DW(C)
+;in0: 1/(2 * SW(N)) =  DW(N)
+;nd0: 2
+;in10: 1/(2 * SW(C)) = DW(C)
+;nd10: 2
+;in30: = in10
+;ns: 8 * n
+;ds: >= 32
+;td1: number of experiments in F1
+;td2: number of experiments in F2       td2 max = 2 * d30 / in30
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: echo-antiecho in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: -30%
+;gpz2: 25%
+;gpz3: 40%
+;gpz4: 20.1%  
+;gpz5: -50%
+
+;use gradient files:
+;gpname1: SMSQ10.100
+;gpname2: SMSQ10.100
+;gpname3: SMSQ10.100
+;gpname4: SMSQ10.100
+;gpname5: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;TRIMP: to use trimpulse p28@pl1 start experiment with
+;          option -DTRIMP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+;Processing
+
+;F2 reverse: true
+
+
+;calculate pulselength according to:
+;   
+;   (DeltaOmega * DeltaT) / (width of region[ppm] * SFOn{MHz})
+;
+;for p14 (sp3) use Q3 pulse (DeltaOmega * DeltaT = 3.448)
+;   either one pulse to cover 22.8ppm (C1' or C6/C8 in separate 
+;      experiments)
+;   (pulselength: 1ms at 600.13 MHz)
+;   or a twofold modulated pulse to cover 8.8ppm at 90ppm (C1') 
+;      and 137ppm (C6/C8) (both in one experiment)
+;   (pulselength: 2.6ms at 600.13 MHz)
+;for p30 (sp9) use Q3 pulse (DeltaOmega * DeltaT = 3.448)
+;   to cover 81ppm (N1/N9)
+;   (pulselength: 700us at 600.13 MHz)
+
+
+
+;$Id: $

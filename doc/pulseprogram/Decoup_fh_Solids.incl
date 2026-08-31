@@ -1,0 +1,38 @@
+;Decoup_fh_Solids.incl
+
+;$CLASS=Solids INCL
+;$COMMENT= INCL for AVance NEO spectrometers
+
+define loopcounter CORR
+#ifdef lpdec
+"cnst62=0.25*cnst31"
+#elif lpdec8
+"cnst62=0.125*cnst31"
+#elif diydec 
+						; set your own decoupling field
+#else
+"cnst62=cnst52"
+#endif
+
+"plw12=plw37*pow(((cnst49+cnst37)/(10000)),2)"   ;channel 3 heteronuclear decoupling
+"plw13=plw0*pow(((cnst62+cnst32)*4*p0/(1000000)),2)"	 ;channel 2 heteronuclear decoupling
+
+
+#ifndef diydec
+"pcpd2=1s/(2*(cnst62))"
+"pcpd3=1s/(2*cnst49)"
+#endif
+#ifdef XiX
+"pcpd2=(l10*1s/cnst31)*(1+(cnst10/100))"
+#elif XiXf3
+"pcpd3=(l10*1s/cnst31)*(1+(cnst10/100))"
+#endif
+
+#ifdef pidecf3
+"TAU=1s/cnst31-1s/(2*(cnst49))"
+#else
+;for pi-pulse decoupling use cpd2=pidecTAU
+"TAU=1s/cnst31-1s/(2*(cnst62))"
+#endif
+
+

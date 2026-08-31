@@ -1,0 +1,16 @@
+;Define Frequencies and other common variables
+;Use with Nitrogen (Y-channel) Detection  
+
+;$COMMENT=Frequency and Timing definitions
+;$CLASS=BioSolids INCL
+;$TYPE=Definitions
+;$SUBTYPE=Nitrogen Detect
+
+
+#define C f3
+#define H f2
+#define N f1
+
+
+
+;$Id:$

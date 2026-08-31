@@ -1,0 +1,338 @@
+;trhncogprc3d5
+;avance-version (21/09/15)
+;IPAP-J-TROSY-HNCO(CA)
+;3D sequence with
+;   inverse correlation for triple resonance
+;      via TROSY and inept transfer steps
+;
+;      F1(H) -> F3(N) -> F2(C=O,t1) -> F2(Ca,J(Ha))
+;            -> F2(C=O) -> F3(N,t2) -> F1(H,t3)
+;
+;for determination of 1J(1D) CaHa
+;   splitting in F1:  1J CaHa * cnst16    (IPAP)
+;                     1J CaCb * cnst16
+;on/off resonance Ca and C=O pulses using shaped pulse
+;phase sensitive (t1)
+;phase sensitive using Echo/Antiecho (t2)
+;using semi-constant time in t1
+;using constant time in t2
+;with H-1 180degree pulses in t1
+;(use parameterset TRHNCOGPRC3D5)
+;
+;D. Yang, J.R. Tolman, N.K. Goto & L.E. Kay, J. Biomol. NMR 12
+;   325-332 (1998)
+;(M. Salzmann, G. Wider, K. Pervushin, H. Senn & K. Wuethrich,
+;   J. Am. Chem. Soc. 121, 844-848 (1999))
+;(A. Eletsky, A. Kienhoefer & K. Pervushin,
+;   J. Biomol. NMR 20, 188-180 (2001))
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+
+"d4=1.72m"
+"d22=4.5m"
+"d23=12m"
+"d26=2.3m"
+
+
+"d0=3u"
+"d10=3u"
+"d20=3u"
+"d31=3u"
+"d28=d22+d31+d0+p22-4u"
+"d30=d23-p11-8u-p1"
+
+"in0=inf1/2"
+"in10=inf2/2"
+
+"FACTOR1=d28*10000000*2/td1"
+"INCR1=FACTOR1/10000000"
+
+"if ( INCR1 > in0 ) { in28 = in0; } else { in28 = INCR1; }"
+"if ( INCR1 > in0 ) { in31 = 0; } else { in31=in0-INCR1; }"
+
+"in20=in0*cnst16"
+"in30=in10"
+
+"td2=tdmax(td2,d30*2,in30)"
+
+
+"DELTA=d0*4+larger(p14,p22)-p14+p2*2-4u"
+"DELTA1=d26-p11-p16-d16-8u"
+"DELTA2=d22-p14-4u"
+"DELTA3=d23-d10-p14-p21*4/3.1416"
+"DELTA4=d26-p16-d16"
+
+
+"l0=1"
+"l10=1"
+
+
+"spoffs2=0"
+"spoffs3=0"
+"spoffs5=bf2*((cnst22-cnst21)/1000000)"
+"spoffs8=0"
+
+
+"o1_F1=bf2*cnst21/1000000"
+
+
+aqseq 321
+
+
+1 d11 ze
+2 d11
+3 d1 pl1:f1 fq=cnst21(bf ppm):f2
+  50u UNBLKGRAD
+
+  p1 ph1
+  4u pl0:f1
+  (p11:sp1 ph3:r):f1
+  4u
+  p16:gp1
+  d16 pl1:f1
+  DELTA1
+  (center (p2 ph2) (p22 ph1):f3 )
+  DELTA1
+  p16:gp1
+  d16 pl0:f1
+  (p11:sp1 ph4:r):f1
+  4u
+  4u pl1:f1
+  (p1 ph4):f1 
+
+  (p21 ph1):f3
+  d23
+  (center (p14:sp3 ph1):f2 (p22 ph1):f3 )
+  d23
+  (p21 ph2):f3
+
+  p16:gp2
+  d16
+
+  (p13:sp2 ph6):f2
+  d0
+  (p22 ph1):f3
+  d22
+  (p14:sp5 ph1):f2
+  d31
+  (p14:sp3 ph1):f2
+  d28
+  (p14:sp5 ph1):f2
+  4u
+
+  if "l10 %2 == 1"
+     {
+     (p13:sp8 ph2):f2
+
+     4u
+     30u fq=cnst23(bf ppm):f2
+     (p2 ph1)
+
+     (p13:sp2 ph1):f2
+     d4*0.5
+     (p2 ph1)
+     d4*0.5
+     (p14:sp3 ph1):f2
+     d4*0.5
+     (p2 ph1)
+     d4*0.5
+     (p13:sp8 ph1):f2
+
+     4u
+
+     (p13:sp2 ph5):f2
+     d20
+     (center (p2 ph1) (p14:sp3 ph1):f2 )
+     d20
+     (p13:sp8 ph1):f2
+     }
+  else
+     {
+     (p13:sp8 ph3):f2
+
+     4u
+     30u fq=cnst23(bf ppm):f2
+
+     (p13:sp2 ph1):f2
+     d4
+     (center (p2 ph1) (p14:sp3 ph1):f2 )
+     d4
+     (p13:sp8 ph2):f2
+
+     4u
+
+     (p13:sp2 ph5):f2
+     d20
+     (center (p2 ph1) (p14:sp3 ph1):f2 )
+     d20
+     (p13:sp8 ph2):f2
+     }
+
+  4u
+  30u fq=cnst21(bf ppm):f2
+
+  (p13:sp2 ph2):f2
+  4u
+  (p14:sp5 ph1):f2
+  DELTA2
+  (p14:sp3 ph1):f2
+  4u
+  (p14:sp5 ph1):f2
+  DELTA2
+  (p13:sp8 ph1):f2
+
+  if "l0 %2 == 1"
+     {
+     (p21 ph7):f3
+     }
+  else
+     {
+     (p21 ph8):f3
+     }
+
+  d10
+  (p14:sp5 ph1):f2
+  DELTA3
+  (center (p14:sp3 ph1):f2 (p22 ph1):f3 )
+  d30 pl0:f1
+  (p11:sp1 ph1:r):f1
+  4u
+  4u pl1:f1
+
+  (p1 ph9)
+  p16:gp3
+  d16
+  DELTA4
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA4
+  p16:gp3
+  d16
+  (center (p1 ph1) (p21 ph9):f3 )
+  p16:gp4
+  d16
+  DELTA1 pl0:f1
+  (p11:sp1 ph3:r):f1
+  4u
+  4u pl1:f1
+  (center (p2 ph1) (p22 ph1):f3 )
+  4u pl0:f1
+  (p11:sp1 ph3:r):f1
+  DELTA1
+  p16:gp4
+  d16 pl1:f1
+  4u BLKGRAD
+  (p21 ph1):f3
+  go=2 ph31
+  d11 mc #0 to 2 
+     F1I(iu10, 2)
+     F1PH(calph(ph6, +90), caldel(d0, +in0) & caldel(d20, +in20) & caldel(d28, -in28) & caldel(d31, +in31)) 
+     F2EA(calph(ph9, +180) & calclc(l0, 1), caldel(d10, +in10) & caldel(d30, -in30))
+exit
+
+
+ph1=0
+ph2=1 
+ph3=2
+ph4=3
+ph5=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph6=0 0 0 0 2 2 2 2
+ph7=2 0 1 3
+ph8=2 0 3 1
+ph9=3
+ph31=3 1 0 2 1 3 2 0 1 3 2 0 3 1 0 2
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;sp1: f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;sp2: f2 channel - shaped pulse  90 degree  (on resonance)
+;sp3: f2 channel - shaped pulse 180 degree  (on resonance)
+;sp5: f2 channel - shaped pulse 180 degree  (Ca off resonance)
+;sp8: f2 channel - shaped pulse  90 degree  (on resonance)
+;                  for time reversed pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse             [1 msec]
+;p13: f2 channel -  90 degree shaped pulse
+;p14: f2 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;d0 : incremented delay (F1 in 3D)                     [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(CH))                                       [1.72 msec]
+;d10: incremented delay (F2 in 3D)                     [3 usec]
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d20: incremented delay (F1 in 3D)                     [3 usec]
+;d22: 1/(4J(COCa))                                     [4.5 msec]
+;d23: 1/(4J(NCO))                                      [12 msec]
+;d26: 1/(4J'(NH))                                      [2.3 msec]
+;d28: decremented delay (F1 in 3D) = d22+d31+d0+p22-4u
+;d30: decremented delay (F2 in 3D) = d23-p11-8u-p1
+;d31: incremented delay (F1 in 3D)                     [3 usec]
+;cnst16: = J(scale) factor
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst22: Calpha chemical shift (offset, in ppm)
+;cnst23: Caliphatic chemical shift (offset, in ppm)
+;o2p: Calpha chemical shift (cnst21)
+;inf1: 1/SW(CO) = 2 * DW(CO)
+;inf2: 1/SW(N) = 2 * DW(N)
+;in0: 1/(2 * SW(CO)) =  (1/2) DW(CO)
+;nd0: 2
+;in10: 1/(2 * SW(N)) = DW(N)
+;nd10: 2
+;in20: = in0*cnst16
+;in28: = d28 *2 / td1
+;in30: = in10
+;in31: = in0 - in28
+;ns: 8 * n
+;ds: >= 16
+;td1: twice the number of experiments in F1
+;td2: number of experiments in F2       td2 max = 2 * d30 / in30
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: echo-antiecho in F2
+
+
+;use gradient ratio:    gp 1 : gp 2 : gp 3 : gp 4
+;                         30 :   11 :   18 :   44
+
+;for z-only gradients:
+;gpz1: 30%
+;gpz2: 11%
+;gpz3: 18%
+;gpz4: 44%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+
+;use AU-program split [ipap 2] (F1) to create separate datasets
+
+
+
+;$Id: trhncogprc3d5,v 1.13 2015/03/03 11:10:39 ber Exp $

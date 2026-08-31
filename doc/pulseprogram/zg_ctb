@@ -1,0 +1,61 @@
+;zg_ctb		-*-pulsprog-*-
+
+;$CLASS=HighRes HWT
+;$DIM=2D
+;$HIDE=y
+
+;2D sequence with explicit programming of acquisition
+;used for cortab
+
+
+#include <De.incl>
+#include <Avance.incl>
+
+define list<power> powerList= <$VALIST>
+
+1 ze
+
+#ifdef H2_SWITCH
+  30m H2_PULSE
+#endif
+
+2 10u powerList:f2
+
+3 d1 
+ 
+  10u reset:f1:f2
+
+  ACQ_START(ph30, ph31)
+
+  1u REC_UNBLK
+
+  (aq START_NEXT_SCAN):f1 (p2 ph1):f2
+
+  1u REC_BLK
+
+  100u
+
+  rcyc=3
+
+  10u wr #0 if #0 zd
+
+  10u powerList.inc
+
+  lo to 2 times td1
+
+#ifdef H2_SWITCH
+  30m H2_LOCK
+#endif
+
+exit
+
+
+ph1 =0 2 1 3 
+ph30=0
+ph31=0 2 1 3
+
+
+;p2 : high power pulse
+;d1 : relaxation delay;
+
+;$Id:$

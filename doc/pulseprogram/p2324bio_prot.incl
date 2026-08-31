@@ -1,0 +1,24 @@
+;p2324bio_prot.incl
+
+; Test the rf on-times for selective Ca and CO pulses
+; 1 ms is maximum
+
+;$COMMENT=Protection against long RF on time
+;$CLASS=BioSolids PROT
+
+
+if "p23<1.1m" goto Passp23
+1u
+print "CO selective 180 degree pulse p23 exceeds 1 msec limit!"
+goto HaltAcqu
+Passp23, 1m
+
+if "p24<1.1m" goto Passp24
+1u
+print "Ca selective 180 degree pulse p24 exceeds 1 msec limit!"
+goto HaltAcqu
+Passp24, 1m
+
+
+
+;$Id:$

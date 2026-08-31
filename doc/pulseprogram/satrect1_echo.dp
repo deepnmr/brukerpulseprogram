@@ -1,0 +1,109 @@
+;satrect1_echo.dp
+;avance-version (21/06/23)
+;
+;TS 4.1.4 / 06/14/2022
+;
+;
+;$CLASS=SolidsIcon
+;$DIM=pseudo 2D
+;$TYPE=direct excitation
+;$SUBTYPE=T1/T2
+;$COMMENT=saturation recovery T1 experiment
+
+prosol relations=<solids_ICON_QN>
+define list<delay> vd_list=<$VDLIST>
+#include <Delay.incl>
+
+#ifdef dec 
+#include <Decoup_Solids.incl>
+#elif lpdec
+#include <Decoup_Solids.incl>
+#endif
+
+"p2=p1*2"
+
+define delay echo
+"echo=((1s*l1)/cnst31)-(p1/2)-(p2/2)-0.5u"
+define delay del6
+"del6=echo-de"
+
+"acqt0=0"
+baseopt_echo
+
+1 ze
+2 10m
+#ifdef dec
+  d1 do:f2		;recycle delay, decoupler off in go-loop
+#include <aq_prot.incl>
+			/*allows max. 50 msec acquisition time, supervisor
+				may change  to max. 1s at less than 5 % duty cycle
+				and reduced decoupling field */
+#elif lpdec 
+  d1 do:f2		;recycle delay, decoupler off in go-loop
+#else 
+ d1
+#endif /* dec */
+
+3 d20
+  (p1 pl1 ph4):f1 
+  d20*2
+  (p1 ph4):f1
+  d20*3
+ (p1 ph4):f1
+ d20*4
+ (p1 ph4):f1
+  lo to 3 times l20
+  vd_list			;recovery delay
+  (p1 pl1 ph1):f1 
+#ifdef dec
+  0.5u pl12:f2
+  echo cpds2:f2
+  (p2 ph2):f1
+  del6
+  go=2 ph31 finally do:f2
+  1m do:f2
+#elif lpdec
+ 0.5u pl12:f2
+ echo cpds2:f2
+  (p2 ph2):f1
+  del6
+  go=2 ph31 finally do:f2
+  1m do:f2
+#else
+ 0.5u
+  echo
+  (p2 ph2):f1
+  del6
+  go=2 ph31
+#endif
+
+    10m mc #0 to 2 F1QF(calclist(vd_list, 1))
+HaltAcqu, 1m
+exit
+
+ph1= 0 1 2 3
+ph2= {{0}*4}^1^2^3
+ph4= 0
+ph31= {0 3 2 1}^2
+
+;Avance NEO version
+;parameters:
+;pl1 : X power level
+;pl12 : power level for H 90 and standard proton decoupling 
+;pl30 : 10kHz reference power level for decoupling
+;p1 : X 90 degree pulse
+;d1 : recycle delay
+;d20 : delay in saturation pulse train
+;l20 : number of pulses in saturation pulse train, 0 if undesired
+;cnst31  : MAS rate in Hz
+;cnst32  : decoupling field correction in Hz
+;vdlist : list containing tau delays
+;FnMODE: QF(no-frequency)
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2 : pulse length in decoupling sequence
+;	   : pidec_12 can be used for 19F decoupling 
+;ZGOPTNS : -Ddec can use pidec_12 decoupling for 19F 
+
+
+
+;$Id: $

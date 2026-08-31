@@ -1,0 +1,63 @@
+;jmod
+;avance-version (20/06/17)
+;J-modulated spin-echo for X-nuclei coupled to H-1 to determine
+;   number of attached protons
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d20=1s/(cnst2*cnst11)"
+
+
+"DELTA=p1*4/3.1416"
+
+
+1 ze
+  30m pl12:f2 
+  30m cpd2:f2
+2 30m
+  d1
+  4u do:f2
+  p1 ph1
+  d20
+  (p2 ph2):f1 
+  d20 cpd2:f2
+  DELTA
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+  d20 do:f2
+exit
+
+
+ph1=0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph2=0 2 1 3 1 3 2 0 1 3 2 0 2 0 1 3
+ph31=0 0 2 2 1 1 3 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d20: 1/(J(XH))  X, XH2 negative, XH, XH3 positive
+;     1/(2J(XH)) X only
+;cnst2: = J(XH)
+;cnst11: = 1  X, XH2 negative, XH, XH3 positive
+;          2  X only
+;ns: 4 * n, total number of scans: NS * TD0
+;ds: 4
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+
+;$Id:$

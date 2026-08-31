@@ -1,0 +1,70 @@
+;dqsph
+;avance-version (12/01/11)
+;2D Double Quantum Spectrum
+;phase sensitive
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"p2=p1*2"
+"d4=1s/(cnst1*4)"
+
+
+"in0=inf1"
+
+"d0=in0/2-p1*4/3.1416"
+
+
+1 ze
+2 d1
+3 p1 ph1
+  d4
+  p2 ph2
+  d4
+  p1 ph1
+  d0
+  p1 ph3
+  go=2 ph31
+  d1 mc #0 to 2 F1PH(calph(ph1, +45) & calph(ph2, +45), caldel(d0, +in0))
+exit
+
+
+ph1=(8) 0 2 4 6 2 4 6 0 4 6 0 2 6 0 2 4
+ph2=(8) 0 2 4 6 2 4 6 0 4 6 0 2 6 0 2 4
+        4 6 0 2 6 0 2 4 0 2 4 6 2 4 6 0
+ph3=    0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph31=   0 2 0 2 1 3 1 3 2 0 2 0 3 1 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;d0 : incremented delay (2D)
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J)
+;cnst1: = J(HH)
+;inf1: 1/SW = 2 * DW
+;in0: 1/(2 * SW) = DW
+;nd0: 1
+;ns: 16 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+
+
+;Processing
+
+;PHC0(F1): 90
+;PHC1(F1): -180
+;FCOR(F1): 1
+
+
+
+;$Id:$

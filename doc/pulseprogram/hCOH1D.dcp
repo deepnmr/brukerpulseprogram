@@ -1,0 +1,277 @@
+;hCOH1D.dcp
+
+;version: 1.0/ TS3.2 /2015/03/18
+;version: 1.1/ TS3.5 /2016/01/11
+
+;written: Veda 2015/03/18
+;checked: Veda 2015/03/19
+;modified: Vdec 2016/Jan: offset setting
+
+;1D 13CO-1H CP experiment
+;H-CO CP, CO-H CP, and H-detection
+
+;13CO hard pulse optimization possible via 'ZGOPTNS' 
+;13CO selective 90 or 180 shaped pulse optimization possible via 'ZGOPTNS' 
+;triple channel mode possible via 'ZGOPTNS'
+
+;Avance III version
+;Parameters:
+;f1 : H
+;f2 : N (using '-DTC')
+;f3 : C
+;o1 : H offset, on resonance with water peak (~5 ppm, water suppression!)
+;o2 : N offset, center of 15N signal (~119 ppm, using '-DTC')
+;o3 : C offset, center of 13CO signal (set to value of cnst21, ~174 ppm)
+;p1 : C 90 hard pulse at pl1
+;p2 : C 180 hard pulse at pl1
+;p3 : H 90 hard pulse at pl2
+;p19 : HCO CP at sp53 (C) & sp39 (H), (~2 to 6 ms)
+;p21 : N 90 hard pulse at pl21 (using '-DTC')
+;p22 : N 180 hard pulse at pl21 (using '-DTC')
+;p23 : CO selective 180 pulse at sp23 (~256 to 275 us at 600 MHz)(using '-DCQ3')
+;      (is linearly proportional to 1/B0! --> adjust length to B0 used)
+;p33 : CO selective 90 pulse at sp33 (~320 us at 600 MHz)(using '-DCQ5')
+;      (is linearly proportional to 1/B0! --> adjust length to B0 used)
+;p39 : CO-H CP at sp19 (H) and sp55 (C)(~400 to 800 us)
+;pl1 : C hard pulse power (can be optimized with '-DC90')
+;pl2 : H hard pulse power
+;pl3 : not used
+;pl12 : H dec power ('sltppm_12nofq' at RF=1/4*MAS rate --> ~15 kHz)
+;pl13 : H dec power during H2O suppression (~15 kHz, 'cwX_13nofq', 'cwY_13nofq')
+;pl16 : N dec power ('waltz16_16nofq' at 10 kHz, using '-DTC')
+;pl18 : C dec power ('waltz16_18nofq' at 10 kHz)
+;pl21 : N hard pulse power (using '-DTC')
+;sp19 : H COH CP power (50 kHz RF recommended at 60 kHz MAS)
+;sp23 : CO selective 180 power (can be optimized using '-DCQ3')
+;       (open the shape in the shapetool>stdisp and go to >Analysis>
+;       Integrate Shape & enter:"length of p23, '180.0', length of p1"
+;       --> result will tell by how much pl1 needs to be changed for sp23)
+;sp33 : CO selective 90 excitation power (can be optimized using '-DCQ5')
+;       (open the shape in the shapetool>stdisp and go to >Analysis>
+;       Integrate Shape & enter:"length of p33, '90.0', length of p1"
+;       --> result will tell by how much pl1 needs to be changed for sp33)
+;sp39 : H HCO CP power (50 kHz RF recommended at 60 kHz MAS)
+;sp53 : CO HCO CP power (10 kHz RF recommended at 60 kHz MAS)
+;sp55 : CO COH CP power (10 kHz RF recommended at 60 kHz MAS)
+;d1 : recycle delay; 1 to 5 times T1 (~0.8 to 1 s)
+;d19 : delay for water suppression (~100 to 300 ms)
+;cpdprg2 : N dec ('waltz16_16nofq' at pl16 (10 kHz), using '-DTC')
+;cpdprg3 : C dec ('waltz16_18nofq' at pl18 (10 kHz))
+;cpdprg4 : H Water suppression along X ('cwX_13nofq' at pl13 (15 kHz))
+;cpdprg5 : H Water suppression along Y ('cwY_13nofq' at pl13 (15 kHz))
+;pcpd2 : N dec pulse: 25 us ('waltz16_16nofq' 10 kHz, using '-DTC')
+;pcpd3 : C dec pulse: 25 us ('waltz16_18nofq' 10 kHz)
+;spnam19 : H shape (ramp down for COH CP, e.g. 'ramp10070.1000')
+;spnam23 : CO shape (e.g. 'Q3.2000')(using '-DCQ3')
+;spnam33 : CO shape (e.g. 'Q5tr.2000')(using '-DCQ5')
+;spnam39 : H shape (ramp up for HCO CP, e.g. 'ramp70100.1000')
+;spnam53 : C shape (e.g. 'square.1000' for HCO CP (=no shape))
+;spnam55 : C shape (e.g. 'square.1000' for COH CP (=no shape))
+;cnst21 : Frequency offset for CO (~174 ppm)
+;ZGOPTNS : -DTC   : for HNC triple channel mode 
+;                   (default: HC double channel mode)
+;          -DC90  : optimize 13C 90 pulse (ZERO crossing)
+;          -DCQ5  : optimize 13CO selective 90 shape (ZERO crossing)
+;          -DCQ3  : optimize 13CO selective 180 shape (NEGMAX)
+;          -Dlacq : acquisition times > 50ms
+;          or blank
+;ns : MIN. 4 (full: 8)
+;ds : 2 or 4
+
+
+;######################################################
+;#                                                    #
+;# hCOH1D.cp based on hNH2D.dcp                       #
+;# Knight et al, Angew. Chem. Int. Ed. Engl.          #
+;# 2011, 50, 11697-11701.                             #
+;#                                                    #
+;######################################################
+
+
+;$COMMENT=hCOH CP-based HSQC
+;$CLASS=BioSolids
+;$DIM=1D
+;$TYPE=H detection
+;$SUBTYPE=CP and Heteronuclear
+
+prosol relations=<biosolHNC>
+
+
+#include <HNC_defs.incl>
+        ; defines H:f1, N:f2, C:f3
+
+#include <trigg.incl>
+        ; definition of external trigger output
+
+
+"spoffs19=0"                 ;##########################
+"spoffs23=0"                 ;#                        #
+"spoffs33=0"                 ;#     ensure correct     #
+"spoffs39=0"                 ;#     shape offsets      #
+"spoffs53=0"                 ;#                        #
+"spoffs55=0"                 ;##########################
+
+"acqt0=-(p1*2/3.1416)-0.5u"     ; baseopt correction
+
+"p2=p1*2"
+"p22=p21*2"
+
+
+define delay ONTIME
+
+                            ;##########################
+;$EXTERN                    ;# python insertion point #
+                            ;##########################
+
+"ONTIME=aq+p19+p39+d19+p23+p33" 
+
+Prepare, ze
+
+;######################################################
+;#               Protections: Pre-Check               #
+;######################################################
+
+#ifdef lacq
+#else
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#include <ONTIME_H_prot.incl>
+        ;total RF deposition restriction to < 1 s
+#endif                 /* end of lacq */
+
+#include <p19bio_prot.incl>
+        ;p19 max. 10 ms
+#include <p39bio_prot.incl>
+        ;p39 max. 10 ms
+#include <noH2Obio_prot.incl>
+        ;water suppression d19 max. 500 ms
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 30m  do:C
+
+#ifdef TC
+  0.5u do:N
+#endif          /* end of TC */
+
+  d1
+  trigg
+
+  0.5u fq=cnst21(bf ppm):C     ; call cnst21 for ased
+
+;######################################################
+;#            Initial excitation & HCO CP             #
+;######################################################
+
+  (p3 pl2 ph1):H
+
+  (p19:sp39 ph0):H  (p19:sp53 ph2):C
+
+;######################################################
+;#             Water suppression                      #
+;######################################################
+
+  (p1 pl1 ph3):C          ; brings magn. to z
+
+  0.5u cpds4:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds5:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds4:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds5:H
+  d19*0.25
+  0.5u do:H
+
+  (p1 pl1 ph4):C          ; brings magn. to y
+  
+;######################################################
+;#           Possible optimization steps              #
+;######################################################
+
+#ifdef C90               ; brings magn. to z
+  (p1 pl1 ph22):C
+#endif           /* end of C90 */ 
+
+#ifdef CQ5               ; brings magn. to z
+  (p33:sp33 ph23):C
+#endif           /* end of CQ5 */ 
+
+#ifdef CQ3               ; flips magn. by 180 degree
+  (p23:sp23 ph23):C
+#endif           /* end of CQ3 */
+
+;######################################################
+;#                    CO-H CP                         #
+;######################################################
+
+  (p39:sp55 ph5):C  (p39:sp19 ph6):H
+
+;#######################################################
+;#                     Acquisition                     #
+;#######################################################
+
+#ifdef TC
+  0.5u pl16:N  pl18:C
+  0.5u cpds2:N  cpds3:C
+#else
+  0.5u pl18:C
+  0.5u cpds3:C
+#endif          /* end of TC */
+
+  go=Start ph31     ;start ADC with ph31 signal routing
+
+#ifdef TC
+  1m do:C  do:N
+#else
+  1m do:C
+#endif          /* end of TC */
+
+30m mc #0 to Start F0(zd)
+
+HaltAcqu, 1m
+exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph1 = 1 3                  ; H 90 hard pulse
+ph0 = 0                    ; H HCO CP Spin lock
+ph2 = 1                    ; CO HCO CP Spin lock
+ph3 = 0                    ; C 1st 90 hard pulse (flip to z)
+ph4 = 0 0 2 2              ; C 2nd 90 hard pulse (flip back)
+ph5 = 1                    ; CO COH CP Spin lock
+ph6 = 1 1 1 1  3 3 3 3     ; H COH CP Spin lock
+
+ph31= 1 3 3 1  3 1 1 3     ; receiver
+
+#ifdef TC
+ph20= 0                    ; N 180 hard pulse
+#endif                     /* end of TC */
+
+#ifdef C90 
+ph22= 0 0 2 2              ;C hard pulse 
+#endif                     /* end of C90 */ 
+
+#ifdef CQ3 
+ph23= 0                    ;CO 180 shape 
+#endif                     /* end of CQ3 */ 
+
+#ifdef CQ5 
+ph23= 0                    ;Ca 90 shape 
+#endif                     /* end of CQ5 */ 
+
+;#######################################################
+
+
+
+;$Id: $

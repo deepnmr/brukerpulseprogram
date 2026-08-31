@@ -1,0 +1,65 @@
+;stmasdqfz (TOPSPIN 3.X)
+;
+; pulse sequence for (satellite transition) STMAS spectroscopy
+; on half integer nuclei
+; with coherence transfer pathway 0 -> +1/-1 -> +2/-2 -> 0 -> -1
+; uses double quantum filter for CT/CT signal suppression and z-filter
+; see H.-T. Kwak and Z. Gan; J. Magn. Reson. 164 (2003) 369-372
+;
+; written by Stefan Steuernagel (031201)
+; modified by sewe 01/10/2012
+;Avance III version
+;parameters:
+;ns : 16 * n
+;p1 : excitation pulse
+;p2 : mixing pulse
+;p3 : selective  90 degree pulse
+;p4 : selective 180 degree pulse
+;pl1 : =119 dB, not used
+;pl11 : power for hard pules
+;pl21 : power for selective pulse
+;d1 : recycle delay
+;d4 : z-filter delay, typ. 20 us
+;cnst31 : spinning frequency
+;l0 : = number of rotor periods for 1. increment
+;in0 : =1/spinning frequency for rotor synchronisation,
+;	or half of it for half rotor synchronisation
+;FnMODE: States or States-TPPI
+;shearing transformation may be desired (xfshear)
+;
+;
+;$CLASS=Solids
+;$DIM=2D
+;$TYPE=half integer quadrupoles
+;$SUBTYPE=STMAS
+;$COMMENT=4-pulse z-filter DQF STMAS
+
+prosol relations=<solids_stmas>
+
+
+"d0=(1s*l0/cnst31)-p1/2-p4-p2/2"
+;cnst11 : to adjust t=0 for acquisition, if digmod = baseopt
+"acqt0=1u*cnst11"
+"inf1=in0"
+
+1 ze
+2 d1
+  (p1 pl11 ph1):f1
+  d0
+  (p4 pl21 ph2):f1
+  (p2 pl11 ph3):f1
+  d4
+  (p3 pl21 ph4):f1
+  go=2 ph31
+  d1 mc #0 to 2 F1PH(ip1,id0) 
+exit
+
+ph1= 0 2
+ph2= 0 0 2 2
+ph3= 0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph4= {0}*8 {1}*8 {2}*8 {3}*8
+ph31=0 2 2 0 2 0 0 2 0 2 2 0 2 0 0 2 1 3 3 1 3 1 1 3 1 3 3 1 3 1 1 3
+
+
+
+;$Id:$

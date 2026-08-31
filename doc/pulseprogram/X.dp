@@ -1,0 +1,104 @@
+;X.dp
+
+;;version: 1.0/ TS3.2 /2013/07/12
+
+;written for BioToolkit: VEDA July 2013
+;double-checked: VEDA SEWE July 2013
+
+;direct excitation and acquisition on C 
+
+
+;Avance II / III version
+;parameters:
+;p1  : C 90 at pl1
+;pl1 : C pulse power
+;pl12: H dec power
+;pl17: H dec low power
+;d1  : recycle delay
+;pcpd2   : H dec pulse cpdprg2
+;cpdprg2 : Decoupling file cw, tppm (at pl12)
+;ZGOPTNS : -Dlowpower : low power decoupling for long acquisition times
+;ns: 4 (full:4)
+
+
+;$COMMENT= single pulse excitation, acquisition without decoupling
+;$CLASS=BioSolids
+;$DIM=1D
+;$TYPE=direct excitation
+;$SUBTYPE=Setup
+
+
+prosol relations=<biosolXH>
+
+#include <XH_defs.incl> 
+        ; defines which channel corresponds to which nucleus
+#include <trigg.incl>
+        ; definition of external trigger output
+
+
+"acqt0=-p1*2/3.1416"
+
+
+                            ;##########################
+;$EXTERN                    ;# Python insertion point #
+                            ;##########################
+
+Prepare, ze
+
+;######################################################
+;#               Protections: Pre-Check               #
+;######################################################
+
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 10m  do:H
+#ifdef nodec
+  d1
+#else
+  d1 do:H         
+#endif  
+  trigg
+#ifdef nodec
+  1u
+#else
+  1u pl12:H
+#endif
+  1u fq=0.0:X				;set 13C on resonance
+#ifdef nodec
+   (p1 pl1 ph1):X
+#else
+   (p1 pl1 ph1):X (1u cpds2):H
+#endif 
+ 
+  
+;#######################################################
+;#                     Acquisition                     #
+;#######################################################
+
+  go=Start ph31
+#ifdef nodec
+  1m
+#else
+  1m do:H         
+#endif
+  10m mc #0 to Start F0(zd)
+  
+HaltAcqu, 1m
+Exit, exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph1= 0 2 1 3		; C hard pulse
+
+ph31=0 2 1 3		; receiver
+
+;#######################################################
+
+
+
+;$Id:$

@@ -1,0 +1,252 @@
+;b_trosyf3gpph
+;avance-version (21/09/15)
+;best-TROSY
+;2D H-1/X correlation via TROSY
+;phase sensitive using Echo/Antiecho method
+;using f3 - channel
+;(use parameterset B_TROSYF3GPPH)
+;
+;(P. Schanda, H. v. Melckebeke & B. Brutscher,
+;   J. Am. Chem. Soc. 128, 9042-9043 (2006))
+;(E. Lescop, P. Schanda & B. Brutscher,
+;   J. Magn. Reson.  187 163-169 (2007))
+;(M. Czisch & R. Boelens, J. Magn. Reson. 134, 158-160 (1998))
+;(K. Pervushin, G. Wider & K. Wuethrich, J. Biomol. NMR 12,
+;   345-348 (1998))
+;(A. Meissner, T. Schulte-Herbrueggen, J. Briand & O.W. Sorensen, Mol. Phys. 96,
+;   1137-1142 (1998))
+;(J. Weigelt, J. Am. Chem. Soc. 120, 10778-10779 (1998))
+;(M. Rance, J.P. Loria & A.G. Palmer III, J. Magn. Reson. 136, 91-101 (1999))
+;(G. Zhu, X.M. Kong & K.H. Sze, J. Biomol. NMR 13, 77-81 (1999))
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p22=p21*2"
+"d11=30m"
+
+"d26=2.4m"
+
+"p29=300u"
+
+
+#   ifdef CALC_SP
+"p41=(bwfac25/(cnst55*cnst51*bf1))*1000000"
+"spw25=plw1*pow((p1*totrot25)/(p41*90.0*integfac25),2)"
+"spw27=plw1*pow((p1*totrot27)/(p41*90.0*integfac27),2)"
+"spoal25=1"
+"spoal27=0"
+
+"p42=(bwfac26/(cnst55*cnst52*bf1))*1000000"
+"spw26=plw1*pow((p1*totrot26)/(p42*90.0*integfac26),2)"
+"spoal26=0.5"
+
+"p43=(bwfac28/(cnst55*cnst53*bf1))*1000000"
+"spw28=plw1*pow((p1*totrot28)/(p43*90.0*integfac28),2)"
+"spw29=plw1*pow((p1*totrot29)/(p43*90.0*integfac29),2)"
+"spoal28=1"
+"spoal29=0"
+#   endif /*CALC_SP*/
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+
+"DELTA1=d26-p29-d16-p41*cnst41-p42*cnst40"
+"DELTA2=d26-p16-d16-p42/2"
+"DELTA3=p43*cnst44-de"
+
+#   ifdef LABEL_CN
+"DELTA=d0*2+p8+p21*4/3.1416"
+#   else
+"DELTA=d0*2+p21*4/3.1416"
+#   endif /*LABEL_CN*/
+
+
+"l0=1"
+
+
+"spoffs13=bf2*(cnst26/1000000)-o2"
+
+"spoffs25=bf1*(cnst54/1000000)-o1"
+"spoffs26=bf1*(cnst54/1000000)-o1"
+"spoffs27=bf1*(cnst54/1000000)-o1"
+"spoffs28=bf1*(cnst54/1000000)-o1"
+"spoffs29=bf1*(cnst54/1000000)-o1"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 d11 ze
+2 d11
+3 d1 pl1:f1
+  50u UNBLKGRAD
+
+  (p41:sp25 ph1)
+  p29:gp1
+  d16
+  DELTA1
+  (center (p42:sp26 ph2) (p22 ph1):f3 )
+  DELTA1
+  p29:gp1
+  d16
+  (p41:sp27 ph4)
+
+  p16:gp4
+  d16
+
+  if "l0 %2 == 1"
+     {
+     (p21 ph5):f3
+     }
+  else
+     {
+     (p21 ph6):f3
+     }
+
+  d0
+
+#   ifdef LABEL_CN
+  (p8:sp13 ph1):f2
+#   else
+#   endif /*LABEL_CN*/
+
+  d0
+  (p22 ph1):f3
+  DELTA
+
+  (p43:sp28 ph7)
+  p16:gp2
+  d16
+  DELTA2
+  (center (p42:sp26 ph1) (p22 ph1):f3 )
+  DELTA2
+  p16:gp2
+  d16
+  (p43:sp29 ph1)
+  
+  (p21 ph7):f3
+  p16:gp3
+  d16
+  DELTA2
+  (center (p42:sp26 ph1) (p22 ph1):f3 )
+  DELTA2
+  p16:gp3
+  d16
+  (p21 ph1):f3
+
+  DELTA3 BLKGRAD
+
+  go=2 ph31
+  d11 mc #0 to 2 
+     F1EA(calph(ph7, +180) & calclc(l0, 1), caldel(d0, +in0) & calph(ph5, +180) & calph(ph6, +180) & calph(ph31, +180))
+exit
+
+
+ph1=0
+ph2=1 
+ph3=2
+ph4=3
+ph5=1 3 0 2
+ph6=1 3 2 0
+ph7=3
+ph31=1 3 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;sp13: f2 channel - shaped pulse 180 degree (Ca and C=O, adiabatic)
+;sp25: f1 channel - shaped pulse  90 degree (Pc9_4_90.1000)
+;sp26: f1 channel - shaped pulse 180 degree (Reburp.1000)
+;sp27: f1 channel - shaped pulse  90 degree (Pc9_4_90.1000)
+;                   for time reversed pulse
+;sp28: f1 channel - shaped pulse  90 degree (Eburp2.1000)
+;sp29: f1 channel - shaped pulse  90 degree (Eburp2tr.1000)
+;                   for time reversed pulse
+;p8 : f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p29: gradient pulse 3                                 [300 usec]
+;p41: f1 channel -  90 degree shaped pulse for excitation
+;                      Pc9_4_90.1000             (2.2ms at 600.13 MHz)
+;p42: f1 channel - 180 degree shaped pulse for refocussing
+;                      Reburp.1000               (1.4ms at 600.13 MHz)
+;p43: f1 channel -  90 degree shaped pulse for excitation
+;                      Eburp2.1000/Eburp2tr.1000 (1.7ms at 600.13 MHz)
+;d0 : incremented delay (F1)                           [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                               [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d26: 1/(4J(NH)                                        [2.4 msec]
+;cnst26: Call chemical shift (offset, in ppm)          [101 ppm]
+;cnst40: compensation of chemical shift evolution during p42
+;           Reburp.1000: 0.5
+;           compensate to the extend the other delays allow
+;cnst41: compensation of chemical shift evolution during p41
+;           Pc9_4_90.1000: 0.529
+;cnst44: compensation of chemical shift evolution during p43
+;           Eburp2.1000: 0.69
+;cnst51: scaling factor for p41 to compensate for transition region
+;           Pc9_4_90.1000: 1.172
+;cnst52: scaling factor for p42 to compensate for transition region
+;           Reburp.1000: 1.426
+;cnst53: scaling factor for p43 to compensate for transition region
+;           Eburp2.1000: 1.000
+;cnst54: H(N) chemical shift (offset, in ppm)
+;cnst55: H(N) bandwidth (in ppm)
+;inf1: 1/SW(N) = 2 * DW(N)
+;in0: 1/(2 * SW(N)) = DW(N)
+;nd0: 2
+;ns: 4 * n
+;ds: >= 16
+;td1: number of experiments in F1
+;FnMODE: echo-antiecho in F1
+
+
+;for z-only gradients:
+;gpz1: 30%
+;gpz2: 18%
+;gpz3: 44%
+;gpz4: 60%
+
+;use gradient files:   
+;gpnam1: SMSQ10.32
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;CALC_SP: for calculation of all bandselective Proton pulses based on cnst54 and cnst55
+;             option -DCALC_SP (eda: ZGOPTNS)
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with 
+;             option -DLABEL_CN (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+										  
+
+
+;Processing
+
+;PHC0(F1): -22.5
+
+
+
+;$Id: $

@@ -1,0 +1,175 @@
+;hmbcctetgpjcl2nd
+;avance-version (15/02/27)
+;J-HMBC
+;2D H-1/X correlation via heteronuclear zero and double quantum
+;   coherence
+;for determination of XH long range coupling constants
+;   via splitting in F1
+;phase sensitive using Echo/Antiecho gradient selection
+;constant time version
+;with two-fold low-pass J-filter to suppress one-bond correlations
+;
+;(A. Meissner & O.W. Soerensen, Magn. Reson. Chem. 39, 49-52 (2001) )
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"cnst30=(1-sfo2/sfo1)/(1+sfo2/sfo1)"
+
+define list<gradient> EA1 = { -cnst30 1.000}
+define list<gradient> EA2 = { 1.000 -cnst30}
+
+
+"d6=1s/(cnst13*2)"
+"d23=1s/(cnst3*4)"
+
+
+"d0=d23-p44/2-p39/2-p3-p16/2-d16/2"
+"d20=d23-p44/2-p39/2-p3-p16/2-d16/2"
+"d28=d6/2-p16-d16-p14/2"
+"d29=d6/2-p14/2-4u"
+
+"in0=inf1/4"
+
+"cnst16=trunc((d29)/(in0*td1))"
+
+"in20=in0"
+"in28=in0*cnst16*2"
+"in29=in0*cnst16*2"
+
+"td1=tdmax(td1,d20*2,in20)"
+
+
+"DELTA=p3*4/PI"
+"DELTA1=1s/(cnst6*2)-p16-d16"
+"DELTA2=1s/(cnst7*2)-p16-d16"
+
+
+1 ze 
+2 d1
+3 4u pl1:f1
+
+  (p1 ph1)
+  DELTA1 UNBLKGRAD
+  p16:gp3
+  d16 pl2:f2
+  (p3 ph3):f2
+  DELTA2
+  p16:gp4
+  d16
+  (p3 ph3):f2
+  p16:gp5
+  d16
+
+  d28 
+  (p14:sp3 ph2):f2
+  d29 
+  4u pl2:f2
+
+  (p3 ph4):f2
+  d0
+  (p44:sp30 ph1)
+  d0
+  (p39:sp4 ph1):f2
+  d20
+  (p44:sp30 ph1)
+  d20
+  DELTA
+  p16:gp1*EA1
+  d16
+  (p39:sp4 ph1):f2
+  p16:gp1*EA2
+  d16 pl2:f2
+  (p3 ph5):f2
+  4u BLKGRAD
+  go=2 ph31
+  d1 mc #0 to 2 
+     F1EA(calgrad(EA1) & calgrad(EA2), caldel(d0, +in0) & caldel(d20, -in20) & caldel(d28, +in28) & caldel(d29, -in29) & calph(ph4, +180) & calph(ph31, +180))
+exit 
+  
+
+ph1=0
+ph2=0 0 0 0 2 2 2 2
+ph3=0 0 2 2
+ph4=0 2
+ph5=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph31=0 2 0 2 0 2 0 2 2 0 2 0 2 0 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;sp3: f2 channel - shaped pulse (180degree inversion)
+;spnam3: Crp60,0.5,20.1
+;sp4: f2 channel - shaped pulse (180degree refocussing)
+;spnam4: Bip720,100,10.1
+;sp30: f1 channel - shaped pulse 180 degree
+;spnam30: Bip720,50,20.1
+;p1 : f1 channel -  90 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion
+;     = 500usec for Crp60,0.5,20.1
+;p16: homospoil/gradient pulse                         [1 msec]
+;p39: f2 channel - 180 degree shaped pulse for refocussing
+;                      Bip720,100,10.1 (160us at 600.13 MHz)
+;p44: f1 channel - 180 degree shaped pulse for refocussing
+;                      Bip720,50,20.1            (200us at 600.13 MHz)
+;d0 : incremented delay (2D) = d23-p44/2-p39/2-p3-p16/2-d16/2
+;d1 : relaxation delay; 1-5 * T1
+;d6 : delay for evolution of long range couplings (1/2Jlr)
+;d16: delay for homospoil/gradient recovery
+;d20: decremented delay (J-evolution) = d23-p44/2-p39/2-p3-p16/2-d16/2
+;d23: constant time delay - 1/(4J(CC))
+;d28: incremented delay (J-evolution) = d6/2-p16-d16-p14/2
+;d29: decremented delay (J-evolution) = d6/2-p14/2-4u
+;cnst3: = 1J(CC)min
+;cnst6: = 1J(XH)min
+;cnst7: = 1J(XH)max
+;cnst13: = J(XH) long range
+;cnst16: = J(scale) factor
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(4 * SW(X)) = (1/2) DW(X)
+;nd0: 4
+;in20: = in0
+;in28: = in0 * J(scale) * 2
+;in29: = in0 * J(scale) * 2
+;ns: 2 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: echo-antiecho
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 80%
+;gpz3: 15%
+;gpz4: -10%
+;gpz5: -5%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+
+;Processing
+
+;PH_mod(F1): pk
+;PHC0(F1): 90
+
+;use xfb and xf2m
+
+
+
+;$Id:$

@@ -1,0 +1,16 @@
+;Define Frequencies and other common variables 
+;Use with Proton (H-channel) Detection  
+
+;$COMMENT=Frequency and Timing definitions
+;$CLASS=BioSolids INCL
+;$TYPE=Definitions
+;$SUBTYPE=Proton Detect
+
+
+#define H f1
+#define C f2
+#define N f3
+
+
+
+;$Id:$

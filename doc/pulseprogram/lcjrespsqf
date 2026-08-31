@@ -1,0 +1,77 @@
+;lcjrespsqf
+;avance-version (12/01/11)
+;homonuclear J-resolved 2D correlation
+;using shaped pulse for off-resonance presaturation
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<lcnmr>
+
+
+#include <Avance.incl>
+
+
+"p2=p1*2"
+"d11=30m"
+"d12=20u"
+
+
+"in0=inf1/2"
+
+"d0=3u"
+
+
+"if (d1/p18 < 1) {l6=1;} else {l6=d1/p18;}"
+
+
+1 ze
+2 d11 
+3 d12
+4 p18:sp6:f1 ph29
+  4u
+  lo to 4 times l6
+  d12 pl1:f1
+  p1 ph1
+  d0
+  p2 ph2
+  d0
+  go=2 ph31
+  d11 mc #0 to 2 F1QF(caldel(d0, +in0))
+exit
+
+
+ph1=0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph2=0 2 1 3 1 3 2 0 1 3 2 0 2 0 3 1
+ph29=0
+ph31=0 0 2 2 1 1 3 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp6: f1 channel - shaped pulse for presaturation
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel -  180 degree high power pulse
+;p18: f1 channel - presaturation using shaped pulse
+;d0 : incremented delay (2D)                         [3 usec]
+;d11: delay for disk I/O                              [30msec]
+;d12: delay for power switching                      [20 usec]
+;l6: p18 * l6 = total duration of presaturation
+;                  during relaxation delay           [16]
+;inf1: 1/w, w = max. width of multiplet
+;in0: 1/(2 * w), w = max. width of multiplet
+;nd0: 2
+;ns: 4 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: QF
+
+;resolution in F1 must be multiple of resolution in F2
+;   FIDRES(t1) * n = FIDRES(t2)
+
+
+
+;$Id:$

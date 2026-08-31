@@ -1,0 +1,96 @@
+; mp3qdfs
+;
+; TS3 / 05.07.2011
+;
+; 3Q MAS pulse program for odd half integer spin nuclei
+; 3-pulse experiment with full echo acquisition:
+; excitation - t1(3Q) - conversion - opt.t1(1Q) - tau - 180sel - acquisiition
+; uses a split-t1 mode with a whole echo acquisition.
+;
+; written by Stefan Steuernagel (031201)
+;
+; for split-t1 set increments as follows:
+; for 3/2 nuclei set: in10 = in0*7/9, in11 = 0
+; for 5/2 nuclei set: in10 = 0, in11 = in0*19/12
+; for 7/2 nuclei set: in10 = 0, in11 = in0*101/45
+; for 9/2 nuclei set: in10 = 0, in11 = in0*91/36
+; or in10 = in11 = 0, if no split-t1 is desired
+; applies a double frequency sweep during p2, for which the parameters
+; need to be set as described below
+; 180 selective pulse should be determined first using Hahn-echo, this may
+; also be used to check that full echo can be obtained with sample of
+; interest. If no full echo can be obtained from sample, use mp3qdfsz
+; before optimising the sweep the excitation pulse p1 needs to be determined first. 
+; see also mp3qzqf, mp3q, mp3qzfil, mp3qfam, mp3qfamz
+; IMPORTANT: use this pulse program together with AU program zg_dfs for correct calculation of sweep,
+; i.e. set aunm to zg_dfs and run acquisition with xaua
+;
+;Avance III version
+;parameters
+;pl1 : =0, not used
+;pl11 : power level for excitation pulse
+;pl21 : power level for selective pulse, ca. plw11 / 1024
+;p1 : excitation pulse at plw11
+;p2 : duration of sweep at spw1
+;p4 : 180 degree selective pulse at plw21
+;p25 : dummy pulse, used for calculations only
+;d0 : =1u or longer
+;d1 : recycle delay
+;d6 : to allow full echo to build up
+;d10 : =0
+;d11 : =0
+;ns : 48 * n (extension of ph2 can be considered if more scans are acquired)
+;cnst1 : (in kHz) Startfrequency of sweep
+;cnst2 : (in kHz) Endfrequency of sweep
+;cnst3 : (in ns) timing resolution of sweep
+;cnst31 : spinning frequency
+;cnst0 : to define sweep as fraction or multiples of rotor period
+;in0 : 1 rotation period for rotor synchronised experiment
+;in10 : in0*7/9 for 3/2, =0 for 5/2 and up
+;in11 : in0*19/12 for 5/2, in0*101/45 for 7/2, =0 for 3/2 and so on...
+;l1 : number of rotor cycles for synchronisation
+;sp1 : power level for frequency sweep
+;spnam1 : dfs, file name of sweep
+;td1 : number of experiments
+;FnMODE: QF
+;MC2 : QF
+;
+;
+;$CLASS=Solids
+;$DIM=2D
+;$TYPE=half integer quadrupoles
+;$SUBTYPE=MQMAS
+;$COMMENT=shifted echo split-t1 3QMAS with DFS
+
+prosol relations=<solids_mqmas>
+
+
+"p25=(1u*cnst1*cnst31/(cnst3+cnst2))+1u"
+"p2=1s/(cnst31*cnst0)"
+"d6=((1s*l1)/cnst31)-(p4/2)-(p2/2)"
+"acqt0=1u*cnst11"
+"in0=inf1"
+
+  ze
+1 d1
+  (p1 pl11 ph1):f1
+  d0
+  (p2:sp1 ph2):f1
+  d6
+  d10
+  (p4 pl21 ph3):f1
+  d11
+  go=1 ph31
+  d1 mc #0 to 1 F1QF(id0&id10&id11)
+exit
+
+ph1=(12) 0 1 2 3 4 5 6 7 8 9 10 11
+ph2= 0
+ph3= 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 
+     2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 3 3 3 3
+ph0= 0
+ph31=0 3 2 1 0 3 2 1 0 3 2 1 2 1 0 3 2 1 0 3 2 1 0 3
+
+
+
+;$Id:$

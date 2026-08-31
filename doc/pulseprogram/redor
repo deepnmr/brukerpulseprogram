@@ -1,0 +1,94 @@
+;redor
+;TS3 / 09.08.2011
+;
+;checked by SEWE 09.08.2011
+;
+; REDOR experiment 
+; single pulse excitation, no decoupling
+; optional saturation pulse train on observe nucleus
+;
+;
+; written by Stefan Steuernagel (031201)
+;
+;
+;Avance III version
+;parameters:
+;p1 : F1  90 degree pulse
+;p2 : F1 180 degree pulse
+;p12 : F2 180 degree pulse
+;d1 : recycle delay
+;d20 : delay in saturation pulse train
+;d31 : =1s/cnst31, 1 rotor period
+;ns : 16*n 
+;pl1 : F1 power level (90/180)
+;pl2 : F2 power level (180)
+;l0 : =1, must be odd for rotor sync
+;l20 : number of pulses in saturation pulse train, 0 if undesired
+;cnst31 : spinning frequency
+;FnMODE: QF
+;
+;
+;$CLASS=Solids
+;$DIM=pseudo 2D
+;$TYPE=direct excitation
+;$SUBTYPE=
+;$COMMENT=REDOR experiment, single pulse excitation
+
+prosol relations=<solids_default>
+
+
+define delay del25		;calculate sync. delays
+"del25=(0.25s/cnst31)-(p1/2)"
+define delay del26
+"del26=(0.25s/cnst31)-(p12/2)"
+define delay del27
+"del27=(0.25s/cnst31)-(p2/2)"
+define delay del28
+"del28=(0.25s/cnst31)-de"
+"d31=1s/cnst31"
+"acqt0=0"
+
+1 ze			;accumulate into an empty memory
+  d31
+2 10m
+saturate, d20		;optional saturation recovery
+  (p1 pl1 ph1):f1
+  lo to saturate times l20
+  d1
+#include <aq_prot.incl>	
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#include <rot_prot.incl>	
+			;protect against misset cnst31, must be >1000
+  2u rpp9
+  2u rpp8
+  (p1 pl1 ph2):f1
+  del25
+3 del26 
+  (p12 pl2 ph8^):f2	
+  del26
+  lo to 3 times l0
+  del27
+  (p2  ph5):f1	
+  del27
+4 del26
+  (p12 ph9^):f2	
+  del26
+  lo to 4 times l0
+  del28
+  go=2 ph31
+  10m mc #0 to 2 F1QF(1m iu0 & 1m iu0)
+HaltAcqu, 1m		;jump address for protection files
+exit
+
+ph1= 0
+ph2= 0 2 1 3
+ph5= 0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph8= 0 1 0 1 1 0 1 0
+ph9= 0 1 0 1 1 0 1 0
+ph31=0 2 3 1 2 0 1 3
+
+
+
+;$Id:$

@@ -1,0 +1,152 @@
+;pc71d
+;avance-version (21/02/18)
+;
+;version 1.0 for TopSpin 3.0 / July 13, 2011
+;
+;1D DQ excitation sequence POST_C7 
+;for setup of the 2D INADEQUATE type experiments
+;for yield measurements
+;no f2 decoupling
+;
+;Hohwy, M. Jakobsen, H.J. Eden, M. Levitt, M.H., Nielsen, N.C., 
+;J. Chem. Phys. 108, 2686-2694 (1998)
+;revised 09/09/03 JOS
+;revised 13/07/2011 GALT
+;
+;phase cycling: 4 (double quantum filter) * 4 (read pulse cycling) 
+; full phase cycle: ns=16
+; for ns=4 or ns=8 artefacts may occur, for suppression use zgoptns=-Dzfilter and set d20=20 us (13C)
+;
+;Avance III version
+;parameters:
+;d1 : recycle delay
+;d4 : z-filter delay (typically 20 us)
+;pl1 : f1 power level
+;pl11 : for C7 recoupling sequence, B1=7*cnst31 in Hz
+;pl12 ; power level for standard decoupling
+;pl13 : power level for special decoupling (e. g. cwlg)
+;p1 : excitation pulse at pl1
+;cnst31 : spinning speed
+;l0 : number of composite C7 cycles for DQ excitation
+;l1 : number of composite C7 cycles for DQ reconversion
+;d20 : delay between saturation pulses
+;l20 : number of pulses in saturation pulse train, 0 if undesired
+;zgoptns : blank, =dec (decoupling), =fixed (l1=l0), =zfilter (ns<16)
+;cpdprg1 : decoupling during DQ excitation and reconversion
+;cpdprg2 : decoupling during acquisition
+;pcpd2 : decoupling pulse f2 at plw12, pcpd = 2*P3-0.2us used by TPPM and SPINAL
+;cnst20: LG-RF field as adjusted, in Hz used to calculate cnst22 and cnst23 +and - LG frequency
+;cnst22: +LG frequency offset calc. by lgcalc.incl
+;cnst23: -LG frequency offset calc. by lgcalc.incl
+;cnst24: offset for 1H evol. during FSLG: 0 - -2000;ns : n*16
+;
+;
+;$CLASS=Solids
+;$DIM=1D
+;$TYPE=direct excitation
+;$SUBTYPE=homonuclear correlation
+;$COMMENT=DQ excitation sequence post-C7
+
+prosol relations=<solids_default>
+
+
+define pulse pul360
+"pul360=((1s/cnst31)/7)"
+define pulse pul90
+"pul90=((0.25s/cnst31)/7)"
+define pulse pul270
+"pul270=((0.75s/cnst31)/7)"
+"d31=1s/cnst31"
+
+;for digmod=baseopt
+"acqt0=(-2.0*p1)/3.14159"
+
+#ifdef dec
+#include <lgcalc.incl>
+			;calculates cnst22 from cnst20, RF field at pl13
+#endif
+
+#ifdef fixed
+"l1=l0"
+#endif
+
+define delay recoup 
+"recoup=(2/7)*((d31*l0)+(d31*l1))"
+
+  ze
+1 d31 
+  recoup
+#include <recoup_prot.incl>
+2 1m
+#ifdef dec
+  1m do:f2
+#include <aq_prot.incl>	
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#else
+  1m
+#endif
+3 d20			;delay between saturation pulses			
+  (p1 ph1):f1		;saturation loop if required
+  lo to 3 times l20
+  d1  
+  1m rpp11
+  1m rpp12
+  1m rpp13
+  1m rpp14
+  1u pl11:f1
+#ifdef dec
+  1u cpds1:f2
+#else
+  1u
+#endif
+4 pul90:f1 ph11 ipp13 ipp14	;c7 excitation 1 loop = 2Tr/7
+  pul360:f1 ph12  ipp12
+  pul270:f1 ph11  ipp11
+  lo to 4 times l0
+  1u
+5 pul90:f1 ph13			;c7 reconversion
+  pul360:f1 ph14 ipp14
+  pul270:f1 ph13 ipp13
+  lo to 5 times l1
+
+#ifdef zfilter 
+#ifdef dec  
+  d4 do:f2
+#else
+  d4
+#endif
+#endif
+
+#ifdef dec
+  (p1 pl1 ph5):f1  (1u cpds2):f2
+#else
+  (p1 pl1 ph5):f1
+#endif
+  gosc ph31 		;start ADC with ph31 signal routing
+#ifdef dec
+  1m do:f2
+#else
+  1m
+#endif
+  1m ip13
+  1m ip14
+  lo to 2 times ns
+  100m wr #0 
+HaltAcqu, 1m
+exit
+
+ph1= 0
+ph5= 0 0 0 0 2 2 2 2 1 1 1 1 3 3 3 3
+ph11 = (degree,45.0) 0.00 51.43 102.86 154.29 205.71 257.14 308.57 
+ph12 = (degree,45.0) 180.00 231.43 282.86 334.29 385.71 437.14 488.57 
+ph13 = (degree,90.0) 90.00 141.43 192.86 244.29 295.71 347.14 398.57 
+ph14 = (degree,90.0) 270.00 321.43 372.86 424.29 475.71 527.14 578.57 
+
+ph31= 0 2 0 2 2 0 2 0 1 3 1 3 3 1 3 1	
+
+
+
+;$Id:$
+

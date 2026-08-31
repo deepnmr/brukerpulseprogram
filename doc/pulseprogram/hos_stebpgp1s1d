@@ -1,0 +1,112 @@
+;hos_stebpgp1s1d
+;avance-version (21/09/15)
+;1D sequence for diffusion measurement using stimulated echo
+;using bipolar gradient pulses for diffusion
+;using 1 spoil gradient
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+
+
+"DELTA1=d20-p1*2-p2-p30*2-d16*3-p19"
+
+"TAU1=de"
+"TAU2=p1*2/PI"
+
+"acqt0=0"
+baseopt_echo
+
+1 ze
+2 30m
+
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u
+#   endif /*FLAG_BLK*/
+
+  d1
+  50u UNBLKGRAD
+  p1 ph1
+  p30:gp6
+  d16
+  p2 ph2
+  p30:gp6*-1
+  d16
+  p1 ph3
+  p19:gp7
+  d16
+  DELTA1
+  p1 ph4
+  p30:gp6
+  d16
+  TAU1
+  p2 ph2
+  p30:gp6*-1
+  d16
+
+#   ifdef FLAG_BLK
+  TAU2
+#   else
+  TAU2 BLKGRAD
+#   endif /*FLAG_BLK*/
+
+  go=2 ph31 
+  30m mc #0 to 2 F0(zd)
+
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u
+#   endif /*FLAG_BLK*/
+
+exit
+
+
+ph1= 0
+ph2= 0 0 0 0  2 2 2 2
+ph3= 0 0 0 0  0 0 0 0  2 2 2 2  2 2 2 2
+ph4= 0 1 2 3
+ph31=0 3 2 1  0 3 2 1  2 1 0 3  2 1 0 3
+
+
+;pl1: f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p19: gradient pulse 2 (spoil gradient)
+;p30: gradient pulse (little DELTA * 0.5)
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for gradient recovery
+;d20: diffusion time (big DELTA)
+;ns : 8 * n, total number of scans: NS * TD0
+;ds : 4 * m
+
+
+;use gradient ratio:    gp 6 : gp 7
+;                       var  : -17.13
+
+;for z-only gradients:
+;gpz6: 1-100%
+;gpz7: -17.13% (spoil)
+
+;use gradient files:   
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+
+                                          ;preprocessor-flags-start
+;FLAG_BLK: for BLKGRAD before d1 rather than go
+;             option -DFLAG_BLK: (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+;$Id:$

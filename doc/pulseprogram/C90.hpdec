@@ -1,0 +1,96 @@
+;C90.hpdec
+
+;;version: 1.0/ TS3.2 /2013/07/12
+
+;written for BioToolkit: VEDA July 2013
+;double-checked: VEDA SEWE July 2013
+
+
+;direct excitation and acquisition on C with high power 1H decoupling
+;suitable for various types of decoupling
+
+;Avance II / III version
+;parameters:
+;p1      : C 90 at pl1
+;pl1     : C pulse power
+;pl12    : H dec power
+;d1      : recycle delay; 1 to 5 times T1
+;pcpd2   : pulse length in decoupling sequence cpdprg2
+;cpdprg2 : spinal64, swftppm, tppm etc. decoupling program
+;ZGOPTNS : -Dlacq : aq longer than 50 ms 
+;          -Dlg : automatic calculation of Lee-Goldberg offset
+;          or blank
+;ns      : 4 (full:4)
+
+
+;$COMMENT= direct excitation on C with hp dec
+;$CLASS=BioSolids
+;$DIM=1D
+;$TYPE=direct excitation
+;$SUBTYPE=Setup
+
+
+prosol relations=<biosolCHN>
+
+#include <CHN_defs.incl> 
+        ; defines which channel corresponds to which nucleus
+#include <trigg.incl>
+        ; definition of external trigger output
+
+"acqt0=-p1*2/3.1416"
+
+                            ;##########################
+;$EXTERN                    ;# Python insertion point #
+                            ;##########################
+
+Prepare, ze
+
+;######################################################
+;#               Protections: Pre-Check               #
+;######################################################
+
+# ifdef lg
+#include <lgcalc.incl>
+# endif
+
+#ifndef lacq
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#endif
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 30m do:H
+  d1 pl1:C pl12:H
+
+  trigg
+  1u fq=0.0:H                      ;set 1H on resonance
+
+ (p1 ph1):C  (1u cpds2):H
+ 
+;#######################################################
+;#                     Acquisition                     #
+;####################################################### 
+
+  go=Start ph31         
+  1m do:H
+  30m mc #0 to Start F0(zd) 
+
+HaltAcqu, 1m
+Exit, exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph1 = 0 2 1 3        ; C hard pulse
+
+ph31= 0 2 1 3        ; receiver
+
+;#######################################################
+
+
+
+;$Id:$

@@ -1,0 +1,271 @@
+;c_cas_gly_4
+;avance-version (21/09/15)
+;music: Gly(G) and/or Asn(N)/Gln(Q) sidechain
+;2D sequence with
+;   13C detected correlation for triple resonance using
+;      multiple inept transfer steps
+;   CH2 selection
+;   CaNCO based
+;
+;      F2(H(CH2)) -> F1(Ca,t1) -> F3(N) -> F1(C=O,t2)
+;
+;options:
+;   no option       Ca(Gly) and Ca(Gly+1) (and Asn/Gln sidechain)
+;   LABEL_GLY       only Ca(Gly) and Ca(Gly+1)
+;possible breakthrough:
+;on/off resonance Ca and C=O pulses using shaped pulse
+;phase sensitive (t1)
+;using constant time in t1
+;using IPAP scheme for virtual decoupling
+;(use parameterset )
+;
+;W. Bermel, I. Bertini, J. Chill, I.C. Felli, N. Haba, V. Kumar M.V.
+;   & R. Pierattelli, ChemBioChem 13, 2425-2432 (2012)
+;(M. Schubert, M. Smalla, P. Schmieder & H. Oschkinat, 
+;   J. Magn. Reson. 141, 34-43 (1999))
+;(S. Grzesiek & A. Bax, J. Biomol. NMR 3, 185-204 (1993))
+;(D.R. Muhandiram & L.E. Kay, J. Magn. Reson. B 103, 203-216 (1994))
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple_c>
+
+
+#include<Avance.incl>
+#include<Grad.incl>
+#include<Delay.incl>
+
+
+"p4=p3*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+
+"d2=3.5m"
+"d22=4.5m"
+"d23=13.3m"
+"d27=13.8m"
+"d29=16.0m"
+
+
+"d0=3u"
+"d20=d27-d2-p3*2"
+
+"in0=inf1/2"
+
+"in20=in0"
+
+"td1=tdmax(td1,d20*2,in20)"
+
+
+"DELTA1=d2-p19-d16"
+"DELTA2=d2-p19-d16-p12-4u"
+"DELTA3=d27-p19-d16-larger(p4,p12)-d0"
+
+"TAU1=d29-d23-p12"
+"TAU2=d29/2-p12/2"
+"TAU3=d29-d22-p12"
+
+
+"l0=1"
+
+
+"spoffs23=0"
+"spoffs24=0"
+"spoffs25=0"
+"spoffs26=bf1*((cnst21-cnst23)/1000000)"
+"spoffs27=bf1*((cnst22-cnst21)/1000000)"
+
+
+#   ifdef LABEL_GLY
+"TAU9=0"
+
+"o1_F1=bf1*cnst23/1000000"
+#   else
+"cnst62=-bf1*(cnst22-cnst23)"
+"cnst63=-cnst62*(inf1/1000000)*360.0"
+
+"TAU9=abs(cnst62+cnst63)/100000"
+
+"o1_F1=bf1*cnst22/1000000"
+#   endif /*LABEL_GLY*/
+
+
+1 ze
+  d11 pl12:f2 pl16:f3
+2 d11 do:f2 do:f3
+3 d1 fq=cnst23(bf ppm):f1
+  50u UNBLKGRAD
+  d12 pl2:f2 pl3:f3
+
+  (p3 ph1):f2
+  p19:gp1
+  d16
+  DELTA1
+  (center (p11:sp23 ph1) (p4 ph1):f2 )
+  4u
+  (p12:sp26 ph1)
+  DELTA2
+  p19:gp1
+  d16
+  (p3 ph1 p3 ph6):f2
+
+  d20
+  (center (p12:sp24 ph1) (p22 ph1):f3 )
+  p19:gp1
+  d16
+  DELTA3
+  (center (p12:sp26 ph1) (p4 ph1):f2 )
+  d0
+  (p11:sp25 ph5)
+
+  4u do:f2
+  p16:gp2
+  d16 fq=cnst21(bf ppm):f1 pl12:f2 
+  20u cpd2:f2
+
+  (p21 ph7):f3
+  d23
+  (p12:sp27 ph1)
+  TAU1
+  (center (p12:sp24 ph1) (p22 ph1):f3 )
+  d29
+  (p21 ph1):f3
+
+  4u do:f2
+  p16:gp3
+  d16
+  20u cpd2:f2
+
+  if "l0 %2 == 1"
+     {
+     (p11:sp23 ph1)
+     TAU2
+     (p12:sp27 ph1)
+     TAU2
+     (center (p12:sp24 ph1) (p22 ph1):f3 )
+     TAU2
+     (p12:sp27 ph1)
+     TAU2 pl16:f3
+     }
+  else
+     {
+     (p11:sp23 ph4)
+     d22
+     (p12:sp27 ph1)
+     TAU3
+     (center (p12:sp24 ph1) (p22 ph1):f3 )
+     TAU2
+     TAU2 pl16:f3
+     (p12:sp27 ph1)
+     }
+  
+  4u BLKGRAD
+
+  go=2 ph31 cpd3:f3
+  d11 do:f2 do:f3 mc #0 to 2 
+     F1I(iu0, 2)
+
+#   ifdef LABEL_GLY
+     F1PH(calph(ph5, -90), caldel(d0, +in0) & caldel(d20, -in20))
+#   else
+     F1PH(calph(ph5, -90), caldel(d0, +in0) & caldel(d20, -in20) & calph(ph5, -cnst63))
+#   endif /*LABEL_GLY*/
+
+TAU9
+exit
+
+
+ph1=0
+ph2=1
+ph3=2
+ph4=3
+ph5=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph6=(8) 1 1 3 3 5 5 7 7
+ph7=0 2
+ph31=0 2 2 0 0 2 2 0 2 0 0 2 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl16: f3 channel - power level for CPD/BB decoupling
+;sp23: f1 channel - shaped pulse  90 degree  (on resonance)
+;sp24: f1 channel - shaped pulse 180 degree  (on resonance)
+;sp25: f1 channel - shaped pulse  90 degree  (on resonance)
+;                   for time reversed pulse
+;sp26: f1 channel - shaped pulse 180 degree  (C=O off resonance)
+;sp27: f1 channel - shaped pulse 180 degree  (Ca off resonance)
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse (sp23, sp25)
+;p12: f1 channel - 180 degree shaped pulse (sp24, sp26, sp27)
+;p16: homospoil/gradient pulse                         [1 msec]
+;p19: gradient pulse 2                                 [500 usec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;d0 : incremented delay (F1 in 2D)                     [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J(CH))                                       [3.5 msec]
+;d10: incremented delay (F2 in 3D) =  d23/2-p14/2
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d20: decremented delay (F1 in 2D) = d27-d2-p3*2
+;d22: 1/(4J(CaCO))                                     [4.5 msec]
+;d23: 1/(4J(NCa))                                      [13.3 msec]
+;d27: 1/(4J(NCa))                                      [13.8 msec]
+;d29: 1/(4J(NCO))                                      [16.0 msec]
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst22: Calpha chemical shift (offset, in ppm)
+;cnst23: Caliphatic chemical shift (offset, in ppm)
+;cnst62: offset for Calpha region (Hz)
+;cnst63: additional phase increment to center Calpha region
+;o1p: CO chemical shift (cnst21)
+;l0: flag to switch between inphase and antiphase
+;inf1: 1/SW(Ca) = 2 * DW(Ca)
+;in0: 1/(2 * SW(Ca)) = (1/2) DW(Ca)
+;nd0: 2
+;in20: = in0
+;ns: 8 * n
+;ds: = 32
+;td1: number of experiments in F1       td1 max = 2 * d20 / in20
+;FnMODE: States-TPPI (or TPPI) in F1
+;cpd2: decoupling according to sequence defined by cpdprg1
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd2: f1 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 3%
+;gpz2: 50%
+;gpz3: 30%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;LABEL_GLY: for Gly only start experiment with
+;             option -DLABEL_GLY (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;Processing
+
+;use AU-program splitcomb [ipap 2] to process data
+
+
+
+;$Id: $

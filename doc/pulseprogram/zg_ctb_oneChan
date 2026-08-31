@@ -1,0 +1,65 @@
+;zg_ctb_oneChan		-*-pulsprog-*-
+
+;$CLASS=HighRes HWT
+;$DIM=2D
+;$HIDE=y
+
+;2D sequence with explicit programming of acquisition
+;used for cortab
+
+
+#include <De.incl>
+#include <Avance.incl>
+
+#define PULSE_GATE 25
+#define TRANSMIT_GATE 27
+#define TRANCEIVE_ON REC_UNBLK|TRANSMIT_GATE|PULSE_GATE
+#define TRANCEIVE_OFF REC_BLK^TRANSMIT_GATE^PULSE_GATE
+
+define list<power> powerList= <$VALIST>
+
+1 ze
+
+#ifdef H2_SWITCH
+  30m H2_PULSE
+#endif
+
+2 10u powerList:f1
+
+3 d1
+ 
+  10u reset:f1
+
+  ACQ_START(ph30, ph31)
+
+  1u TRANCEIVE_ON
+
+  (1u cw ph1):f1
+
+  aq START_NEXT_SCAN
+
+  1u TRANCEIVE_OFF
+
+  100u do:f1
+  
+  rcyc=3
+
+  10u wr #0 if #0 zd
+
+  10u powerList.inc
+
+  lo to 2 times td1
+
+#ifdef H2_SWITCH
+  30m H2_LOCK
+#endif
+
+exit
+
+
+ph1 =0 2 1 3 
+
+ph30=0
+ph31=0 2 1 3
+
+;$Id:$

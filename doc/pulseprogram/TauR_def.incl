@@ -1,0 +1,29 @@
+;TauR_def.incl
+;version (13/08/21)
+;Define different rotor period-dependent delays
+
+
+;$COMMENT=TauR definitions
+;$CLASS=BioSolids INCL
+;$TYPE=Rotor sync
+
+
+;TauR 	: time for one rotor period
+;TauRm2 : time for one rotor period - 2us
+;TauRm4 : time for one rotor period - 4us
+
+;cnst31 : MAS rate in Hz
+
+
+define delay TauR
+  "TauR=1s/cnst31"
+  
+define delay TauRm2
+  "TauRm2=1s/cnst31 - 2u"
+  
+define delay TauRm4
+  "TauRm4=1s/cnst31 - 4u"
+
+
+
+;$Id:$

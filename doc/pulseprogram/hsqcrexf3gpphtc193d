@@ -1,0 +1,475 @@
+;hsqcrexf3gpphtc193d
+;avance-version (19/02/11)
+;HEROINE 
+;   determination of R2,0 (T1rho) and Rexchange (CT-CPMG)
+;3D H-1/X correlation via double inept transfer
+;phase sensitive
+;with decoupling during acquisition
+;using f3 - channel
+;water suppression using 3-9-19 pulse sequence with gradients
+;as pseudo3D
+;using temperature compensation
+;
+; WARNING !!!
+;  This Pulse program uses very high power for a 15N spinlock.
+;  Make sure that the CroProbe can handle this power.
+;  It is not recommended to run this on a RT Probe.
+;
+;D. Ban, A. Mazur, M. Carneiro, T. M. Sabo, K. Giller, L. M. I. Koharudin, 
+;   S. Becker, A. M. Gronenborn, C. Griesinger, D. Lee, in preparation (2013)
+;(G. Bodenhausen & D.J. Ruben, Chem. Phys. Lett. 69, 185 (1980))
+;(M. Piotto, V. Saudek & V. Sklenar, J. Biomol. NMR 2, 661 - 666 (1992))
+;(V. Sklenar, M. Piotto, R. Leppik & V. Saudek, J. Magn. Reson.,
+;   Series A 102, 241 -245 (1993))
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<delay> RF_field=<$VDLIST>
+define list<delay> T_relax=<$VALIST>
+
+define delay RF_max
+define delay T_max
+
+define loopcounter COUNTER1
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+"d25=1s/(cnst4*cnst12)"
+"d26=1s/(cnst4*4)"
+
+
+"cnst29=0"
+
+
+"d10=3u"
+
+"in10=inf2/2"
+
+
+"DELTA=d19-p22/2"
+"DELTA1=d26-p16-d16-p27*2.385-d19*5-p1*2/PI"
+"DELTA2=d26-p16-d16-p27*2.154-p0*0.231-d19*5-de-8u"
+"DELTA4=d25-p16-d16-p11-4u"
+"DELTA5=d25-p16-d16"
+"DELTA6=d25-p16-d16-p11-8u"
+
+#   ifdef LABEL_CN
+"DELTA3=d10*2+larger(p2,p8)"
+#   else
+"DELTA3=d10*2+p2"
+#   endif /*LABEL_CN*/
+
+
+#   ifdef FLAG_R20
+"d32=0"
+"p25=0"
+#   else
+"cnst33=sqrt(plw23/plw34)"
+"d31=0"
+"d33=0"
+#   endif /*FLAG_R20*/
+
+"p33=0"
+"l11=0"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+aqseq 312
+
+
+1 ze 
+  d11 pl16:f3
+
+  "T_max=0"
+
+9 20u
+  if "T_relax > T_max"
+     {
+     20u
+     "T_max=T_relax"
+     }
+
+  3m T_relax.inc
+  lo to 9 times l14
+
+  3m T_relax.res
+
+2 d11 do:f3
+
+#   ifdef FLAG_R20
+  "d32=T_relax[l11]"
+  20u
+  "p25=d32*0.25"
+  20u
+  if "T_max > d32"
+     {
+     "p33=T_max-d32"
+     }
+     else
+     {
+     "p33=0"
+     }
+     20u
+     "DELTA8=d1"
+
+#   else
+  "d31=RF_field[l11]"
+  20u
+  "if (d31 == 0) \
+     { \
+     DELTA7=1s; \
+     COUNTER1=0; \
+     } \
+  else \
+     { \
+     COUNTER1=d21*d31*0.5; \
+     d31=COUNTER1/(0.5*d21); \
+     DELTA7=(1 / (d31*4) ) - p30/2000000; \
+     }"
+  20u
+  "d33=cnst33*p30*8*COUNTER1"
+  20u
+  "p33=T_max-d33"
+  20u
+  "DELTA8=d1-p33"
+#   endif /*FLAG_R20*/
+
+  10u fq=cnst50 (sfo ppm):f3
+  4u pl34:f3
+  (p33 ph1):f3
+  DELTA8
+  10u fq=cnst29 (sfo ppm):f3
+3 d12 pl1:f1 pl3:f3
+  50u UNBLKGRAD
+  (p21 ph1):f3
+  p16:gp1
+  d16
+  (p1 ph1)
+  d26 pl3:f3
+  (center (p2 ph1) (p22 ph1):f3 )
+  d26
+  (p1 ph2)
+  4u
+  (p11:sp1 ph1:r):f1
+ 
+  p16:gp2
+
+#   ifdef FLAG_R20
+  d16 pl1:f1 fq=cnst51 (sfo ppm):f3
+  (p21 ph2):f3
+  4u pl34:f3
+
+  if "d32 == 0"
+     {
+     4u
+     }
+  else
+     {
+     (center (p25 ph1):f3 (p2 ph1):f1)
+     (center (p25 ph1):f3 (p2 ph1):f1)
+     }
+
+  4u pl3:f3
+  (p21 ph9):f3
+
+  p16:gp3
+  d16 fq=cnst29 (sfo ppm):f3
+
+  (p21 ph2):f3
+  DELTA4
+  p16:gp4
+  d16
+  (p11:sp1 ph8):f1
+  4u
+  4u pl1:f1
+  (center (p1 ph2 2u p2 ph1 2u p1 ph2) (p22 ph1):f3 )
+  4u
+  4u
+  (p11:sp1 ph8):f1
+  p16:gp4
+  d16 pl1:f1
+  DELTA4
+  (p21 ph1):f3
+
+  p16:gp5
+  d16 fq=cnst51 (sfo ppm):f3
+
+  (p21 ph8):f3
+  4u pl34:f3
+  if "d32 == 0"
+     {
+     4u
+     }
+  else
+     {
+     (center (p25 ph2):f3 (p2 ph1):f1)
+     (center (p25 ph2):f3 (p2 ph1):f1)
+     }
+  4u pl3:f3
+  (p21 ph1):f3
+
+  p16:gp6
+  d16 fq=cnst29 (sfo ppm):f3
+
+#   else
+  d16 pl1:f1
+  (p21 ph4):f3
+  4u pl23:f3
+  if "d31 == 0"
+     {
+     4u
+     }
+  else
+     {
+     4u
+6    DELTA7
+     (p30 ph2):f3
+     DELTA7*2
+     (p30 ph2):f3
+     DELTA7*2
+     (p30 ph1):f3
+     DELTA7*2
+     (p30 ph8):f3
+     DELTA7
+     lo to 6 times COUNTER1
+     }
+
+  DELTA4
+  p16:gp4
+  d16 pl3:f3
+  (p11:sp1 ph9):f1
+  4u
+  4u pl1:f1
+  (center (p1 ph1 2u p2 ph2 2u p1 ph1) (p22 ph2):f3 )
+  4u
+  4u
+  (p11:sp1 ph9):f1
+  p16:gp4
+  d16 pl1:f1
+  DELTA4 pl23:f3
+  if "d31 == 0"
+     {
+     4u pl3:f3
+     }
+  else
+     {
+7    DELTA7
+     (p30 ph1):f3
+     DELTA7*2
+     (p30 ph1):f3
+     DELTA7*2
+     (p30 ph2):f3
+     DELTA7*2
+     (p30 ph9):f3
+     DELTA7
+     lo to 7 times COUNTER1
+     4u pl3:f3
+     }
+  (p21 ph2):f3
+  
+  p16:gp6
+  d16
+#   endif /*FLAG_R20*/
+
+  (p21 ph3):f3
+  d10
+
+#   ifdef LABEL_CN
+  (center (p2 ph5):f1 (p8:sp13):f2 )
+#   else
+  (p2 ph5)
+#   endif /*LABEL_CN*/
+
+  d10
+
+#   ifdef FLAG_R20
+  (p22 ph4):f3
+  DELTA3
+  (p21 ph4):f3
+
+  p16:gp7
+  d16
+
+  (p21 ph1):f3
+
+#   else
+  (p22 ph1):f3
+  DELTA3
+  (p21 ph1):f3
+
+  p16:gp7
+  d16
+
+  (p21 ph4):f3
+#   endif /*FLAG_R20*/
+
+  DELTA5
+  p16:gp8
+  d16
+  (center (p2 ph6) (p22 ph1):f3 )
+  p16:gp8
+  d16
+  DELTA6
+  (p11:sp1 ph8):f1
+  4u
+  4u pl1:f1
+  (p21 ph9):f3
+
+  (p1 ph1) 
+  DELTA1
+  p16:gp9
+  d16 pl18:f1
+  p27*0.231 ph7
+  d19*2
+  p27*0.692 ph7
+  d19*2
+  p27*1.462 ph7
+  DELTA
+  (p22 ph3):f3
+  DELTA
+  p27*1.462 ph8
+  d19*2
+  p27*0.692 ph8
+  d19*2
+  p0*0.231 ph8
+  4u
+  p16:gp9
+  d16
+  4u BLKGRAD
+  DELTA2 pl16:f3
+  go=2 ph31 cpd3:f3
+  d11 do:f3 mc #0 to 2
+     F1QF(calclc(l11, 1))
+     F2PH(calph(ph3, +90), caldel(d10, +in10))
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=0 0 2 2
+ph6=1 1 3 3
+ph7=0
+ph8=2
+ph9=3
+ph10=2 2 2 2 0 0 0 0
+#   ifdef FLAG_R20
+ph31=2 0 2 0 0 2 0 2
+#   else
+ph31=0 2 0 2
+#   endif /*FLAG_R20*/
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;pl18: f1 channel - power level for 3-9-19-pulse (watergate)
+;pl23: f3 cahnnel - power for spinlock
+;pl34: f3 cahnnel - power for HEROINE spinlock
+;                   is set by prosol, but the default is 0 for safety reasons
+;sp1 : f1 channel - shaped pulse  90 degree
+;sp13: f2 channel - shaped pulse 180 degree  (Ca and C=O, adiabatic)
+;spnam13: Crp60,0.5,20.1 (Crp80,0.5,20.1)
+;p0 : f1 channel -  90 degree pulse at pl18
+;                      use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p8 : f2 channel - 180 degree shaped pulse
+;p11: f1 channel -  90 degree shaped pulse
+;p16: homospoil/gradient pulse
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p25: HEROIN spinlock pulse = d32*0.25 (internally calculated)
+;p27: f1 channel -  90 degree pulse at pl18
+;p30: f3 channel - 180 degree pulse at pl23
+;p33: f3 channel - temperature compensation at pl34 (internally calculated)
+;d1 : relaxation delay; 1-5 * T1
+;d10 : incremented delay                             [3 usec]
+;d11: delay for disk I/O                             [30 msec]
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;d21: length of mixing time per CPMG block
+;d25: 1/(4J)YH for YH
+;     1/(8J)YH for all multiplicities
+;d26 : 1/(4J)YH
+;d31 : CPMG_field strength (taken from list)
+;d32 : HEROINE spinlock length (taken from list)
+;d33 : overall pulse length in CPMG Experiment (internally calculated)
+;cnst4: = J(YH)
+;cnst12: for multiplicity selection = 4 for NH, 8 for all multiplicities
+;cnst33: Power ratio (CPMG : HEROINE) (internally calculated)
+;cnst29: = 0, for on resonance frequency F3 [in Hz]
+;cnst50: off resonance frequency F3 for temperature compensation [in ppm]
+;cnst51: off resonance frequency F3 for R2,0 spinlock [in ppm]
+;l14: number of td1 increments in HEROINE (R2,0) experiment
+;inf2: 1/SW(X) = 2 * DW(X)
+;in10: 1/(2 * SW(X)) = DW(X)
+;nd10: 2
+;ns: 4 * n
+;ds: >= 32
+;td1: number of delays in vd-list
+;td2: number of experiments in F2
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: States-TPPI, TPPI, States or QSEQ in F2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 50%
+;gpz2: 30%
+;gpz3: 40%
+;gpz4: 5%
+;gpz5: 27%
+;gpz6: 21%
+;gpz7: -18%
+;gpz8: -7%
+;gpz9: -30%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+;gpnam8: SMSQ10.100
+;gpnam9: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with
+;             option -DLABEL_CN (eda: ZGOPTNS)
+;FLAG_R20: to measure the R2,0 rate using the HEROINE experiment
+;             start experiment with option -DFLAG_R20 (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+;note: run-time sqrt calcualtion requires ipso based spectrometer
+
+
+;$Id:$

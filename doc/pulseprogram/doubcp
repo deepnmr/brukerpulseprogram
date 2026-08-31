@@ -1,0 +1,108 @@
+;doubcp
+
+;version: 4.0/ TS3  / 6/25/2011
+
+;basic double cross polarization experiment
+;cross polarise from H to Y, then from Y to X
+;written by HF 1.3.2001
+;improved short phase cycle by JOS 10/10/2007
+;updated for AV3, revised and tested by JOS 05/10/2011
+;prepared for release and checked by JOS 25/6/2011
+;relations file added   GALT 170131
+
+;Avance III version
+;parameters:
+;d1 : recycle delay
+;p1 : X 90 degree pulse
+;p2 : X 180 degree decoupling pulse during t1 CS evolution of Y nucleus
+;p3 : H 90 degree pulse
+;p15 : contact time; plw3 (rf-channel f3) and spw0 (rf-channel f2)
+;plw11 : rf-power on X for 90 and 180 degree pulses
+;plw12 : rf-power for 1H pi/2 pulse p3 and standard proton decoupling
+;plw13 : rf=power for cw decoupling on 1H during Y-X CP transfer
+;p16 : X-Y contact time, spw1 (spnam1 tan or ramp) (rf-channel f1) 
+	;plw5 (rf-channel f3) contact pulse power
+;spw1 : rf-power on f1-contact pulse (up to 20% ramp or tan amplitude modulation)
+;spw0 : rf-power for proton contact pulse, 50 -20% ramped amplitude modulation
+;plw3 : rf-power f3 (for H to Y CP)
+;plw5 : rf-power f3 (for Y to X CP)
+;cnst10 : 13C carrier position for Y-X transfe, usually around 60 ppm or 170 ppm
+;cnst9 : 13C carrier position for detection (around 100 (ppm) 
+	;must be identical to chosen o1p)
+;spnam0 : file name for variable amplitude CP
+;spnam1 : file name for Y to X CP shape
+;cpdprg2 : sequence used for decoupling (spinal64, tppm15, cw, etc.)
+;pcpd2 : pulse length in decoupling sequence
+
+;swh : in F1 chose multiple or integer fraction of rotation rate so that Spinning sidebands ovelap and do not fall into undesired signal regions
+;FnMODE: TPPI, States or States-TPPI
+
+;$CLASS=Solids
+;$DIM=1D and 2D
+;$TYPE=cross polarisation
+;$SUBTYPE=1D or 2D
+;$OWNER=Bruker
+;$COMMENT=basic double cp experiment
+
+prosol relations=<solids_cp>
+
+
+#include <trigg.incl> 
+;10 usec trigger pulse at TCU connector I cable 6 
+#include <lgcalc.incl>
+
+"d0=3u"
+"in0=inf1"
+"l0=0"				;book keeping 
+"cnst21=0"
+"acqt0=cnst11*1u"
+"p2=2*p1"
+
+1 ze
+2 10m do:f2
+  d1 do:f2
+#include <p15_prot.incl> 
+				;make sure p15 does not exceed 10 msec 
+				;let supervisor change this pulseprogram if 
+				;more is needed
+#include <aq_prot.incl> 
+				;allows max. 50 msec acquisition time, supervisor
+				;may change  to max. 1s at less than 5 % duty cycle
+				;and reduced decoupling field
+  10u pl12:f2 pl1:f1 pl3:f3 	
+  trigg
+  1u fq=cnst21:f2
+  p3:f2 ph1
+  0.3u
+  (p15 ph2):f3 (p15:sp0 ph10):f2
+
+if "l0==1"{
+"d0=in0-2u"
+}
+if "l0>0"{
+  1u cpds2:f2
+  (center (d0) (p2 pl11 ph5):f1)
+  1u do:f2
+}
+ 1u fq=cnst10(bf ppm):f1
+  (p16:sp1 ph4):f1 (p16 pl5 ph3):f3 (p16 pl13 fq=cnst24 ph0):f2
+  1u fq=cnst9(bf ppm):f1
+   1u cpds2:f2
+  go=2 ph31
+  1m do:f2 
+  10m mc #0 to 2 F1PH(ip2,id0 & iu0)
+HaltAcqu, 1m
+exit
+
+ph0= 0
+ph1= 1 3 
+ph2= 0 
+ph3= 0 0 2 2
+ph4= 0 0 1 1 2 2 3 3
+ph5=0 1
+ph10= 0
+ph31= 0 2 3 1 2 0 1 3
+
+
+
+;$Id:$

@@ -1,0 +1,212 @@
+; single scan GEMSTONE experiment combined with 1D easy ROESY 
+
+;  J. Stonehouse, P. Adell, J, Keeler and A. J. Shaka J. Am. Chem. Soc., 116, 6037-6038 (1994)
+;  J. Schleucher, J. Quant, S. Glaser, C. Griesinger J. Magn. Reson A, 112, 144-151 (1995)
+;  C. M. Thiele, K. Petzold, J. Schleucher Chem. Eur. J. 15, 585-588 (2009)
+;  S. Boros, Gy Batta Magn. Reson. Chem. (2016)
+;  J. Furrer J. Nat. Prod., 72, 14371441 (2009)
+;  M. J. Thrippleton, J. Keeler Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+;  P. Kiraly, N. Kern, M. P. Plesniak, M. Nilsson, D. J. Procter, G. A. Morris, R. W. Adams  Angew. Chem., Int. Ed., 60, 666-669 (2021)
+;  E.L. Gates , M. Smith, J. Bradley, M. Johnson, G. Widmalm, M. Nilsson , G.A. Morris, R.W. Adams, L. Castanar Chem. Commun. 59, 5854 - 5857 (2023)
+
+
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+create_shape(sp41, cawurst, powerIndex=80, name= CSSF_ad1, length=$cnst52 ms, stepSize= 5.0 us, bandwidth= $cnst51 Hz, Q=11, sweepDirection=lowToHigh)
+create_shape(sp42, cawurst, powerIndex=80, name= CSSF_ad2, length=$cnst52 ms, stepSize= 5.0 us, bandwidth= $cnst51 Hz, Q=11, sweepDirection=highToLow)
+create_shape(sp25, sm_chirp, name= ZQS1, length=$cnst54 ms, stepSize= 5.0 us, bandwidth= $cnst53 Hz, Q=11, sweepDirection=lowToHigh)
+create_shape(sp23, sm_chirp, name= ZQS2, length=$cnst56 ms, stepSize= 5.0 us, bandwidth= $cnst55 Hz, Q=11, sweepDirection=lowToHigh)
+
+create_shape(sp22, rsnob, name= CSSF_sel, stepSize= 10.0 us, bandwidth= $cnst50 Hz)
+
+"d11=30m"
+"d11=30m+1s/(1+cnst50)"
+"d11=30m+1s/(1+cnst51)"
+"d11=30m+1s/(1+cnst52)"
+"d11=30m+1s/(1+cnst53)"
+"d11=30m+1s/(1+cnst54)"
+"d11=30m+1s/(1+cnst55)"
+"d11=30m+1s/(1+cnst56)"
+"d11=30m"
+
+"cnst1=0"               							
+"cnst30=tan((cnst31/180)*3.1416)"
+"cnst3=(cnst2/cnst30)" 								
+"cnst4=-(cnst2/cnst30)" 							
+
+"p62=0.5*p15"
+"p2=p1*2"
+"DELTA=p16+d16+40u"
+
+"p30=1000000.0/(cnst2*4)"
+"cnst41= (p30/p1) * (p30/p1)"
+"spw24=plw1/cnst41"
+"spw16=plw1/cnst41"
+"spw26=plw1/cnst41"
+"spw27=plw1/cnst41"
+"spw28=plw1/cnst41"
+
+"acqt0=0.0"
+baseopt_echo
+
+
+1 ze
+2 30m
+
+  50u BLKGRAMP	
+  50u LOCKH_OFF 
+  d1 pl1:f1
+  50u LOCKH_ON 
+  50u UNBLKGRAMP
+
+
+  (p1 ph1):f1
+
+
+  d16
+  (center (p41:sp41 ph5):f1 (p41:gp11))
+  d16
+
+
+  p16:gp1
+  d16
+  p22:sp22:f1 ph4
+  p16:gp1*-1
+  d16 pl1:f1
+
+
+  d16
+  (center (p42:sp42 ph6):f1 (p42:gp12))	
+  d16 pl1:f1
+ 
+  (p1 ph3):f1											
+  3u
+  p16:gp2
+  d16
+  3u 
+  3u 
+  (center (p25:sp25 ph0):f1 (p25:gp3))	
+  d16
+  3u fq=cnst3(sfo hz):f1 						
+  (p61:sp24 ph0):f1       						
+  3u
+  (p62:sp16 ph0):f1       					
+  3u
+  (p61:sp26 ph0):f1       						
+  3u 
+  3u fq=cnst4(sfo hz):f1  					
+  (p61:sp27 ph0):f1       					
+  3u
+  (p62:sp16 ph0):f1       					
+  3u
+  (p61:sp28 ph0):f1       						
+  3u
+  p16:gp4                 						
+  d16 fq=cnst1(sfo hz):f1
+  3u 
+  (center (p23:sp23 ph0):f1 (p23:gp5))  
+  d16 
+  3u pl1:f1
+  (p1 ph2):f1	
+  DELTA
+  p2 ph0
+  20u
+  p16:gp6											
+  d16
+  20u 
+
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+
+  50u BLKGRAD
+
+exit
+
+
+ph0=0
+ph1=0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 
+ph2=0 2
+ph3=0 0 2 2
+ph4=0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph5=0
+ph6=0
+ph31=0 2 2 0 2 0 0 2 0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0 2 0 0 2 0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl11: f1 channel - power level for ROESY-spinlock
+;sp22: f1 channel - shaped pulse
+;sp41: f1 channel - shaped pulse (adiabatic)
+;sp42: f1 channel - shaped pulse (adiabatic)
+;sp16: rectangular pulse shape for spinlock
+;sp24: adiabatic ramp to negative offset spinlock
+;sp27: adiabatic ramp up to positive offset spinlock
+;sp26: adiabatic ramp down from negative offset spinlock
+;sp28: adiabatic ramp down from positive offset spinlock
+;sp25: power level for first ZQS element
+;sp23: power level for the second ZQS element
+;p1 : f1 channel -  90 degree high power pulse
+;p22: f1 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                            [1 msec]
+;p15: f1 channel - pulse for ROESY spinlock
+;p41: f1 channel - 180 degree adiabatic pulse
+;p42: f1 channel - 180 degree  reverse sweep adiabatic pulse 
+;p61: 1 ms, f1 channel - adiabatic ramps for spinlock
+;p62: p15/2   
+;p25: 50 ms duration of first ZQS element 
+;p23: 30 ms duration of second ZQS element
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;ns: 2 * n, total number of scans: NS * TD0
+;ds: 4
+;cnst50: band-width of the band-selective RSNOB pulse in Hz
+;cnst51: sweep-width of the adiabatic pulse in Hz
+;cnst52: duration of the adiabatic pulse in ms  [t1max/2: 30-100]
+;cnst53: bandwidth of first ZQS in kHz
+;cnst54: duration of first ZQS in ms
+;cnst55: bandwidth of second ZQS in kHz
+;cnst56: duration of second ZQS in ms
+;cnst1: set RF pulse on-resonance 
+;cnst2: field strength of spin lock in Hz
+;cnst30: conversion of spinlock angle into radians
+;cnst31: Theta for the off resonance, Magic angle or 60 deg suggested
+
+;spnam16: Squa100.1000  
+;spnam24: Gaussramp+down.1
+;spnam26: Gaussramp+up.1  
+;spnam27: Gaussramp-down.1
+;spnam28: Gaussramp-up.1 
+;spnam25: Crp_60kHz_50ms
+;spnam23: Crp_60kHz_30ms 
+
+;gpz1:   17%  (defocusing gradient) 
+;gpz2:   31%  (homospoil gradient)
+;gpz3:  9.5%  (for ZQS elements)
+;gpz4:   46%  (homospoil gradient)
+;gpz5:    9%  (for ZQS elements)
+;gpz6:   34%  (refocusing gradient 2*gp1)
+;gpz11: 0.5%  (0.5 - 5%)
+;gpz12:-0.5%  (-gpz11%)
+
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: RECT.1
+;gpnam4: SMSQ10.100
+;gpnam5: RECT.1
+;gpnam6: SMSQ10.100
+;gpnam11: RECT.1
+;gpnam12: RECT.1
+
+;launch with xaua or run wvm -q before zg
+
+;$Id: selnogpzs.2,v 1.2 2017/02/13 12:28:15 ber Exp $

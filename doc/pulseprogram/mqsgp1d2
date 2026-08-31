@@ -1,0 +1,84 @@
+;mqsgp1d2
+;avance-version (12/01/11)
+;1D multiple quantum filter
+;using gradient pulses for selection
+;with multiple quantum filter according to gradient ratio
+;use as setup for pulseprogram 'cosygpmf'
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+"p2=p1*2"
+"d13=4u"
+
+"d21=d4-p16-d16"
+
+
+1 ze
+2 30m
+  d1
+  p1 ph1
+  d4 
+  p2 ph4
+  d13
+  d21 UNBLKGRAD
+  p16:gp1
+  d16
+  p1 ph2
+  d13
+  p16:gp2
+  d16
+  p1 ph3
+  d13
+  p16:gp3
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+
+ph1=0 2
+ph2=0 
+ph3=0
+ph4=0
+ph31=0 2 
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J)
+;d13: short delay                                    [4 usec]
+;d16: delay for homospoil/gradient recovery
+;d21: d4 - p16 - d16
+;ns: 1 * n, total number of scans: NS * TD0
+;ds: 16
+
+;use gradient ratio:	gp 1 : gp 2 : gp 3
+;			  10 :   10 :   30    for dq filter
+;			  10 :   10 :   40    for tq filter
+
+;for z-only gradients:
+;gpz1: 10%
+;gpz2: 10%
+;gpz3: 30% for DQS, 40% for TQS
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+;$Id:$

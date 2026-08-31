@@ -1,0 +1,65 @@
+;$Id:$
+;decp90f2cpmg2d.dmo
+;CPMG test on f2 channel
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$HIDE=y
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+define list<loopcounter> cpmglist=<$VCLIST>
+
+"d2=1s/(cnst2*2)"
+"d12=20u"
+"p0=p1*10/90"
+
+"p4=p3*2"	
+
+1 ze
+2 30m
+  d12 pl12:f2
+  140m cpd2:f2
+  4u do:f2
+  d1 pl20:f2
+3 d21
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f2
+  d21*2
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f2
+  d21*2
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f2
+  d21*2
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f2
+  d21
+  lo to 3 times cpmglist
+
+  p0 ph1
+  d2 pl2:f2
+  p4:f2 ph2
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+     F1QF(cpmglist.inc)
+exit
+
+ph1=0 2 2 0 1 3 3 1
+ph2=0 2 2 0 1 3 3 1
+ph3=1 3 3 1 2 0 0 2
+ph6=0
+ph31=0 2 2 0 1 3 3 1
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;p0 : f1 channel -  10 deg high power pulse
+;p3: f2 channel -  90 degree high power pulse
+;p30: f2 channel - 180 degree CPMG pulse
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J(XH))
+;L4: loop counter corresponding to a VC entry
+;cnst2: = J(XH)
+;NS: 1 * n, total number of scans: NS * TD0
+;VCLIST: loop counter for cpmg sequence
+
+;gpz1: 31%
+;gpz2: -19%
+;gpnam1: SINE.100
+;gpnam2: SINE.100

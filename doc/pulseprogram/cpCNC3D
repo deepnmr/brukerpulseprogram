@@ -1,0 +1,105 @@
+;cpCNC3D
+;
+;version: 4.0/ TS3  / 6/25/2011
+;
+;written by HF 1.10.09, 
+;updated JOS 5/4/2011
+;revised and checked for consistency JOS 7/1/2011
+;
+;General comment:
+;CONCa or CaNCO 3D correlatin double cp experiment
+;cross polarise from H to C, then from C to N and back from N to C
+;with frequency shift from middle of C13 spectral window (so CO region is observed) to about 50 ppm for 
+;
+;Avance III version
+;parameters:
+;d1 : recycle delay
+;p2 : N 180 degree pulse with plw11
+;p3 : proton 90 at power level plW12
+;p15 : contact time C-H; plw3 (rf-channel f3) and spw0 (rf-channel f2)
+;p16 :C-N contact time, spw1 (spnam1 tan or ramp) (rf-channel f1) 
+;      plw5 (rf-channel f3) contact pulse power
+;p17 : N-C contact time, spw2 (spnam2 tan or ramp) (rf-channel f1) 
+;      plw6 (rf-channel f3) contact pulse power
+;pl1 : Ca power level for H to Ca or CO contact
+;pl12 : rf-power for 1H pi/2 pulse p3 and standard proton decoupling
+;pl13 : rf=power for cw decoupling on 1H during C-N CP transfer
+;sp0 : rf-power for proton contact pulse, 50 -20% ramped amplitude modulation
+;sp1 : rf-power on f1-contact (C) pulse (up to 20% ramp or tan amplitude modulation)
+;pl3 : =0W not used
+;pl5 : rf-power f3 (N) (for C to N CP)
+;pl6 :	rf-power f3 (N) (for N to C CP)
+;cnst10 : 13C carrier position for C-N transfer, select Ca or CO evolution in t1, 
+;         60 (NCA) or 170 (NCO) ppm
+;cnst8 : for Ca or Co on resonance  (60 or 174 ppm) for N-Co or C-Ca transfer before t3 evolution
+;cnst9 : 13C carrier position for detection (around 100 (ppm))
+;spnam0 : file name for variable amplitude CP
+;spnam1 : file name for C to N CP shape
+;spnam2 : file name for N to C CP shape
+;cpdprg2 : sequence used for decoupling  SPINAL64 recommended
+;pcpd2 : pulse length in decoupling sequence, about 2*p3
+;d0 : =.1u, t1 evolution period
+;in0 : 1/swh{F1}  rotor synchronization recommended
+;d10 : =.1u, t2 evolution period
+;in10 : 1/swh{F2}  rotor synchronization recommended
+;FnMODE: TPPI, States or States-TPPI, STATES-TPPI preferred since foldovers can be corrected via "xfshear rotate"
+;
+;
+;$CLASS=BioSolids
+;$DIM=3D
+;$TYPE=cross polarisation
+;$SUBTYPE=heteronuclear correlation
+;$COMMENT=3D CANCO sequence for Bio applications
+
+prosol relations=<solids_cp>
+
+
+#include <trigg.incl>
+
+"d0=0.1u"
+"d10=0.1u"
+"acqt0=0"
+"in0=inf1"
+"in10=inf2"
+"cnst21=0" 			;cnst21 must be 0 to decouple on O2
+
+
+aqseq 321
+
+1 ze 				;accumulate into an empty memory
+2 1m do:f2 
+  d1
+  10u pl12:f2 pl1:f1 
+  1u fq=cnst21:f2
+  1u fq=cnst10(bf ppm):f1
+  trigg
+  p3:f2 ph1
+  (p15 ph2):f1 (p15:sp0 ph10):f2      ;CP HCA
+  d0 cpds2:f2
+  0.1u do:f2
+  (p16:sp1 ph4):f1 (p16 pl5 ph3):f3 (p16 pl13 ph10 fq=cnst24):f2  ; C to N contact
+  (1u cpds2):f2
+  d10 
+  (1u do):f2 (1u fq=cnst8(bf ppm)):f1 
+  (p17:sp2 ph5):f1 (p17 pl6 ph6):f3 (p17 pl13 ph10 fq=cnst24):f2  ; N to C contact
+  (1u fq=cnst9(bf ppm)):f1 (1u cpds2):f2
+  go=2 ph31
+  1m do:f2
+  1m mc #0 to 2
+     F1PH(rd10 & rp3 & ip2, id0) 
+     F2PH(ip3, id10)
+
+HaltAcqu, 1m
+exit
+
+ph0= 0
+ph1= 1 3 
+ph2= 0 0 2 2
+ph3= 0 0 0 0 2 2 2 2
+ph4= 0  
+ph6= 0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph10= 0
+ph5=  0 
+ph31= ph1+ph2+ph3+ph6
+
+;$Id:$

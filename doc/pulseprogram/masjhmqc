@@ -1,0 +1,175 @@
+;masjhmqc (TOPSPIN 3.X)
+;
+; MAS-J-HMQC experiment with FSLG decoupling
+; 
+; written by Stefan Steuernagel (031201)
+; from revised version of Gerhard Althoff
+; Avance III version
+; modified by sewe 01/10/2012
+;
+; 
+;description:
+; This pulse program implements the MAS-J-HMQC experiment as 
+; given in reference (2), i.e. without proton magic pulses
+; between t1 and the second tau delay.
+; During the tau delays and during t1 FSLG decoupling is used,
+; during t2 acquisition cpdprg2 is used which can be cw, tppm15, etc.
+; FSLG is programmed directly (not via CPD). 
+; States is used for phase sensitive detection in F1.
+;
+;references:
+; (1) A. Lesage, D. Sakellariou, S. Steuernagel, and L. Emsley:
+;     "Carbon-Proton Chemical Shift Correlation in Solid State NMR
+;     by Through-Bond Multiple-Quantum Spectroscopy",
+;     J. Am. Chem. Soc. 120, 13194-13201 (1998).
+; (2) A.Lesage and L. Emsley:
+;     "Through-Bond Heteronuclear Single-Quantum Correlation Spectroscopy in
+;     Solid State NMR, and Comparison to Other Through-Bond and Through-Space
+;     Experiments", J. Magn. Reson. 148, 449-454 (2001).
+; (3) A.Lesage, D. Sakellariou, S. Hediger, B. Elena, P. Charmont, 
+;     S. Steuernagel, and L. Emsley:
+;     "Experimental aspects of proton NMR spectroscopy in solids using
+;     phase-modulated homonuclear dipolar decoupling",
+;     J. Magn. Reson. 163, 105-113 (2003)
+;
+;important notes for usage
+; setup:
+;  - adjust cnst20 (f2 RF field for FSLG) and/or pl13 (f2 power level for FSLG)
+;    for optimum resolution. Usually, pl13=pl12, cnst20=1/4*p3 +10%, i.e. 110000 if p3=2.5 usec
+;  - adjust p0 for optimum evolution of J-couplings (to start with: 1-2 ms)
+;  - optimum results are achieved for rotor synchronized tau (p0). 
+;    The actual tau value will be a multiple of 2*p5, 
+;    so the rotor period should be a multiple of 2*p5.
+; parameter usage:
+;  - take care: f2 pulses are applied at pl12, whereas FSLG is done at pl13
+;  - in cpdprg2 power level and frequency must be set (see, e. g., tppm15)
+;  - the centering of the f1 180 deg pulse relies on p5 > p2/2, otherwise
+;    the calculation will fail
+;
+;F1 axis scaling
+; The time increment in the F1 dimension is given by 16*p5. 
+; FSLG scales the proton (F2) chemical shift  by 1/sqrt(3). 
+; The parameter in0, therefore, must be set to 
+; in0 = 16*p5/sqrt(3). 
+;  
+;
+;parameters:
+;ns : 16 * n
+;d1 : recycle delay
+;p0 : tau, evolution of J-coupling (start with e.g. 1-2ms)
+;p2 : f1 180 deg pulse at pl11
+;p3 : f2 90 deg pulse at pl12
+;p5 : f2 FSLG pulse at pl13
+;p15 : contact time
+;p11: f2 magic pulse at pl12
+;pcpd2 : pulse length in decoupling sequence (e.g. 180deg-0.2us)
+;sp0 : proton power level during contact
+;pl2 : =0W, not used
+;pl1: f1 power level for pulses  and contact
+;pl12: f2 power level for pulses and some CPD
+;pl13: f2 power level for FSLG and other CPD
+;spnam0 : file name for variable amplitude CP
+;cpdprg2 : sequence used for decoupling (tppm15, cw, spinal64.)
+;cnst20 : f2 RF field in Hz
+;cnst24 : f2 additional (asymmetric) LG offset
+;l0 : =0, incremented in t1
+;mc2 : States
+;zgoptns : -Dlacq, -Dlcp15 or blank
+;calculated parameters:
+;cnst21 : F2 on resonance frequency
+;cnst22 : F2 positive LG offset
+;cnst23 : F2 negative LG offset
+;l1 : loop counter for tau delay
+;FnMODE: States or States-TPPI
+;
+;
+;$CLASS=Solids
+;$DIM=2D
+;$TYPE=cross polarisation
+;$SUBTYPE=heteronuclear correlation
+;$COMMENT=HMQC (J based), FSLG during formation and evolution of MQ coherences
+
+prosol relations=<solids_cp>
+
+
+#include <lgcalc.incl>
+define delay t1incr
+"in0=(0.578*4*4*294/360)/cnst20"
+"t1incr=in0"
+"inf1=in0"
+define pulse pma
+"pma=(p3*547)/900"
+"l1=p0/(p5*2)"			;loop counter for tau delay
+;cnst11 : to adjust t=0 for acquisition, if digmod = baseopt
+"acqt0=1u*cnst11"
+
+1 ze
+  t1incr
+2 d1 do:f2
+#ifndef lcp15
+#include <p15_prot.incl>
+			;make sure p15 does not exceed 10 msec 
+			;let supervisor change this pulseprogram if 
+			;more is needed
+#endif
+#ifndef lacq		
+			;disable protection file for long acquisition change decoupling power !!! or you risk probe damage
+			;if you set the label lacq (ZGOPTNS -Dlacq), the protection is disabled
+
+#include <aq_prot.incl>	
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#endif
+  1u fq=cnst23:f2
+  1u fq=cnst22:f2				
+  1u fq=cnst21:f2
+  (p3 pl12 ph1):f2
+  (p15 pl1 ph2):f1 (p15:sp0 ph10):f2
+
+3 (p5 ph22 fq=cnst22 pl13):f2		;first tau delay with F2 FSLG decoupling
+  (p5 ph23 fq=cnst23):f2
+  lo to 3 times l1
+  (pma ph5 fq=cnst21 pl12):f2		;F2 magic pulse (on resonance)
+  (p3 ph6):f2				;F2 90 deg pulse
+  (p11 ph7):f2				;F2 magic pulse
+
+4 (p5 ph22 fq=cnst22 pl13):f2		;~t1/2 period with F2 FSLG decoupling
+  (p5 ph23 fq=cnst23):f2
+  lo to 4 times l0
+
+  (center (p5 ph22 fq=cnst22 p5 ph23 fq=cnst23):f2 (p2 ph3 pl1):f1)
+  					;F1 180 deg pulse with F2 FSLG dec. still on
+5 (p5 ph22 fq=cnst22):f2
+  (p5 ph23 fq=cnst23):f2
+  lo to 5 times l0			;~t1/2 period with F2 FSLG decoupling
+					
+  (p3 ph8 fq=cnst21 pl12):f2		;F2 90 deg pulse (on resonance)
+ 
+6 (p5 ph22 fq=cnst22 pl13):f2		;second tau delay with F2 FSLG decoupling
+  (p5 ph23 fq=cnst23):f2
+  lo to 6 times l1
+  
+  1u cpds2:f2		;pl12 is used here with tppm
+  go=2 ph31
+  1m do:f2
+  10m mc #0 to 2 F1PH(ip6,1m iu0 & 1m iu0 & 1m iu0 & 1m iu0)
+HaltAcqu, 1m
+exit
+
+ph0= 0
+ph1= 1 3
+ph2= 0
+ph3= 0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph5= 3
+ph6 = 1 1 3 3
+ph7= 1
+ph8= 3
+ph10= 0
+ph22= 0
+ph23= 2
+ph31= 0 2 2 0 2 0 0 2
+
+
+
+;$Id:$

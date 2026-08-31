@@ -1,0 +1,178 @@
+;hsqcgpphiajcspzf
+;avance-version (20/03/03)
+;HSQC
+;2D H-1/X correlation via double inept transfer
+;for determination of 1J CH via splitting in F2
+;phase sensitive
+;no decoupling during acquisition
+;using trim pulses in inept transfer
+;using shaped pulses for inversion on f2 - channel
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d4=1s/(cnst2*4)"
+
+#   ifdef LABEL_CN
+"p22=p21*2"
+#   else
+#   endif /*LABEL_CN*/
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+
+"DELTA1=d4-larger(p2,p14)/2-4u"
+
+#   ifdef LABEL_CN
+"DELTA=larger(p2,p22)+d0*2"
+#   else
+"DELTA=p2+d0*2"
+#   endif /*LABEL_CN*/
+
+
+"TAU=p14"
+
+
+"l0=0"
+
+
+"acqt0=-p1*2/PI"
+
+
+1 ze
+2 d1
+3 (p1 ph1)
+  DELTA1
+  4u
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  4u
+  DELTA1 pl2:f2 UNBLKGRAD
+
+#   ifdef TRIMP
+  p28 ph1
+#   endif /* TRIMP */
+
+  (p1 ph2)
+
+  p16:gp1
+  d16
+
+  (p3 ph3):f2
+  d0 
+
+#   ifdef LABEL_CN
+  (center (p2 ph5) (p22 ph1):f3 )
+#   else
+  (p2 ph5)
+#   endif /*LABEL_CN*/
+
+  d0
+  (p4 ph4):f2
+  DELTA
+  (p3 ph4):f2
+
+  p16:gp2
+  d16
+
+  if "l0 %2 == 0"
+     {
+     (p1 ph1)
+     DELTA1
+     4u
+     (center (p2 ph1) (p14:sp3 ph1):f2 )
+     }
+  else
+     {
+     (p1 ph2)
+     DELTA1
+     4u
+     (center (p2 ph1) (TAU):f2 )
+     }
+
+  4u
+  DELTA1
+
+  (p1 ph2)
+  p16:gp3
+  d16
+  4u BLKGRAD
+  (p1 ph1)
+  go=2 ph31
+  d1 mc #0 to 2 
+     F1I(iu0, 2)
+     F1PH(calph(ph3, +90), caldel(d0, +in0))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=0 0 2 2
+ph31=0 2 0 2 2 0 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;sp3: f2 channel - shaped pulse 180 degree
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion
+;p16: homospoil/gradient pulse
+;p22: f3 channel - 180 degree high power pulse
+;p28: f1 channel - trim pulse
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J)XH
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(XH)
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;nd0: 2
+;ns: 1 * n
+;ds: >= 16
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+
+
+;for z-only gradients:
+;gpz1: 50%
+;gpz2: 30%
+;gpz3: 40%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with 
+;             option -DLABEL_CN (eda: ZGOPTNS)
+;TRIMP: to use trimpulse p28@pl1 start experiment with
+;          option -DTRIMP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+;use AU-program split [ipap 2] to process data
+
+
+
+;$Id:$

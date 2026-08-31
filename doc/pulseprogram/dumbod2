@@ -1,0 +1,98 @@
+;dumbod2
+;avance-version (20/11/23)
+; DUMBO homonuclear decoupling digital acquisition, time reversal for center spike suppression
+; written by GALT, 2018/01/24
+; reference for time reversal: M. Leskes, P. K. Madhu, and S. Vega, Chem. Phys. Lett. 447, 370-374 (2007)
+; 
+; time reversal is also known as "z-rotation": the phase of the homonuclear decoupling pulses is alternated by 180 degree
+;  
+
+#include <Avance.incl>
+#include<Delayssolids.incl>
+#include<De.incl>
+
+;
+;TopSpin 4.0 / Avance Neo
+;
+;parameters
+;p9 : half of total interpulse window, entered as a pulse to have it in us by default
+;p1 : initial 90 degree pulse at plw12
+;pl1 : =0, not used
+;pl12 : 90 degree pulse power level
+;pl13 : DUMBO power level
+;spnam1: DUMBO shape, e. g. dumbo
+;cnst28 : spinning speed for rotor period = 1.75 x cycle time
+;cnst29 : spinning speed for rotor period = 2.75 x cycle time
+;cnst31 : spinning speed in Hz
+
+;$CLASS=Solids
+;$DIM=1D
+;$TYPE=homonuclear decoupling
+;$SUBTYPE=explicit acquisition
+;$COMMENT=homonuclear decoupling with dumbo
+
+"spw1=plw13"							;set DUMBO power level
+"d8=2*p9"									;set wDUMBO interpulse window
+
+define delay dead
+"dead=1.1u"
+define delay switch
+"switch=0.1u"
+define delay preacqu
+"preacqu=1.5u"
+define delay postacqu
+"postacqu=1.0u"
+define delay acqu
+"acqu=d8-dead-preacqu-switch-postacqu"		;actual sampling window (receiver path open)
+define pulse dumbop
+"dumbop=p10"
+define delay cycle
+"cycle=d8+dumbop"
+define loopcounter ncycles
+"ncycles=aq/cycle-1"
+define delay totaltime
+"totaltime=(ncycles+1)*cycle"
+define delay rest
+
+define delay scaleddwell
+"scaleddwell=dw*0.47"											;a chemical shift scaling factor or 0.47 is assumed here
+
+"blktr2=0.7u"	
+;this opens the transmitter gate 0.7 usec before the pulse, so the transmitter noise is not sampled
+
+
+#include <fastCRAMPS.incl>
+;the ratio of the rotor period and the cycle time is calculated here, 
+;for convenience the spinning speed for (rotor period) = 1.75 x (cycle time) for (rotor period= 2.75 x (cycle time) is displayed in ased
+
+
+1 ze													;acquire into a cleared memory
+2 d1													;recycle delay
+  ACQ_START(ph30,ph31)				;prepare for sampling						
+  (p1 pl12 ph1):f1						;90 degree pulse at pl12
+  0.1u START_NEXT_SCAN				;start sampling
+  dead
+  preacqu
+  switch REC_UNBLK						;open receiver path
+  acqu
+  postacqu REC_BLK						;close receiver path
+3 (dumbop:sp1 ph2^):f1				;DUMBO pulse at pl13
+  dead
+  preacqu
+  switch REC_UNBLK
+  acqu
+  postacqu REC_BLK
+  lo to 3 times ncycles
+  rest												;make sure sampling is complete
+  rcyc=2
+  100m wr #0
+  exit
+
+ph1= 0 1 2 3
+ph2= 0 2
+ph30=0
+ph31= 0 1 2 3
+
+
+
+;$Id:$

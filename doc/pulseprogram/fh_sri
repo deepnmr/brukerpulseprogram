@@ -1,0 +1,138 @@
+; fh_sri
+; Selective fluorine reverse INEPT (19F-1H correlation)
+; using selective 90 19F pulse for excitation 
+
+;L. Castanar, P. Moutzouri, T. Barbosa, C. Tormena, R. Rittner, A. Phillips, S. Coombes, M. Nilsson, G. A. Morris., Anal. Chem., 2018, 90, 8, 5445-5450
+
+;set zgoptns to -D_PURGE to apply 1H purge pulses before d1
+
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=Fluorine-Proton Correlations
+;$SUBTYPE=
+;$COMMENT= Selective fluorine reverse INEPT (19F-1H correlation), run wvm -q before zg or launch with xaua
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+"d2=1s/(4*cnst2)"
+"d13=20u"
+"d16=200u"
+"d26=p16+d16"
+
+"DELTA1=d2-larger(p2,p4)/2"
+"DELTA2=d2-p16-d16-larger(p2,p4)/2"
+
+"p2=p1*2"
+"p4=p3*2"
+
+"spoffs13=0"
+
+create_shape(sp13, gaus90, name= 19F_90_sel, stepSize= 10.0 us, bandwidth= $cnst50 Hz, offset= $cnst52 ppm)
+"d11=30m"
+"d11=30m+1s/(1+cnst50)"
+"d11=30m+1s/(1+cnst52)"
+"d11=30m"
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+  30m 
+
+2 30m 
+  d13 UNBLKGRAD
+
+#   ifdef _PURGE 
+  d13 UNBLKGRAD 
+  d13 pl1:f1
+  p16:gp20
+  d16
+  (p1 ph20):f1
+  (p1 ph21):f1 
+  p16:gp21
+  d16
+  d13 BLKGRAD
+#   else 
+
+#   endif /*_PURGE*/
+
+  d1              ;F - H AP transfer
+  d13 UNBLKGRAD
+  d13 pl0:f2 pl1:f1
+  
+  (p13:sp13 ph1):f2	
+  
+  DELTA1 pl2:f2
+  (center (p2 ph2):f1 (p4 ph3):f2 )
+  DELTA2
+  p16:gp1
+  d16
+
+  (p3 ph4):f2
+  p16:gp2
+  d16
+  (p1 ph5):f1
+
+  d26
+  (p2 ph6):f1 
+  p16:gp1*0.9407
+  d16 
+
+  go=2 ph31 
+  30m mc #0 to 2 F0(zd)
+  d13 BLKGRAD
+exit
+
+ph1=0 2 2 0 
+ph2=0
+ph3=0
+ph4=1
+ph5=0
+ph6=0
+ph20=0
+ph21=1
+ph31=0 2 2 0
+
+
+
+;pl0  : zero power (0 W)
+;pl1  : f1 channel - power level for pulse (default)
+;pl2  : f2 channel - power level for pulse (default)
+;sp13 : f2 channel - power level of excitation shaped pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel -  180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel -  180 degree high power pulse
+;p13: f2 channel -  90 degree low power shaped pulse 
+;p16: duration of CTP gradients                      [1 ms]
+;d1 : relaxation delay; 1-5 * T1 
+;d2 : 1/(4*J(XH))
+;d16: delay for gradient recovery	              [200 usec] 
+;spnam13 : f2 channel - file name for the selective 90 excitation shaped pulse		[Gauss]
+;cnst1 : 0 (--) / 1 (Purge pulses) 
+;cnst2 : J(FH)
+;cnst50: band-width of the band-selective 90° 19F gauss pulse in Hz
+;cnst52:  chemical shift for selective 19F pulse (in ppm)
+;OTHER
+;ns: 2 * n, total number of scans: NS * TD0
+;ds: 2
+;set O2 on resonance to the 19F signal of interest
+
+;for z-only gradients:
+;gpz1  : 47%  (F-H CTP gradient)
+;gpz2  : 37%  (homospoil gradient)
+;gpz20 : 53%  (homospoil gradient purge pulses)
+;gpz21 : 59%  (homospoil gradient purge pulses)S
+
+;use gradient files:
+;gpnam1 : SMSQ10.100
+;gpnam2 : SMSQ10.100
+;gpnam20: SMSQ10.100
+;gpnam21: SMSQ10.100
+
+;run wvm -q before zg or launch with xaua
+
+ 

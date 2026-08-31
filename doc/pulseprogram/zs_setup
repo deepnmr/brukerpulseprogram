@@ -1,0 +1,77 @@
+;zs_setup
+;avance-version (20/09/07)
+;setup for zero quantum suppression
+;
+;M.J. Thrippleton & J. Keeler, 
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <De.incl>
+
+
+"d11=30m"
+"d12=20u"
+
+
+1 ze
+2 30m
+  20u BLKGRAD
+  d1
+  50u pl0:f1 UNBLKGRAD
+  10u gron0
+  (p32:sp29 ph1):f1
+  4u groff
+  d16 pl1:f1
+  p1 ph1
+  ACQ_START(ph30,ph31)
+  aq gron2 DWELL_GEN:f1
+  d12 groff
+  rcyc=2
+  30m mc #0 to 2 F0(zd)
+  d11 BLKGRAD
+exit
+
+
+ph1=0
+ph30=0
+ph31=0
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;sp29: f1 channel - shaped pulse (adiabatic)
+;p1 : f1 channel -  90 degree high power pulse
+;p32: f1 channel - 180 degree shaped pulse (adiabatic)    [20 msec]
+;     smoothed chirp (sweepwidth, 20% smoothing, 10000 points)
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                             [30 msec]
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;ns: 1
+;ds: 0
+
+
+;aq: acquisition time 100 to 200 msec
+
+
+;for z-only gradients:
+;gpz0: ca. 11%
+;gpz2: set to achieve sufficient broadening (see supplementary material)
+
+
+
+;for sweepwidth of adiabatic shape and adjusting gpz0
+;   see supplementary material of M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+
+
+
+;$Id:$

@@ -1,0 +1,72 @@
+;hX_3pulse_bs.dp (TopSpin 4.5.0)
+;
+; TS4  /  
+;
+; Modified by GDP and JOS, 10/30/2021
+;tested JOS 02/25/2020
+;
+; As written in the following paper:
+; "Triple-pulse excitation: An efficient way for suppressing background signals
+; and eliminating radio-frequency acoustic ringing in direct polarization NMR
+; experiments", Journal of Magnetic Resonance (2021)
+;
+; Authors: Fenfen Wang, Sanath K. Ramakrishna, Pingchuan Sun, Riqiang Fu
+
+;$CLASS=SolidsIcon
+;$DIM=1D
+;$TYPE=direct excitation
+;$SUBTYPE=simple 1D; background suppression
+;$COMMENT=single pulse excitation, acquisition without decoupling
+
+prosol relations=<solids_ICON>
+#include <Delay.incl>
+#include <trigg.incl>
+		; definition of external trigger output$
+#ifdef dec
+#include <Decoup_Solids.incl>
+#endif
+
+"acqt0=-p1/2"
+
+1 ze
+
+Start, 30m 
+#ifdef dec
+  1u do:f2
+  d1 
+  (p1 pl1 ph1):f1 (1u cpds2):f2
+	(p1 pl1 ph2):f1
+	(p1 pl1 ph3):f1
+  go=Start ph31 finally do:f2
+#else 
+ d1
+  (p1 pl1 ph1):f1
+	(p1 pl1 ph2):f1
+	(p1 pl1 ph3):f1
+  go=Start ph31 
+#endif
+  30m mc #0 to Start F0(zd)
+exit
+
+ph1= 0 2 0 2  0 2 0 2  1 3 1 3  1 3 1 3
+ph2= 2 2 0 0  2 2 0 0  3 3 1 1  3 3 1 1
+ph3= 0 0 0 0  2 2 2 2  1 1 1 1  3 3 3 3
+ph31=0 2 2 0  2 0 0 2  1 3 3 1  3 1 1 3
+
+;Avance NEO / 
+;parameters:
+;p0		 : H 90 reference pulse at plw0
+;p1      : X 90 at pl1
+;pl0	 : with p0  reference pl for decoupling field
+;pl1     : X 90 
+;pl12    : H dec power  calculated
+;cnst31  : MAS rate in Hz
+;cnst32  : decoupling power correction factor in Hz
+;cnst52  : decoupling field in Hz for pl12 decoupling 
+;d1      : recycle delay; 1 to 5 times T1
+;pcpd2   : pulse length in decoupling sequence cpdprg2
+;cpdprg2 : pidec_12 (19F pi decoupling)
+;ZGOPTNS : -Ddec for decoupling and -Dpidec (pi-decouping for 19F)
+;          or blank if not decoupling required
+
+;$Id: hX_3pulse_bs.dp     ,v 1.1                    Exp $

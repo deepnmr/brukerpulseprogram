@@ -1,0 +1,310 @@
+;hsqct1etf3gpsitc3d.3
+;avance-version (23/07/14)
+;2D 1H/15N correlation via inept transfer
+;   using sensitivity improvement
+;for measuring 15N T1 relaxation times
+;phase sensitive using Echo/Antiecho-TPPI gradient selection
+;using f3 - channel
+;using HN sel. 1H 180o pulses during T1 relaxation for suppression of cross corr. relaxation
+;optional temperature compensation with respect to T1rho measurement
+;as pseudo3D
+;(use parameterset HSQCT1ETF3GPSITC3D.3)
+
+; This pulse sequence performs a HSQC 15N T1 relaxation experiment.
+
+; Relaxation delay lengths are given via a vdlist. The delays are rounded to multiples of
+; 40 ms during execution of the pulse program. 
+; If the experiment is to be used in combination with T1rho data, equal RF heating in  both
+; experiments can be ensured by setting p52 to the maximum T1rho relaxation delay and
+; pl25 to the spinlock power used in the T1rho experiment. Otherwise set p52 to 0.
+;
+;N.-A. Lakomek, J. Ying & A. Bax, J. Biomol. NMR 53, 209-221 (2013)
+
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<delay> vd_list=<$VDLIST>
+
+define loopcounter COUNTER1
+
+
+"p2=p1*2"
+"p4=p3*2"
+"p22=p21*2"
+"d11=30m"
+"d26=2.65m"
+
+"d31=0"
+
+"cnst31=50000"
+
+"p16=1m"
+"p19=500u"
+"p29=d26-d16"
+
+"p42=2000u*600/bf1"
+"spw26=plw1*pow(((totrot26*p1*2)/(180*p42*integfac26)),2)"
+
+"d10=3u"
+
+"in10=inf2/4"
+
+
+"DELTA=d1-p52"
+"DELTA1=d26-p16-d16+d10*4+p2"
+"DELTA2=d26-p16-d16-2u"
+"DELTA3=d26-p16-d16-4u"
+"DELTA4=de+10u-p1*2/PI"
+"DELTA5=p29+d16+4u+de-p1*2/PI"
+
+#   ifdef LABEL_CN
+"DELTA6=10m-p8/2"
+"DELTA7=10m-p8/2-p42/2"
+#   else
+"DELTA6=20m-p42/2"
+#   endif /*LABEL_CN*/
+
+"l3=td1"
+"l11=0"
+
+"spoffs13=0"
+"spoffs26=bf1*(cnst19/1000000)-o1"
+
+aqseq 312
+
+"acqt0=0"
+baseopt_echo
+
+1 ze 
+
+  if "td1 != vd_list.len" 
+     {
+     2u
+     print "Warning: td1 is not equal to the number of relaxation delays in the vdlist"
+     }
+
+9 20u
+   if "0.0001 > ((vd_list/0.04) - trunc(vd_list/0.04))*0.04 || (1-((vd_list/0.04) - trunc(vd_list/0.04)))*0.04 < 0.0001"
+     {
+     }
+  else
+     {
+     2u
+     print "Some relaxation delays are not multiples of 40 ms and will be rounded to multiples 40 ms"
+     }
+
+  3m vd_list.inc
+  lo to 9 times l3
+  3m vd_list.res
+
+
+2 d11 do:f3
+  20u
+  "d31=vd_list[l11]"
+  20u
+  "COUNTER1=( d31 / 40m )"
+
+  20u
+  4u pl25:f3
+  (p52 ph1):f3
+  4u
+  20u 
+
+  DELTA pl1:f1 pl3:f3
+  50u UNBLKGRAD
+  (p21 ph1):f3
+  4u
+  p16:gp0
+  d16
+
+  (p1 ph1)
+  4u
+  p16:gp1
+  d16
+  DELTA3
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA3
+  4u
+  p16:gp1
+  d16
+  (lalign (p1 ph2) (p21 ph1):f3 )
+  4u
+  p16:gp2
+  d16
+  DELTA3
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA3
+  4u
+  p16:gp2
+  d16
+  (ralign (p1 ph3) (p21 ph4):f3 )
+  4u
+  p19:gp3
+  d16
+
+#   ifdef LABEL_CN
+7 DELTA6
+  (p8:sp13 ph1):f2
+  DELTA7
+  (p42:sp26 ph1):f1
+  DELTA7
+  (p8:sp13 ph1):f2
+  DELTA6
+  lo to 7 times COUNTER1
+#   else
+8 DELTA6
+  (p42:sp26 ph1):f1
+  DELTA6
+  lo to 8 times COUNTER1
+#   endif /*LABEL_CN*/
+
+  (p21 ph5):f3
+  2u
+  p16:gp4*EA*-1
+  d16 pl1:f1
+  DELTA1
+  (center (p2 ph1):f1 (p22 ph5):f3 )
+  2u
+  p16:gp4*EA
+  d16 
+  DELTA2
+
+#   ifdef LABEL_CN
+  if "4*d10+p2>p8"
+    {
+    (center (d10 gron8 d10 gron8*-1 2u groff p2 ph1 d10*2 2u):f1 (p8:sp13 ph1):f2)
+    }
+  else
+    {
+    (d10 gron8 d10 gron8*-1 2u groff p2 ph1 d10*2 2u):f1
+    }
+#   else
+  (d10 gron8 d10 gron8*-1 2u groff p2 ph1 d10*2 2u):f1
+#   endif /*LABEL_CN*/
+
+  (lalign (p1 ph1) (p21 ph1):f3 )
+  4u
+  p16:gp5
+  d16
+  DELTA3
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA3
+  p16:gp5
+  d16
+  4u
+  (ralign (p1 ph2) (p21 ph6):f3 )
+  4u
+  p16:gp6
+  d16
+  DELTA3
+  (center (p2 ph1):f1 (p22 ph1):f3 )
+  DELTA3
+  4u
+  p16:gp6
+  d16
+  (p1 ph1)
+
+  p16:gp11
+  d16 
+  DELTA4
+  (p2 ph1)
+  p16:gp7
+  d16 pl16:f3
+  10u BLKGRAD
+
+  go=2 ph31 cpd3:f3
+  d11 do:f3 mc #0 to 2
+     F1QF(calclc(l11, 1))
+     F2EA(calgrad(EA) & calph(ph6, +180), caldel(d10, +in10) & calph(ph5, +180) & calph(ph31, +180))
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=2
+ph4=1 1 3 3
+ph5=1 3
+ph6=3
+ph31=1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling 
+;pl25: f3 channel - power level for used for spinlock in T1rho experiment
+;sp1 : f1 channel - shaped pulse 180 degree
+;sp13: f2 channel - shaped pulse 180 degree (adiabatic)
+;sp26: f1 channel - shaped pulse 180 degree (Reburp.1000)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p8 : f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;p11: f1 channel -  90 degree shaped pulse
+;p16: homospoil/gradient pulse                              [1 msec]
+;p19: homospoil/gradient pulse  2                                      [500 usec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p42: f1 channel - 180 degree shaped pulse for inversion [2 ms at 600 MHz]
+;                                  
+;p52: Maximum relaxation delay in T1rho experiment
+;d1 : relaxation delay; 1-5 * T1
+;d10: incremented delay                                     [3 usec]
+;d11: delay for disk I/O                                    [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d26 : 1/(4J)NH                                             [2.65 msec]
+;cnst19: H(N) chemical shift (offset, in ppm) [~8]
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+;inf2: 1/SW(X) = 2 * DW(X)
+;in10: 1/(2 * SW(X)) = DW(X)
+;nd10: 2
+;ns: 4 * n
+;ds: >= 32
+;td1: number of delays in vd-list
+;td2: number of experiments in F2
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: echo-antiecho in F2
+
+
+;for z-only gradients:
+;gpz0: 23%
+;gpz1: 7%
+;gpz2: 4%
+;gpz3: 55%
+;gpz4: 80%
+;gpz5: 11%
+;gpz6: 7%
+;gpz7: 32.2%
+;gpz8: 1%
+;gpz11: 16%
+
+;use gradient files:
+;gpnam0: SMSQ10.100
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.50
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+;gpnam11: SMSQ10.100
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for 13C and 15N labeled samples start experiment with
+;             option -DLABEL_CN (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: trt1etf3gpsitc3d.3,v 1.3 2019/02/11 14:04:14 ber Exp $

@@ -1,0 +1,151 @@
+;DISPEL (four stage)
+;suppression of one-bond 13C satellites 
+;with a four-stage low-pass J filter	
+;with excitation sculpting for solvent suppresion
+
+;P. Moutzouri, P. Kiraly, A. R. Phillips, S. R. Coombes, M. Nilsson and G. A. Morris, Anal. Chem. 89, 11898-11901 (2017)
+;T.-L. Hwang & A.J. Shaka, J. Magn. Reson., Series A 112 275-279 (1995)
+
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=Suppression of one-bond 13C satellites 
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+"acqt0=-p1*2/3.1416"
+
+"p2=p1*2"
+
+"d2=4050u"
+"d3=3200u"
+"d4=1100u"
+"d5=3950u"
+"d6=1560u"
+
+"d13=50u"
+
+"DELTA1=d3-d13-(p3/2)-d16-p16"
+"DELTA2=d2-d3-(p3/2)-(p2/2)"
+"DELTA3=d2-d3+d4-(p3/2)-(p2/2)-p16-d16+p40+10u"
+"DELTA4=d3-d4-(p3/2)-(p1/2)"
+"DELTA5=d5-p16-d16-(p1/2)-(p3/2)"
+"DELTA6=d2-d5-(p3/2)-(p2/2)"
+"DELTA7=d2-d5+d6-(p2/2)-(p3/2)-p16-d16+p40+10u"
+"DELTA8=d5-d6-(p3/2)"
+
+1 ze
+2 30m
+  20u BLKGRAD
+  d1 
+  d13 pl1:f1 pl2:f2 
+
+3 (p1 ph1):f1
+  d13 UNBLKGRAD
+  DELTA1
+  p16:gp1
+  d16
+  (p3 ph5):f2
+  DELTA2  pl0:f1
+
+  (p40:sp10 ph12:r):f1
+  10u  pl1:f1
+  (p2 ph2):f1 
+
+  p16:gp1
+  d16
+  DELTA3
+  (p3 ph6):f2
+  DELTA4
+  (p1 ph3):f1 
+  DELTA5
+  p16:gp2
+  d16
+  (p3 ph7):f2 
+  DELTA6  pl0:f1
+
+  (p40:sp10 ph13:r):f1
+  10u  pl1:f1
+  (p2 ph4):f1 
+
+
+  p16:gp2
+  d16	
+  DELTA7
+  (p3 ph8):f2 
+  DELTA8
+
+  if "cnst7 == 1"          ;z-filter
+  { 	
+   (p1 ph9):f1
+   10u gron0 pl0:f1
+   (p32:sp29 ph11):f1
+   20u groff
+   d16 pl1:f1
+   p16:gp3
+   d16
+   (p1 ph10):f1
+  }
+  else
+  {
+  }
+  go=2 ph31 
+  30m mc #0 to 2 F0(zd)
+  20u BLKGRAD
+exit
+   
+
+ph1=0 
+ph2=0 1
+ph3=1 
+ph4=0 0 1 1 
+ph5=0 2  
+ph6=0 0 2 2
+ph7=0 0 0 0 2 2 2 2
+ph8=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2 
+ph9=0 
+ph10=0 
+ph11=0
+ph12=2 3  
+ph13=2 2 3 3 
+ph31=0 2 2 0
+  
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;sp29: f1 channel - power level of adiabatic pulse of ZQF element
+;sp10 : f1 channel - shaped pulse 180 degree
+;spnam29 : f1 channel - file name for the adiabatic shaped pulse using in ZQF   [Crp60,20,20.10]
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p32: f1 channel - 180 degree shaped pulse (adiabatic)    [20 msec]
+;p40: f1 channel - 180 degree shaped pulse (Squa100.1000)   [2 msec]
+;p16: duration of CTP gradients                      [1 msec]
+;p18: homospoil gradient                             [1 msec]
+;d1 : relaxation delay; 1-5 * T1
+;d13: delay for UNBLKGRAD/BLKGRAD
+;d16: delay for gradient recovery		
+;cnst7: 0 / 1 (no ZQF / ZQF)
+;ns: 4 * n, total number of scans: NS * TD0
+;ds: 4
+
+;use gradient ratio:    gp 0 : gp 1 : gp 2 : gp 3
+;                        2-4 :   43 :   37 :   31
+
+
+;for z-only gradients:
+;gpz0: 2%     (ZQF gradient, 2-4%)
+;gpz1: 43%    (CTP gradient)
+;gpz2: 37%    (CTP gradient)
+;gpz3: 31%    (homospoil gradient)
+
+;use gradient files:
+;gpnam1 : SMSQ10.100
+;gpnam2 : SMSQ10.100
+;gpnam3 : SMSQ10.100

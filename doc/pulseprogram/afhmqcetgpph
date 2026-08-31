@@ -1,0 +1,214 @@
+;afhmqcetgpph
+;avance-version (21/09/15)
+;XL-ALSOFAST-HMQC
+;2D H-1/X correlation via heteronuclear zero and double quantum
+;   coherence
+;phase sensitive
+;with delayed decoupling during acquisition
+;using shaped pulses for inversion on f2 - channel
+;with optional weighted sampling
+;
+;P. Roessler, D. Mathieu &  A.D. Gossert,
+;   Angew. CHem. Int. Ed. 59, 19329-19337, (2020)
+;(L. Mueller, J. Biomol. NMR, 42, 129, (2008))
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+#include <De.incl>
+#include <WeightedSampling.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d4=1s/(cnst2*4)"
+"d12=20u"
+
+
+"TAU=d24-d16-p2-d0*2-p4"
+"if ( TAU > 1.6m ) { p19=trunc(TAU*500000)/1000000; cnst60 = 1;} else { p19=trunc(TAU*500000)/500000; cnst60 = 0.5;}"
+"p30=p19*cnst60"
+
+"p29=250u"
+
+
+"in0=inf1/2"
+
+"d0=3u"
+
+
+#   ifdef CALC_SP
+"p48=(bwfac21/cnst44)*inf1"
+"spw21=plw2*pow((p3*totrot21)/(p48*90.0*integfac21),2)"
+"spoal21=0.5"
+"spoffs21=0"
+#   endif /*CALC_SP*/
+
+
+"p12=p11"
+"spw11=spw1*4"
+"spoffs11=0"
+
+
+"DELTA1=d4*(cnst11/90)-p29-d16-4u-p48*cnst42"
+"DELTA2=d0*2+p2"
+"DELTA3=p30*2+d16-p19+p2+d0*2+p4-p1*2/PI-4u-de"
+
+
+"d23=d4*2-DELTA3-p19-d16"
+"d62=aq-d23"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze 
+2 d1 do:f2
+
+#   ifdef AWS
+    subr qsin_2d:aws(8, 2)
+#   endif /*AWS*/
+
+  50u UNBLKGRAD
+
+  d12 pl1:f1 pl2:f2
+  (p3 ph1):f2
+  p16:gp3
+  d16
+
+4 p1 ph1
+  4u
+  DELTA1
+  p29:gp4
+  d16 
+  (center (p2 ph2) (p48:sp21 ph1):f2)
+  4u
+  p29:gp4
+  d16
+  DELTA1 pl2:f2
+  (lalign (p1 ph1):f1 (p3 ph3):f2)
+  DELTA2
+  p30:gp1*EA*-1
+  d16
+  (p4 ph4):f2
+  d0
+  p30:gp1*EA
+  d16
+  (p2 ph5)
+  d0 
+  (p3 ph4):f2
+  DELTA3 pl14:f2
+  p19:gp2*cnst60
+  d16
+  4u BLKGRAD
+
+  ACQ_START(ph30,ph31)
+  0.1u START_NEXT_SCAN
+
+  0.1u REC_UNBLK
+  0.05u DWELL_RELEASE
+  d23
+  d62 cpd2:f2
+  0.05u DWELL_HOLD
+  0.1u REC_BLK
+
+  rcyc=2
+
+  d1 do:f2 mc #0 to 2 
+     F1EA(calgrad(EA), caldel(d0, +in0) & calph(ph3, +180) & calph(ph31, +180))
+  TAU
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=0 0 1 1
+ph30=0
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl14: f2 channel - power level for CPD/BB decoupling (low power)
+;sp21: f2 channel - shaped pulse 180 degree  (on resonance, Methyl)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p12: f1 channel - 180 degree shaped pulse             [1 msec]
+;p16: homospoil/gradient pulse                         [1 msec]
+;p19: gradient pulse to fit into shortened INEPT
+;p29: gradient pulse 3                                 [250 usec]
+;p30: gradient pulse 4 = p19/cnst60                    
+;p48: f2 channel - 180 degree shaped pulse (Methyl selective)
+;d0 : incremented delay (2D)                           [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(CmeH))
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d24: shortened second INEPT delay                     [1.4 - 2.4 msec]
+;cnst2: = 1J(CmeH)                                     [125 Hz]
+;cnst11: excitation flip angle                         [50-70 deg.]
+;cnst42: compensation of chemical shift evolution during p48
+;           Reburp.1000: 0.5
+;           Q3(_surbop).1000: 0
+;cnst44: Bandwidth scaling e.g. cnst44=0.9:  BW(C)=0.9*SW(C)
+;cnst60: Gradient scaling factor
+;l3: number of entries in sierra list
+;o2p: Cme chemical shift
+;inf1: 1/SW(Cme) = 2 * DW(Cme)
+;in0: 1/(2 * SW(Cme)) = DW(Cme)
+;nd0: 2
+;ns: 4 * n
+;ds: >=32
+;aq: <= 75 msec
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEC
+;cpd2: decoupling according to sequence defined by cpdprg2: garp4.p61
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;cpdprg2: garp4.p61
+
+
+;for z-only gradients:
+;gpz1: 80%
+;gpz2: 40.2%
+;gpz3: 11%
+;gpz4: 25%
+
+;use gradient files:
+;gpnam1: SINE.50
+;gpnam2: SINE.50
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;CALC_SP: for calculation of bandselective Carbon pulses based on Carbon spectral width * cnst44
+;             option -DCALC_SP (eda: ZGOPTNS)
+;AWS: use apodization weighted sampling (COS^2, ns=8*n),
+;             process the spectrum without linear prediction in F1
+;             option -DAWS (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;Processing:
+;    use proc_dd.py to generate and apply custom window function
+
+
+
+;$Id: $

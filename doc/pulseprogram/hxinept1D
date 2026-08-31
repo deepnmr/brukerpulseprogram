@@ -1,0 +1,87 @@
+;hxinept1D
+;
+;A. Bax & G.A. Morris, J. Magn. Reson. 42, 501 (1981)
+;
+;TS 3.X Version
+;sewe 31.01.2013 
+;
+;pl1 : f1 channel - power level for 90/180
+;pl2 : =0W, not used
+;pl12: f2 channel - power level for decoupling and p3
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d3 : 1/(6J(XH))  XH, XH2, XH3 positive
+;     1/(4J(XH))  XH only
+;     1/(3J(XH))  XH, XH3 positive, XH2 negative
+;d4 : 1/(4J(XH))
+;cnst2: = J(XH)
+;cnst11: = 6  XH, XH2, XH3 positive
+;          4  XH only
+;          3  XH, XH3 positive, XH2 negative
+;inf1: 1/SW(H) = 2 * DW(H)
+;in0: 1/(2 * SW(H)) = DW(H)
+;nd0: 2
+;ns: 2 * n
+;td1: number of experiments
+;cpd2: decoupling according to sequence defined by cpdprg2
+;cpdprg2: decoupling sequence, e.g spinal64_12
+;pcpd2: f2 channel - 180 degree pulse for decoupling sequence
+;
+;
+;$CLASS=Solids
+;$DIM=1D
+;$TYPE=heteronuclear correlation
+;$SUBTYPE=setup sequence
+;$COMMENT=use hxinept2D for 2D
+
+prosol relations=<solids_default>
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d3=1s/(cnst2*cnst11)"
+"d4=1s/(cnst2*4)"
+
+"DELTA=d3+p1*2/PI-de"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+2 10m
+3 d1 do:f2 
+  (p3 pl12 ph1):f2
+  d4
+  (center (p4 pl12 ph2):f2 (p2 pl1 ph4):f1 )
+  d4
+  (p3 pl12 ph3):f2
+  (p1 pl1 ph5):f1
+  d3
+  (center (p4 pl12 ph2):f2 (p2 pl1 ph6):f1 )
+  DELTA 
+  go=2 ph31 cpds2:f2
+  10m mc #0 to 2 F0(zd)
+  d4 do:f2
+exit
+
+
+ph1=0
+ph2=0 0 2 2
+ph3=1 3
+ph4=0 0 2 2
+ph5=0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph6=0 0 2 2 1 1 3 3
+ph31=0 2 0 2 1 3 1 3 2 0 2 0 3 1 3 1
+
+
+
+;$Id:$

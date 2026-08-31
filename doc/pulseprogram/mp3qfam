@@ -1,0 +1,84 @@
+; mp3qfam
+;
+; TS3 / 06.07.2011
+;
+; 3Q MAS pulse program for 3/2 nuclei
+; 3-pulse experiment with full echo acquisition:
+; excitation - t1(3Q) - conversion - opt.t1(1Q) - tau - 180sel - acquisition
+; uses a split-t1 mode with a whole echo acquisition.
+; for split-t1 set increment in10 = in0*7/9
+; or in10 = 0, if no split-t1 is desired
+; applies fast amplitude modulation for conversion
+; fast amplitude modulation requires AV hardware
+; 180 selective pulse should be determined first using Hahn-echo, this may
+; also be used to check that full echo can be obtained with sample of
+; interest. If no full echo can be obtained from sample, use mp3qfamz
+; instead
+; then set p2=1u, l2=5, and pl14 for ca. 100 kHz Rf field amplitude and optimise p1
+; finally optimise p2, l1, and pl14 in 2 or more iterations
+; see also mp3q, mp3qzfil, mp3qdfs, mp3qdfsz, mp3qfam2, mp3qfam2z
+;
+;
+;Avance III version
+;parameters:
+;pl1 : = 0, not used
+;pl11 : power level for excitation pulse
+;pl14 : power level for amplitude modulation
+;pl21 : power level for selective pulse, ca. plw11 / 1024
+;p1 : excitation pulse at pl11
+;p2 : FAM pulse at plw14
+;p4 : 180 degree selective pulse at plw21
+;d0 : = 0
+;d1 : recycle delay
+;d2 : FAM delay
+;d6 : to allow full echo to build up
+;d10 : = 0
+;ns : 48 * n (extension of ph2 can be considered if more scans are acquired)
+;in0 : 1 rotor period for rotor synchronised experiment
+;in10 : = in0*7/9
+;l2 : repetitions of FAM sequence
+;td1 : number of experiments
+;FnMODE: QF
+;MC2 : QF
+;
+;
+;$CLASS=Solids
+;$DIM=2D
+;$TYPE=half integer quadrupoles
+;$SUBTYPE=MQMAS
+;$COMMENT=shifted echo split-t1 3QMAS with FAM for I=3/2
+
+prosol relations=<solids_mqmas>
+
+
+"d2=p2"
+"acqt0=1u*cnst11"
+"in0=inf1"
+
+  ze
+1 d1
+  (p1 pl11 ph1):f1
+  d0
+2 d2
+  (p2 pl14 ph2):f1
+  (p2 ph3):f1
+  d2
+  lo to 2 times l2
+  d10
+  d6
+  (p4 pl21 ph4):f1
+  go=1 ph31
+  d1 mc #0 to 1 F1QF(id0&id10)
+exit
+
+ph1=(12) 0 1 2 3 4 5 6 7 8 9 10 11
+ph2= 0
+ph3= 2
+ph4= 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 
+     2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 3 3 3 3
+ph0= 0
+ph31=0 3 2 1 0 3 2 1 0 3 2 1 2 1 0 3 2 1 0 3 2 1 0 3
+
+
+
+;$Id:$

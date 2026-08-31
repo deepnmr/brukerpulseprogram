@@ -1,0 +1,18 @@
+;p18bio_prot.incl
+
+; Test the rf on-time for the H to CO CP in 1H detection
+; 10 ms is maximum
+
+;$COMMENT=Protection against long CP time
+;$CLASS=BioSolids PROT
+
+
+if "p19<10.m" goto Passp19
+1u
+print "H-CO CP contact time p19 exceeds 10 msec limit!"
+goto HaltAcqu
+Passp19, 1m
+
+
+
+;$Id:$

@@ -1,0 +1,56 @@
+;imgegp1d_f
+;avance-version (15/06/21)
+;1D Gradient Echo for gradient test on Fourier
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include<Avance.incl>
+#include<Grad.incl>
+#include<De.incl>
+
+
+"d11=30m"
+
+
+1 ze
+  d11
+2 d1 BLKGRAD
+  50u UNBLKGRAD
+  20u pl1:f1
+  p1:f1 ph1
+  d27 gron1
+  5u groff
+  d15
+  d21 gron2
+  ACQ_START(ph30,ph31)
+  aq DWELL_GEN:f1
+  5u groff
+  rcyc=2
+  400m wr #0
+  d11 BLKGRAD
+exit
+
+
+ph1=0
+ph30=0
+ph31=0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p0 : 90deg pulse on f1
+;d1 : relaxation delay
+;d11: delay for disk I/O                             [30 msec]
+;d15: echo time
+;d21: gradient stabilisation delay
+;d27: length of dephasing gradient (phase encode time)
+;ns: 16
+;ds: 0
+
+
+
+;$Id:$

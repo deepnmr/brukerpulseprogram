@@ -1,0 +1,84 @@
+;onepulsepg
+;
+;derived from zgpg
+;version 17/03/28
+;written and checked: VDec 17/03/28
+
+;1D sequence with power-gated decoupling
+;
+
+;Avance version
+;parameters:
+;p1 : f1 90 pulse length at pl1
+;pl1 : f1 90 pulse power
+;pl12 : f2 dec power level for CPD/BB decoupling
+;pl13 : f2 dec power level for second CPD/BB decoupling
+;d1 : recycle delay, 1-5 * T1
+;d11: delay for disk I/O [30 msec]
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 - pulse for decoupling sequence
+;ns : 4 (full: 8), 1 * n, total number of scans: NS * TD0
+
+
+;$CLASS=Solids
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+prosol relations=<solids_default>
+
+#include <Avance.incl>
+#include <Delay.incl>
+
+
+"d11=30m"
+
+
+"DELTA=d1-100m"
+
+
+"acqt0=-p1*2/3.1416"
+
+
+Prepare, ze
+
+  d11 pl12:f2
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 30m do:f2
+  10u pl13:f2
+
+  d11 cpd2:f2
+  DELTA
+  4u do:f2
+  10u pl12:f2
+  100m cpd2:f2
+
+  (p1 pl1 ph1):f1
+
+;#######################################################
+;#                     Acquisition                     #
+;#######################################################
+
+  go=Start ph31
+  30m do:f2 pl13:f2 mc #0 to Start F0(zd)
+
+HaltAcqu, 1m
+Exit, exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph1= 0 2 2 0  1 3 3 1       ; f1 hard pulse
+ph31=0 2 2 0  1 3 3 1       ; receiver
+
+;######################################################
+
+
+
+;$Id:$

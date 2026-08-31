@@ -1,0 +1,128 @@
+;deptqgpsp
+;avance-version (14/10/09)
+;DEPTQ
+;dept polarization transfer
+;with decoupling during acquisition
+;using shaped pulse for 180degree pulse on f1 - channel
+;
+;R. Burger & P. Bigler, J. Magn. Reson. 135, 529-534 (1998)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+
+
+"p4=p3*2"
+"d2=1s/(cnst2*2)"
+"d12=20u"
+
+
+"p0=p3*cnst12"
+
+
+"DELTA=p1*4/PI-4u"
+"DELTA1=d2+p1+p4-p16-d16"
+"DELTA2=d2+p1-p16-d16"
+"DELTA3=d2-p16-d16"
+
+
+"acqt0=-p1*2/PI"
+
+
+1 ze
+2 30m do:f2 
+  d1
+  d12 pl1:f1 pl2:f2
+  50u UNBLKGRAD
+
+  (p1 ph2):f1
+  p16:gp1
+  d16
+  DELTA1
+  (ralign (p13:sp5 ph3):f1 (p3 ph1):f2 )
+  DELTA2
+  p16:gp2
+  d16 pl1:f1
+  (p4 ph3):f2 
+  (p1 ph1):f1
+  p16:gp3
+  d16
+  DELTA3 pl0:f1
+  (p13:sp5 ph5):f1 (p0 ph4):f2
+  DELTA3
+  p16:gp3
+  d16
+  DELTA pl12:f2
+  4u BLKGRAD
+  go=2 ph31 cpd2:f2
+  30m do:f2 mc #0 to 2 F0(zd)
+exit
+
+
+ph1=0
+ph2=3
+ph3=0 2 1 3
+ph4=1
+ph5=0 2
+ph31=1 1 3 3
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp5: f1 channel - shaped pulse (180degree)
+;spnam5: Crp60comp.4
+;p0 : f2 channel :  p3 * cnst12 
+;p1 : f1 channel -  90 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p13: f1 channel - 180 degree shaped pulse
+;     = 2msec for Crp60comp.4
+;p16: homospoil/gradient pulse
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J(XH))
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(XH)
+;cnst12: for multiplicity selection
+;           0.5 ( 45 degree pulse) - all positive
+;           1.0 ( 90 degree pulse) - XH only
+;           1.5 (135 degree pulse) - XH, XH3 positive, XH2 negative
+;ns: 4 * n, total number of scans: NS * TD0
+;ds: 8
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:    gp 1 : gp 2 : gp 3
+;                         31 :   31 :   31   for all C
+;                          0 :   31 :   31   for CHn only
+;                         31 :   31 :   11   for Cquat only
+
+;for z-only gradients:
+;gpz1: 31%(all/Cq) or 0%(CHn)
+;gpz2: 31%
+;gpz3: 31%(all/CHn) or 11%(Cq)
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+;DELTA: delay to compensate for chemical shift evolution during
+;          RF pulse in order to give same phase correction as
+;          for reference 1D spectrum
+
+
+
+;$Id:$

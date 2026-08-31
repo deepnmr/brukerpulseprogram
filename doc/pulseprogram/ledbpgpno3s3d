@@ -1,0 +1,169 @@
+;ledbpgpno3s3d
+;avance-version (19/02/11)
+;DOSY-NOESY 3D
+;3D sequence with
+;   diffusion measurement using stimulated echo and LED
+;   homonuclear correlation via dipolar coupling
+;   dipolar coupling may be due to noe or chemical exchange
+;using bipolar gradient pulses for diffusion
+;using 3 spoil gradients
+;phase sensitive (t1)
+;
+;D. Wu, A. Chen & C.S. Johnson Jr., 
+;   J. Magn. Reson. A 115, 260-264 (1995).
+;J. Jeener, B.H. Meier, P. Bachmann & R.R. Ernst, J. Chem. Phys. 71,
+;   4546-4553 (1979)
+;R. Wagner & S. Berger, J. Magn. Reson. 123 A, 119-121 (1996)
+;E.K. Gozansky & D.G. Gorenstein, J. Magn. Reson. 111 B, 94-96 (1996)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<gradient> diff=<Difframp>
+
+
+"p2=p1*2"
+
+
+"in0=inf1"
+
+"d0=in0/2-p1*4/3.1416"
+
+
+"DELTA1=d20-p1*2-p2-p30*2-d16*2-p19-d16"
+"DELTA2=d21-p19-d16"
+"DELTA3=d8*0.5-p16-d16-4u-p2*0.5"
+
+
+"acqt0=-p1*2/3.1416"
+
+
+aqseq 321
+
+
+1 ze
+2 d1
+  50u UNBLKGRAD
+  p1 ph1
+  p30:gp6*diff
+  d16
+  p2 ph1
+  p30:gp6*-1*diff
+  d16
+  p1 ph2
+  p19:gp7
+  d16
+  DELTA1
+  p1 ph3
+  p30:gp6*diff
+  d16
+  p2 ph1
+  p30:gp6*-1*diff
+  d16
+  p1 ph4
+  p19:gp8
+  d16
+  DELTA2
+  p1 ph5
+  d0
+  p1 ph6
+  DELTA3
+  p16:gp1
+  d16
+  4u
+  p2 ph8
+  4u
+  p16:gp1*-1
+  d16
+  DELTA3 BLKGRAD
+  p1 ph7
+  go=2 ph31
+  d1 mc #0 to 2
+     F1PH(calph(ph1, +90) & calph(ph2, +90) & calph(ph3, +90) & calph(ph4, +90) & calph(ph5, +90), caldel(d0, +in0))
+     F2QF(calgrad(diff))
+exit
+
+
+ph1= 0
+ph2= 0 0 0 0 0 0 0 0  2 2 2 2 2 2 2 2
+ph3= 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0
+     2 2 2 2 2 2 2 2  2 2 2 2 2 2 2 2
+     1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1
+     3 3 3 3 3 3 3 3  3 3 3 3 3 3 3 3
+ph4= 0 0 0 0 2 2 2 2  0 0 0 0 2 2 2 2
+     2 2 2 2 0 0 0 0  2 2 2 2 0 0 0 0
+     1 1 1 1 3 3 3 3  1 1 1 1 3 3 3 3
+     3 3 3 3 1 1 1 1  3 3 3 3 1 1 1 1
+ph5= 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0
+     2 2 2 2 2 2 2 2  2 2 2 2 2 2 2 2
+     1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1
+     3 3 3 3 3 3 3 3  3 3 3 3 3 3 3 3
+ph6= 0
+ph7= 0 2 1 3
+ph8= 0
+ph31=0 2 1 3 2 0 3 1  2 0 3 1 0 2 1 3
+     2 0 3 1 0 2 1 3  0 2 1 3 2 0 3 1
+     3 1 0 2 1 3 2 0  1 3 2 0 3 1 0 2
+     1 3 2 0 3 1 0 2  3 1 0 2 1 3 2 0
+
+
+;pl1: f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: spoil gradient in NOESY mixing [1 msec]
+;p19: gradient pulse 2 (spoil gradient)
+;p30: gradient pulse (little DELTA  * 0.5)
+;d0 : incremented delay (2D)
+;d1 : relaxation delay; 1-5 * T1
+;d8 : mixing time
+;d16: delay for gradient recovery
+;d20: diffusion time (big DELTA)
+;d21: eddy current delay (Te)		      [5 ms]
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns : 8 * n
+;ds : 16 * m
+;td1: number of experiments in F1
+;td2: number of experiments in F2
+;FnMODE: States-TPPI, TPPI, States or QSEQ in F1
+;FnMODE: QF(no-frequency) in F2
+;        use tf3, tf1 and DOSY processing
+
+
+;use gradient ratio:    gp 1 :  gp 6 : gp 7   : gp 8
+;                         37 :  100  : -17.13 : -13.17
+
+;for z-only gradients:
+;gpz1: 37%
+;gpz6: 100%
+;gpz7: -17.13% (spoil)
+;gpz8: -13.17% (spoil)
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+;gpnam8: SMSQ10.100
+
+;use AU-program dosy to calculate gradient ramp-file Difframp
+
+
+;Processing
+
+;PHC0(F1): 90
+;PHC1(F1): -180
+;FCOR(F1): 1
+
+
+
+;$Id:$

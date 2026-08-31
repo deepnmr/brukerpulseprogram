@@ -1,0 +1,75 @@
+;hX.dp
+;avance-version (20/08/17)
+;JOS
+;checked 2.7.2020 krgr
+;fixed  diydec JOS August2020
+;version: 2.0/ TS4.1.2 06/16/2021
+
+;$COMMENT= single pulse excitation, acquisition without decoupling
+;$CLASS=SolidsIcon
+;$DIM=1D
+;$TYPE=direct polarization
+;$SUBTYPE=
+
+prosol relations=<solids_ICON_QN>
+#include <Delay.incl>
+#include <trigg.incl>
+		; definition of external trigger output$
+#ifndef nodec
+#include <Decoup_Solids.incl>
+#endif
+"acqt0=-p1*2/3.1416"
+
+Prepare, ze
+d31
+#ifdef nodec
+Start, 10m  
+  d1 
+#elif lpdec    
+Start, 10m  do:f2
+  d1 do:f2 
+#else
+Start, 10m  do:f2
+  d1 do:f2 
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#endif
+
+ trigg
+#ifndef nodec
+     0.5u pl12:f2
+    (p1 pl1 ph1):f1 (1u cpds2):f2
+go=Start ph31 finally do:f2
+	1m do:f2
+#else
+ (p1 pl1 ph1):f1 
+go=Start ph31  
+#endif
+  10m mc #0 to Start F0(zd)
+  
+HaltAcqu, 1m
+Exit, exit
+
+
+ph1= 0 2 1 3		; C hard pulse
+
+ph31=0 2 1 3		; receiver
+
+
+
+
+;Avance NEO / III version
+;parameters:
+;p1  : X 90 at pl1
+;pl1 : X pulse power
+;pl12: H dec power
+;cnst31 : MAS rate in Hz 
+;cnst32  :1H decoupling field correction in Hz
+;cnst52  : 1H heteronuclear decoupling field in Hz for pl12 decoupling
+;d1  : recycle delay
+;pcpd2   : not used, instead p31 is H dec pulse cpdprg2 (calculated)
+;cpdprg2 : Decoupling file cw, tppm (at pl12)
+;ZGOPTNS : -Dnodec
+;ns: 4 (full:4)
+
+;$Id: hX.dp,v 1.3 2020/08/17 09:04:34 ber Exp $

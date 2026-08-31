@@ -1,0 +1,16 @@
+;vp_protH.incl
+
+; Test that the rf on time during vp
+; is allowed (100 ms)
+
+;$COMMENT=Protection against long spin-lock time (H)
+;$CLASS=Solids PROT
+
+"p59=vp_list.max"
+if "p59<100.1m" goto Passvp
+1u
+print "Variable pulse exceeds 100 ms limit!"
+goto HaltAcqu
+"d59=p59"
+Passvp, 1m
+

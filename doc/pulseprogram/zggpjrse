@@ -1,0 +1,60 @@
+;zggpjrse
+;avance-version (13/08/01)
+;1D sequence
+;water suppression using watergate sequence
+;
+;V. Sklenar & A. Bax, J. Magn. Reson. 74, 469 (1987)
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+1 ze
+2 30m
+  d1
+  50u UNBLKGRAD
+  p1 ph1
+  d19
+  p1 ph2
+  4u
+  p16:gp1
+  d16 
+  p1 ph3
+  d19*2
+  p1 ph4
+  p16:gp1
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+
+ph1=0 2
+ph2=2 0
+ph3=0 0 1 1 2 2 3 3 
+ph4=2 2 3 3 0 0 1 1
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;ns: 8 * n, total number of scans: NS * TD0
+;ds: 4
+
+
+;for z-only gradients:
+;gpz1: 20%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+
+
+
+;$Id:$

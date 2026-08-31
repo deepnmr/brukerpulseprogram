@@ -1,0 +1,48 @@
+;$Id:$
+;pulse program for gradient recovery measurement
+;2D mode
+;$CLASS=HighRes HWT
+;$DIM=2D
+;$HIDE=y
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+define list<delay> vd_list=<$VDLIST>
+
+"d11=30m"
+"d12=50u"
+
+1 ze
+2 d11 BLKGRAD
+  d1
+  d12
+  d12 UNBLKGRAD
+3 p16:gp1
+  d0
+  vd_list
+  p1 ph1
+  go=2 ph31
+  d11 wr #0 if #0 zd BLKGRAD
+  d1
+  d12 vd_list.inc
+  d12 UNBLKGRAD
+  lo to 3 times td1
+  d12 BLKGRAD
+exit
+
+ph1=0
+ph31=0
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse [5m]
+;d1 : relaxation delay; 1-5 * T1
+;d0 : delay (1s or 0u) to adjust initial phase correction
+;nd0: 1
+;NS: 1
+;DS: 0
+;td1: number of experiments
+;vdlist: generate vd list with 26 entries starting with 10u
+;        and use multiplier 1.5848931925
+;FnMODE: QF

@@ -1,0 +1,231 @@
+;mehmqczzex3d
+;avance-version (22/09/22)
+;2D 1H/13C correlation via inept transfer
+;for measuring ZZ-exchange (HzCz) in methyl groups
+;13C chem. shift evolution of HMQC type
+;water suppression using watergate or presaturation
+;as pseudo 3D
+;(use parameterset MEHMQCZZEX3D)
+;
+; Exchange delays are taken from vdlist. For samples in 100% 
+; D2O start with ZGOPTION -Dpresat for water suppression using 
+; presaturation instead of watergate. Minimum exchange delay 
+; is 4 ms for watergate and 2 ms for presat. 
+;
+;(R. Sprangers, A. Gribun, P. M. Hwang, W. A. Houry, L. E. Kay, 
+;   Proc. Natl. Acad. Sci. USA, 102, 16678-83 (2005))
+
+
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+prosol relations=<triple>
+define list<delay> vd_list=<$VDLIST>
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+
+"d11=30m"
+"d26=1s/(cnst4*4)"
+
+"in10=inf2/2"
+"d10=in10/2-p3*2/PI-p1"
+
+"DELTA1=d26-p16-d16-p1*2/PI"
+"DELTA2=d26-p16-d16"
+
+#ifdef presat
+"DELTA3=d26-p19-d16-8u-p1*2/PI"
+"DELTA4=d26-p19-d16-12u-de"
+#else
+"DELTA3=d26-p19-d16-p11-8u-p1*2/PI"
+"DELTA4=d26-p19-d16-p11-12u-de"
+#endif
+
+"TAU=(1-2/PI)*p1"
+
+"l11=0"
+
+"spoffs1=0"
+
+
+aqseq 312
+"acqt0=0"
+baseopt_echo
+
+1 ze
+
+  if "td1 != vd_list.len" 
+     {
+     2u
+     print "Warning: td1 is not equal to the number of vd list entries"
+     }
+
+  d11 
+2 d11 do:f2 
+
+#ifdef presat
+ "DELTA5=vd_list[l11]/2-10u-p1-p19-d16"
+  4u pl32:f1
+  d1 cw:f1 ph1
+  4u do:f1 
+#else
+ "DELTA5=vd_list[l11]/2-p19-d16"
+ "DELTA6=vd_list[l11]/2-p19-d16-4u-p1-p11"
+  d1
+#endif
+
+  20u UNBLKGRAD pl2:f2 
+; destroy 13C magnetization
+  (p3 ph1):f2
+  p16:gp1
+  d16 pl1:f1
+
+; H->C INEPT
+  (p1 ph1)
+  p16:gp2
+  d16
+  DELTA1
+  (center (p2 ph1) (p4 ph1):f2 )
+  DELTA2
+  p16:gp2
+  d16
+  (p3 ph8):f2
+  d10 
+  (p2 ph5):f1
+  (ralign (d10 p3 ph9 TAU):f2  (p1 ph2):f1)
+
+; ZZ-exchange delay (HzCz)
+  p19:gp3
+  d16 
+
+#ifdef presat
+  4u pl32:f1
+  DELTA5 cw:f1 ph1
+  4u do:f1 
+  4u pl1:f1
+  p2 ph1
+  4u pl32:f1
+  DELTA5 cw:f1 ph1
+  4u do:f1 
+  p19:gp4
+  d16 
+#else
+  DELTA5
+  p2 ph1
+  DELTA6
+  p19:gp4
+  d16 
+  (p11:sp1 ph6:r):f1
+#endif
+
+  4u pl1:f1
+
+; C->H backtransfer and watergate
+  (p1 ph1) 
+  4u
+  p19:gp5
+  d16
+  DELTA3
+
+#ifndef presat
+  (p11:sp1 ph3:r):f1
+#endif
+
+  4u pl1:f1
+  (center (p2 ph1) (p4 ph1):f2 )
+  4u 
+
+#ifndef presat
+  (p11:sp1 ph3:r):f1
+#endif
+
+  4u
+  DELTA4
+  p19:gp5
+  d16 pl12:f2
+  4u BLKGRAD
+
+; Acquisition
+  go=2 ph31 cpds2:f2
+  d11 do:f2 mc #0 to 2 
+     F1QF(calclc(l11, 1))
+     F2PH(calph(ph8, +90), caldel(d10, +in10))
+
+exit
+   
+
+ph1= 0 
+ph2= 1
+ph3= 2
+ph4= 3
+ph5= 0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph6= 2
+ph8= 0 2 
+ph9= 0 0 2 2 
+ph31=0 2 2 0 2 0 0 2 0 2 2 0 2 0 0 2
+  
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl32 : f1 channel - power level for presaturation
+;pl12: f2 channel - power level for decoupling (high power = 4 * plw14)
+;pl14: f2 channel - power level for decoupling (low power)
+;sp1 : f1 channel - shaped pulse  90 degree (water sel.)
+
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse (water sel.)
+;p61: f2 channel -  90 degree pulse at pl14 (low power decoupling) 
+
+;p16: homospoil/gradient pulse [1 msec]
+;p19: homospoil/gradient pulse [600 usec]
+;d0 : incremented delay 
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d26: 1/(4J(CH))
+;cnst4: = J(CH), in Hz [130]
+
+;inf1: 1/SW(N) = 2 * DW(N)
+;in0: 1/(2 * SW(N)) = DW(N)
+;nd0: 2
+;ns: 8 * n
+;ds: >= 16
+;td1: number of experiments
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: States-TPPI in F2
+;cpd2: decoupling according to sequence defined by cpdprg2: bi_garp4_2plcp.p61
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;cpdprg2: bilevel decoupling (bi_garp4_2plcp.p61)
+
+;for z-only gradients:
+;gpz1: 40%
+;gpz2: 15%
+;gpz3: 10%
+;gpz4: 25%
+;gpz5: 40%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.32
+;gpnam4: SMSQ10.32
+;gpnam5: SMSQ10.32
+                                          ;preprocessor-flags-start
+;presat: to use presaturation for water suppression instead of watergate, suggested for samples in 100% D2O
+;          option -Dpresat (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+;$Id: $

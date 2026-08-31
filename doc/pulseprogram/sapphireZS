@@ -1,0 +1,179 @@
+;SAPPHIRE pure shift NMR using 
+;pseudo 3D sequence
+;broadband homodecoupling using Zangger-Sterk element
+;for pureshift sideband suppression
+
+; number of SAPPHIRE steps set by TD2 
+
+; K. Zangger and H. Sterk J Magn Reson, 1997, 124, 486-489. 
+; Juan A. Aguilar, Stephen Faulkner, Mathias Nilsson, and Gareth A. Morris Angew. Chem. Int. Ed. 2010, 49, 3901-3903. 
+; P. Moutzouri, Y. Chen, M.Foroozandeh, P. Kiraly, A.R. Phillips, S.R. Coombes, M. Nilsson, G.A. Morris, Chem. Commun. 2017, 53, 10188-10191. 
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+#include <De.incl>
+
+
+define delay tau
+
+"p2=p1*2"
+
+"d17=d16-50u-de"
+"d11=10u"
+
+"tau=(dw*2*l30)-p1*2/3.1416" 
+
+"d0=0"
+
+"l0=td2"
+"l2=0"
+"l1=l0-l2"
+"l3=0"
+
+"in0=dw*l31"  
+"DELTA=l31*2*dw"
+"DELTA2=l31*2*dw*td1"
+
+"d60=(dw*l31)/2"
+"d59=d60"
+"d61=d60"
+"d62=0.0s"
+
+
+"acqt0=0"
+baseopt_echo
+
+aqseq 312
+
+1 ze
+2 d11
+  50u BLKGRAMP
+  50u LOCKH_OFF
+  d1*0.1
+
+  if "l3==0"
+  {
+  "l1=l0-l2"
+  "d61=d60*l1/l0"
+  "d62=d60-d61"
+  "d58=d62"
+  }
+  else
+  {
+  "d61=d60"
+  "d62=0"
+  }
+  "d59=d0-2*d58"
+  if "d59<0" 
+  {
+  "d59=0"
+  }
+
+  d1*0.9 pl1:f1
+  50u LOCKH_ON
+  50u UNBLKGRAMP
+
+3 p1 ph1
+  tau
+  d61
+
+  p16:gp1
+  d16
+  p2 ph2
+  d16
+  p16:gp1
+
+  d61
+
+  d59
+
+  d16
+  p16:gp2
+  d16 pl0:f1
+  (p47:sp34 ph3):f1 (p47:gp0)
+  d16
+  p16:gp2
+  d16 pl1:f1
+
+  d62
+  p16:gp3
+  d16
+  p2 ph4
+  p16:gp3
+  50u 
+  d17 BLKGRAMP
+  d62
+
+  d59 
+
+
+  go=2 ph31
+  d11 mc #0 to 2
+
+  F1QF(caldel(d0, +in0), calclc(l3, 1))
+  F2QF(calclc(l2, 1))
+  50u LOCKH_OFF
+  DELTA
+  DELTA2
+exit
+
+
+ph1 =0 0 0 0 1 1 1 1 
+ph2 =0 0 1 1 0 0 1 1 
+ph3 =0 1 0 1 0 1 0 1
+ph4 =0 0 0 0 0 0 0 0
+ph31=0 2 2 0 3 1 1 3 
+ 
+;pl1 : high power (dB) 
+;p1  : 90 degree high power pulse
+;p16 : duration of CTP gradients [0.5m-1m]
+;p47 : duration of ZS pulse (here Rsnob)
+;sp34: f1 channel - shaped pulse 180 degree for Zangger-Sterk element
+;d0  : incremented delay
+;d1  : relaxation delay
+;d16 : recovery delay for gradients [200u-1m]
+;DELTA: chunk duration
+;DELTA2: total duration of reconstructed FID
+;d61 : variable tauA echo time
+;d62 : variable tauC echo time
+;d60 : max. of d62/d61
+;d59 : corrected t1/2
+;d58 : temporary variable, changes during run time
+;l0 : number of SAPPHIRE steps
+;l1: sapphire decrement counter
+;l2: sapphire increment counter
+;l3: pure shift counter
+;l30: number of complex points at the beginning not to be included 
+;        in reconstruction
+;l31: number of complex points (divisible by td2) along the acquisition dimension per block
+;        block length about 8 to 10ms
+;ns : 2*n
+;ds: 1*n
+
+;use gradient ratio:    gp 0 : gp 2 : gp 1 : gp 2
+;                          1 :   31 :   47 :   37
+
+;for z-only gradients:
+;gpz0: 1%   (weak gradient during ZS pulse [1-3%])
+;gpz1: 31%  (CTP gradient)
+;gpz2: 47%  (CTP gradient)
+;gpz3: 37%  (CTP gradient)
+
+
+;use gradient files:
+;gpnam0: RECT.1  
+;gpnam1: SINE.100
+;gpnam2: SINE.100
+;gpnam3: SINE.100
+
+
+;td1 : number of chunks (even number)
+;td2 : number of SAPPHIRE steps
+;in0 : half chunk length
+
+;FnMODE: QF
+; excecute getprosol before zg
+; processing with xaup or proc_sapphire
+

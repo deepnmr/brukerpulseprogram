@@ -1,0 +1,129 @@
+;hcdeptedetgp
+;avance-version (20/06/19)
+;inverse dept-cosy
+;2D proton detected dept-based editing (DEPT-HMQC) via
+;   heteronuclear zero and double quantum coherence
+;with decoupling during acquisition
+;
+;T. Parella, F. Sanchez-Ferrando & A. Virgil, J. Magn. Reson. A 117, 78-83 (1995)
+;H. Kessler, P. Schmieder, M. Koeck & M.Reggelin, J. Magn. Reson. 91, 375-379 (1991)
+;H. Kessler, P. Schmieder & M. Kurz, J. Magn. Reson. 85, 400-405 (1989)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"cnst31=1/(2*(sfo2/sfo1 + cnst11))"
+
+define list<gradient> G1 = { cnst31 }
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+
+
+"in0=inf1/2"
+
+"d0=3u"
+
+
+"DELTA1=d2-p1*2/PI"
+"DELTA2=d2-d0*2-p2"
+"DELTA3=d2-p16-d16-d0*2-p2-p3-de-4u"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+"d63=cnst31/1000"
+
+
+1 ze
+2 30m do:f2
+  d1
+  50u UNBLKGRAD
+
+  (p1 ph1)
+  DELTA1 pl2:f2
+  (ralign (p2 ph1) (p3 ph3):f2 )
+  d2
+
+  (p1 ph5):f1
+  p16:gp1*G1
+  d16
+  (center (p2 ph5) (p24:sp7 ph1):f2 )
+  p16:gp1*G1*-1
+  d16 pl2:f2
+  (p1 ph5):f1
+
+  DELTA2
+  d0
+  (p2 ph1)
+  d0
+  (p3 ph7):f2
+  p16:gp1*EA*-1
+  d16
+  DELTA3 pl12:f2
+  4u BLKGRAD
+
+  go=2 ph31 cpd2:f2
+  30m do:f2 mc #0 to 2
+     F1EA(calgrad(EA), caldel(d0, +in0))
+
+  d63
+exit
+
+
+ph1=0
+ph2=1
+ph3=0 0 2 2
+ph4=2
+ph5=0 2 
+ph7=0 0 0 0 2 2 2 2
+ph31=0 0 2 2 2 2 0 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp7: f2 channel - shaped pulse 180 degree for refocussing
+;spnam7: Crp60comp.4 (Crp80comp.4)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;p24: f2 channel - 180 degree shaped pulse for refocussing
+;d0 : incremented delay (2D)                  [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(XH)
+;cnst11: n in CHn (1 for CH, 2 for CH2, 3 for CH3)
+;ns: 4 * n, total number of scans: ns * TD0
+;ds: 16
+;td1: number of experiments
+;FnMODE: echo-antiecho
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 80%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+;$Id:$

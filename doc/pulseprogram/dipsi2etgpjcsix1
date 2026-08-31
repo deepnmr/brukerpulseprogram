@@ -1,0 +1,225 @@
+;dipsi2etgpjcsix1
+;avance-version (12/01/11)
+;HETLOC
+;homonuclear Hartman-Hahn transfer using DIPSI2 sequence
+;   for mixing
+;for determination of XH long range coupling constants
+;   using E.COSY
+;   splitting in F1:   1J (XH)
+;   splitting in F2:   nJ (XH')
+;with x-filter in F1
+;using sensitivity improvement
+;phase sensitive using Echo/Antiecho-TPPI gradient selection
+;
+;D. Uhrin, G. Batta, V.J. Hruby, P.N. Barlow & K.E. Koever,
+;   J. Magn. Reson. 130, 155-161 (1998)
+;(J. Cavanagh & M. Rance, J. Magn. Reson. 88, 72-85 (1990))
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+
+
+"d0=3u"
+"d20=3u"
+"d28=3u"
+
+"in0=inf1/2"
+
+"if ( cnst16 <= 1 && cnst16 >= 0 ) { in20=in0*(1-cnst16); } if ( cnst16 > 1 ) { in20 = 0; } if ( cnst16 < 0 ) { in20 = in0; }"
+"if ( cnst16 <= 1 && cnst16 >= 0 ) { in28=in0*(cnst16); } if ( cnst16 > 1 ) { in28 = in0; } if ( cnst16 < 0 ) { in28 = 0; }"
+
+
+"FACTOR1=(d9/(p6*115.112))/2"
+"l1=FACTOR1*2"
+
+
+"DELTA=p16+d16+d0+d20+d28-p1*4/3.1416"
+"DELTA1=d4-larger(p2,p14)/2"
+"DELTA2=p16+d16+8u"
+"DELTA3=d2-larger(p2,p14)/2"
+
+
+1 ze 
+2 d11
+3 d1 pl1:f1
+  (p1 ph1)
+  DELTA1 pl0:f2
+  4u
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  4u
+  DELTA1 pl2:f2 UNBLKGRAD
+  (p1 ph2)
+
+  p16:gp1
+  d16
+
+  (p3 ph7 3u p3 ph1):f2
+
+  (p1 ph4)
+  DELTA1 pl0:f2
+  4u
+  (center (p2 ph8) (p14:sp3 ph1):f2 )
+  4u
+  DELTA1 pl0:f2
+
+  d0
+  p16:gp2*-1
+  d16
+  (p1 ph1)
+  DELTA3
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  DELTA3
+  (p1 ph3)
+  p16:gp2
+  d16
+  d20
+  (p14:sp3 ph1):f2
+  d28
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  DELTA
+  (p14:sp3 ph1):f2
+  p16:gp3*EA
+  d16
+  (p1 ph5)
+  4u pl10:f1
+
+						;begin DIPSI2
+4 p6*3.556 ph23
+  p6*4.556 ph25
+  p6*3.222 ph23
+  p6*3.167 ph25
+  p6*0.333 ph23
+  p6*2.722 ph25
+  p6*4.167 ph23
+  p6*2.944 ph25
+  p6*4.111 ph23
+  
+  p6*3.556 ph25
+  p6*4.556 ph23
+  p6*3.222 ph25
+  p6*3.167 ph23
+  p6*0.333 ph25
+  p6*2.722 ph23
+  p6*4.167 ph25
+  p6*2.944 ph23
+  p6*4.111 ph25
+
+  p6*3.556 ph25
+  p6*4.556 ph23
+  p6*3.222 ph25
+  p6*3.167 ph23
+  p6*0.333 ph25
+  p6*2.722 ph23
+  p6*4.167 ph25
+  p6*2.944 ph23
+  p6*4.111 ph25
+
+  p6*3.556 ph23
+  p6*4.556 ph25
+  p6*3.222 ph23
+  p6*3.167 ph25
+  p6*0.333 ph23
+  p6*2.722 ph25
+  p6*4.167 ph23
+  p6*2.944 ph25
+  p6*4.111 ph23
+  lo to 4 times l1
+						;end DIPSI2
+
+  4u pl1:f1
+  (p1 ph6)
+  DELTA2
+  (p2 ph1)
+  4u
+  p16:gp3
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  d11 mc #0 to 2 F1EA(calgrad(EA) & calph(ph5, +180), caldel(d0, +in0) & caldel(d20, +in20) & caldel(d28, +in28) & calph(ph4, +180) & calph(ph8, +180) & calph(ph31, +180))
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=2
+ph4=0 0 2 2
+ph5=0 0 0 0 2 2 2 2
+ph6=2 2 2 2 0 0 0 0
+ph7=0 2
+ph8=0
+ph23=3
+ph25=1
+ph31=0 2 2 0
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;sp3: f2 channel - shaped pulse 180 degree
+;spnam3: Crp60,0.5,20.1
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p6 : f1 channel -  90 degree low power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion
+;     = 500usec for Crp60,0.5,20.1
+;p16: homospoil/gradient pulse
+;d0 : incremented delay (2D)                           [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J(XH))
+;d4 : 1/(4J(XH))
+;d9 : TOCSY mixing time
+;d11: delay for disk I/O                               [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d20: incremented delay (J-evolution)                  [3 usec]
+;d28: incremented delay (J-evolution)                  [3 usec]
+;cnst16: = J(scale) factor
+;l1: loop for DIPSI cycle: ((p6*115.112) * l1) = mixing time
+;inf1: 1/SW = 2 * DW
+;in0: 1/(2 * SW) = DW
+;nd0: 2
+;in20: = in0 * ( 1 - J(scale) )
+;in28: = in0 * J(scale)
+;ns: 8 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: echo-antiecho
+
+
+;use gradient ratio:	gp 1 : gp 2 : gp 3
+; 		          13 :   19 :   30
+
+;for z-only gradients:
+;gpz1: 13%
+;gpz2: 19%
+;gpz3: 30%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+;Processing
+
+;F1 reverse: true
+
+
+
+;$Id:$

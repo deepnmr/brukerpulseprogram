@@ -1,0 +1,89 @@
+;cosygpmfqf
+;avance-version (12/01/11)
+;2D homonuclear shift correlation
+;using gradient pulses for selection
+;with multiple quantum filter according to gradient ratio
+;use pulseprogram 'mqsgp1d2' for setup
+;gradient ratio optimized for artifact suppression
+;
+;A.A. Shaw, C. Salaun, J.-F. Dauphin & B. Ancian, 
+;   J. Magn. Reson. A 120, 110-115 (1996)
+;B. Ancian, I. Bourgeois, J.-F. Dauphin & A.A. Shaw,
+;   J. Magn. Reson. A 125, 348- 354 (1997)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+"d13=4u"
+
+
+"in0=inf1"
+
+
+1 ze
+2 d1
+3 p1 ph1
+  d0
+  50u UNBLKGRAD
+  p16:gp1
+  d16
+  p1 ph2
+  d13
+  p16:gp2
+  d16
+  p1 ph3
+  d13
+  p16:gp3
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  d1 mc #0 to 2 F1QF(caldel(d0, +in0))
+exit
+
+
+ph1=0 2
+ph2=0 
+ph3=0 
+ph31=0 2 
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d13: short delay                                    [4 usec]
+;d16: delay for homospoil/gradient recovery
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns: 1 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: QF
+
+;use gradient ratio:	gp 1 : gp 2 : gp 3
+;			  16 :   12 :   40    for dq filter
+;			   4 :   12 :   40    for tq filter
+
+;for z-only gradients:
+;gpz1: 16% for DQF, 4% for TQF
+;gpz2: 12%
+;gpz3: 40%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+;$Id:$

@@ -1,0 +1,194 @@
+;pseudo 2D sequence with BB heteronuclear decoupling 
+;broadband homodecoupling using psyche element
+
+; C. Mycroft, M. Nilsson, G. A. Morris,L. Castanar, ChemPhysChem 2022, 23, e202200495
+; Foroozandeh, M.; Adams, R. W.; Meharry, N. J.; Jeannerat, D.; Nilsson, M.; Morris, G. A. Angew. Chem. Int. Ed. 2014, 53, 6990.
+
+;Avance NEO Version
+;Topspin.4x
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+
+define delay tauJ
+define delay tau
+define delay BETA
+define delay SWi
+define pulse P_in
+
+
+"d11=30m+1s/(cnst1)-1s/(cnst1)"
+"d11=30m+1s/(cnst3)-1s/(cnst3)"
+"d11=30m+1s/(cnst5)-1s/(cnst5)"
+"d11=30m+1s/(cnst7)-1s/(cnst7)"
+"d11=30m+1s/(cnst8)-1s/(cnst8)"
+"d11=30m+1s/(cnst9)-1s/(cnst9)"
+"d11=30m+1s/(cnst10)-1s/(cnst10)"
+"cnst9=200/cnst1"
+
+"d0=0.0"  
+
+"l31=d24/(2*dw)" 
+"in0=dw*l31"
+"DELTA=d24*td1"
+
+"tauJ=in0/2-p16-d16"
+"tau=(dw*2*l30)"
+
+"d11=30m"
+"d16=1m"
+"d17=200u"
+
+"p2=p1*2"
+"p4=p3*2"
+"p16=1m"
+"p17=1m"
+
+create_shape(sp15, wurst, powerIndex=20, name= Xinv_wurst20_1, length=$cnst3 ms, stepSize= 2.0 us, bandwidth= $cnst5 kHz, Q=$cnst7, sweepDirection=lowToHigh)  
+create_shape(sp19, wurst, powerIndex=20, name= Xinv_wurst20_2, length=$cnst3 ms, stepSize= 2.0 us, bandwidth= $cnst5 kHz, Q=$cnst7, sweepDirection=highToLow)  
+
+"p63=cnst10*1000" 
+;sp31(p63,pl12):wvm:HXdec:f2 wurst-80(cnst5 kHz, cnst10 ms; Q=cnst8, L2H) ss=1.0 us;
+ "plw12=spw31" 
+
+"cnst62=(cnst61/360)*sqrt((2*cnst60)/(p49/2000000))"
+"P_in = 1000000.0 / (cnst62*4)"
+"BETA = cnst62 / (2.27 * 2) "
+"cnst63= (P_in/p1) * (P_in/p1)"
+"spw37=plw1/cnst63"
+
+"acqt0=0"
+baseopt_echo
+
+1 ze
+  30m pl12:f2
+2 30m do:f2
+  50u BLKGRAMP
+  50u LOCKH_OFF
+  d1
+  50u LOCKH_ON
+  50u UNBLKGRAMP pl1:f1 pl2:f2
+
+3  
+
+if "d0==0.0" 
+{
+p1 ph1
+}
+else 
+{
+ "DELTA=d0/2-(p15/2)"
+  p1 ph1
+  DELTA pl0:f2
+  (p15:sp15 ph4):f2
+  DELTA
+}
+
+  tauJ
+  p16:gp1 
+  d16
+  p2 ph2
+  p16:gp1 
+  d16 
+  tauJ
+
+  tau
+  50u
+  d17 pl0:f1
+  p16:gp2 
+  d16 
+ (center (p49:sp37 ph3):f1 (p49:gp10) )
+  d17 
+  p16:gp2 
+  d16
+  50u BLKGRAMP pl12:f2
+
+if "d0==0.0"
+{
+}
+else 
+{
+  DELTA pl0:f2
+  (p19:sp19 ph5):f2
+  DELTA pl12:f2
+}
+
+  go=2 ph31 cpd2:f2
+  30m do:f2 mc #0 to 2 F1QF(id0)
+  50u LOCKH_OFF
+exit
+
+
+ph1= 0 0 0 0 1 1 1 1
+ph2= 0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph3= 0 1 2 3
+ph4= 0
+ph5= 0
+ph31=0 2 0 2 1 3 1 3
+
+;pl0  : f1 channel - zero power (0W)
+;pl1  : f1 channel - power level for hard pulse (default) 
+;pl2  : f2 channel - power level for hard pulse (default)
+;pl12 : f2 channel - power level for adiabatic X decoupling sequence
+;sp15 : f2 channel - power level for the first adiabatic X 180 inversion pulse 
+;sp19 : f2 channel - power level for the second adiabatic X 180 inversion pulse 
+;p1  : f1 channel - 90 degree high power pulse 
+;p2  : f1 channel - 180 degree high power pulse
+;p3  : f2 channel - 90 degree high power pulse
+;p4  : f2 channel - 180 degree high power pulse
+;p15 : f2 channel - duration of the first adiabatic pulse in X channel 
+;p16 : f1 channel - duration of CTP gradients of hard H 180 pulse         [1 ms]
+;p17 : f1 channel - duration of CTP gradients of selective H 180 pulse  [1 ms]
+;p19 : f2 channel - duration of the second adiabatic pulse in X channel 
+;p49: 180 degree shaped pulse for psyche element  [30 msec]
+;                      Crp_psyche.20
+;p63 : f2 channel  duration of the adiabatic pulse in CPD
+;d0  : incremented delay
+;d1  : relaxation delay;  > 2 T1 	
+;d16 : recovery delay for CTP gradients of hard 180 pulse       [1 ms]
+;d17 : recovery delay                                                                 [200 us]
+;d24: chunk duration [10-25 ms]
+;DELTA: total duration of reconstructed FID
+;spnam15: f2 channel - file name for the first adiabatic X inversion pulse   [WURST-20]
+;spnam19: f2 channel - file name for the second adiabatic X inversion pulse  [WURST-20]
+;cnst1 : largest J(HX) value [Hz]
+;cnst3 : f2 channel - duration of adiabatic X inversion pulses in ms [< 5]
+;cnst5 : f2 channel - bandwidth for adiabatic X pulses and decoupling sequence in kHz 
+;cnst7 : f2 channel - Q factor for adiabatic 180 X inversion pulses [<5]
+;cnst8 : f2 channel - Q factor for adiabatic X decoupling sequence [typically 2-3]
+;cnst9 : f2 channel - recommended X decoupling sequence duration
+;cnst10: Set as cnst9 (or <5-10 ms, depending on chunk duration)
+;cnst60: sweepwidth of single chirp element in Crp_psyche.20 in Hz [10000]
+;cnst61: desired flip angle in degree (ca. 20)
+;cnst62: gammaB1/2PI value for p49:sp37 (in Hz)
+;cnst63: scaling factor for power (sp37)
+;cpd2: p5m4sp180.2
+;l30: number of complex points at the beginning not to be included 
+;        in reconstruction
+;l31: number of complex points along the acquisition dimension per block
+;MC2 : QF
+;ns : 2 * n
+;ds : 2
+
+
+;for z-only gradients:
+;gpz1: CTP gradient for hard 180 pulse      [79%]
+;gpz2: CTP gradient for selective 180 pulse [47%]
+;gpz10: weak gradient during double-saltire pulse element (PSYCHE approach)   [1-3%]
+
+
+;use gradient files:
+;gpnam1: SINE.100
+;gpnam2: SINE.100
+;gpnam10: RECT.1
+
+
+;use AU-program proc_reset to process data
+; run wvm -q before zg or launch with xaua

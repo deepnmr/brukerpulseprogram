@@ -1,0 +1,194 @@
+;hncah3d
+;avance-version (21/09/15)
+;3D sequence with
+;   inverse correlation for triple resonance using multiple
+;      inept transfer steps and
+;   correlation via heteronuclear zero and double quantum coherence
+;
+;      F1(H) -> F3(N) -> F2(Ca), HMQC(Ha,t1) -> F3(N,t2) -> F1(H,t3)
+;
+;on resonance Ca pulses using shaped pulse
+;off resonance C=O pulses using shaped pulse
+;phase sensitive (t1 and t2)
+;using constant time in t2
+;(use parameterset HNCAH3D)
+;
+;modified version of:
+;   S. Seip, J. Balbach & H. Kessler, J. Magn. Reson. 100, 
+;   406-410 (1992)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+"d13=4u"
+
+"d21=4.5m"
+"d26=2.75m"
+
+
+"d0=3u"
+"d10=(d22-p14)/2"
+"d20=3u"
+"d30=d22-d21-20u-p14-d20"
+
+"in0=inf1/2"
+"in10=inf2/4"
+
+"in20=in10"
+"in30=in10"
+
+
+"DELTA1=d22-d21-20u"
+
+
+"spoffs2=0"
+"spoffs3=0"
+"spoffs5=bf2*(cnst21/1000000)-o2"
+
+
+"o1_F1=bf1*cnst18/1000000"
+
+
+aqseq 312
+
+  
+1 d11 ze
+  d11 pl16:f3
+2 d11 do:f3
+3 d11 fq=cnst18(bf ppm):f1
+  d12 pl9:f1
+  d1 cw:f1 ph29
+  d13 do:f1
+  d12 pl1:f1
+  (p1 ph1):f1
+  d26 pl3:f3
+  (center (p2 ph1):f1 (p22 ph1):f3 )
+  d26
+  (p28 ph1):f1
+  3u
+  (p1 ph2):f1 (p21 ph3):f3
+  d21
+  10u pl19:f1
+  10u cpds1:f1
+  DELTA1
+  (center (p14:sp3 ph1):f2 (p22 ph1):f3 )
+  d22
+  (center (p13:sp2 ph4):f2 (p21 ph1):f3 )
+  10u do:f1
+  10u pl1:f1
+  d2
+  (p1 ph5):f1
+  d0
+  (p14:sp3 ph1):f2
+  d0
+  (p1 ph6):f1
+  d2
+  10u pl19:f1
+  10u cpds1:f1
+  (center (p13:sp2 ph8):f2 (p21 ph7):f3 )
+  d10
+  (p14:sp5 ph1):f2
+  d10
+  (center (p14:sp3 ph1):f2 (p22 ph9):f3 )
+  d20
+  (p14:sp5 ph1):f2 
+  d30
+  10u do:f1
+  10u fq=cnst19(bf ppm):f1
+  d21 pl1:f1
+  (ralign (p1 ph1):f1 (p21 ph1):f3 )
+  d26
+  (center (p2 ph1):f1 (p22 ph1):f3 )
+  d26 pl16:f3
+  go=2 ph31 cpd3:f3
+  d11 do:f3 mc #0 to 2 
+     F1PH(calph(ph5, +90), caldel(d0, +in0)) 
+     F2PH(calph(ph7, +90) & calph(ph9, +90), caldel(d10, -in10) & caldel(d20, +in20) & caldel(d30, +in30))
+ exit
+
+
+ph1=0
+ph2=1
+ph3=0 2
+ph4=0 0 2 2
+ph5=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph6=0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+    2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ph7=0
+ph8=0 0 0 0 2 2 2 2
+ph9=0
+ph29=0
+ph31=0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0
+     2 0 0 2 0 2 2 0 0 2 2 0 2 0 0 2
+
+  
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl9 : f1 channel - power level for presaturation
+;pl16: f3 channel - power level for CPD/BB decoupling
+;pl19: f1 channel - power level for CPD/BB decoupling
+;sp2: f2 channel - shaped pulse  90 degree  (Ca on resonance)
+;sp3: f2 channel - shaped pulse 180 degree  (Ca on resonance)
+;sp5: f2 channel - shaped pulse 180 degree  (C=O off resonance)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p13: f2 channel -  90 degree shaped pulse
+;p14: f2 channel - 180 degree shaped pulse
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p28: f1 channel - trim pulse
+;d0 : incremented delay (F1 in 3D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J(CH))                                           [3 msec]
+;d10: decremented delay (F2 in 3D) = (d22 - p14) / 2
+;d11: delay for disk I/O                                   [30 msec]
+;d12: delay for power switching                            [20 usec]
+;d13: short delay                                          [4 usec]
+;d20: incremented delay (F2 in 3D)                         [3 usec]
+;d21: 1/(2J`(NH))                                          [4.5 msec]
+;d22: 1/(4J(N-Ca))                                         [11 msec]
+;d26: 1/(4J(NH))                                           [2.75m]
+;d30: icremented delay (F2 in 3D) = d22 - d21 - 20u - p14 - d20
+;cnst18: H2O chemical shift (offset, in ppm)
+;cnst19: H(N) chemical shift (offset, in ppm)
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst22: Calpha chemical shift (offset, in ppm)
+;o2p: Calpha chemical shift (cnst22)
+;inf1: 1/SW(H) = 2 * DW(H)
+;inf2: 1/SW(N) = 2 * DW(N)
+;in0: 1/(2 * SW(H)) = DW(H)
+;nd0: 2
+;in10: 1/(4 * SW(N)) = (1/2) * DW(N)
+;nd10: 4
+;in20: = in10
+;in30: = in10
+;ns: 32 * n
+;ds: 32
+;td1: number of experiments in F1
+;td2: number of experiments in F2	td2 max = d10 / in10
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;cpds1: decoupling according to sequence defined by cpdprg1
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd1: f1 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+
+;$Id: $

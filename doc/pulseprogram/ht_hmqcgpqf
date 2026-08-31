@@ -1,0 +1,116 @@
+;ht_hmqcgpqf
+;avance-version (17/08/18)
+;Hadamard HMQC
+;2D H-1/X correlation via heteronuclear zero and double quantum
+;   coherence
+;based on hmqcgpqf pulse program
+;with decoupling during acquisition
+;using gradient pulses for selection
+;
+;E. Kupce & R. Freeman, J. Magn. Reson. 162, 300-310 (2003)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;
+;Experiment Setup:
+;(1) use had_pl au-program to get the peak list
+;(2) execute the 'wvm -a' command
+;(3) start the experiment
+;(4) use proc_had au-program for processing
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<shape> SPL=<$VALIST>
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+"d12=20u"
+
+
+"DELTA1=d2-p16-d16-d12-4u"
+
+
+1 ze
+2 d1 do:f2
+3 p1 ph1
+  d2 UNBLKGRAD
+  (center (p59:sp59 ph1):f1 (p34:SPL ph1):f2)
+  4u pl1:f1 pl2:f2
+  p3:f2 ph3
+  4u
+  p16:gp1
+  d16
+  p2 ph2
+  4u
+  p16:gp2
+  d16
+  p3:f2 ph4
+  4u
+  p16:gp3
+  d16
+  DELTA1
+  d12 pl12:f2 BLKGRAD
+  go=2 ph31 cpd2:f2
+  d1 do:f2 mc #0 to 2 F1QF(SPL.inc)
+exit
+
+
+ph1=0
+ph2=0 
+ph3=0 2
+ph4=0 0 2 2
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp30
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;p34: f1 channel - 180 degree shaped pulse for Hadamard experiment
+;p59: f1 channel - 180 degree shaped pulse for decoupling [1 msec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)XH
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(XH)
+;cnst22: = bandwidth for Hadamard encoding pulses
+;ns: 1 * n
+;ds: 4
+;td1: size of Hadamard matrix, power of 2 (> # of peaks);
+;FnMODE: QF
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 50%   for C-13
+;gpz2: 30%
+;gpz3: 40.1%   for C-13
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+;WaveMaker shapes
+;use 'wvm -a' command to create the necessary shape files
+;SPL:wvm:HTinv: gaus180(cnst22 Hz, PL, had)  
+;sp59:wvm:HTdec: cawurst-20(20 kHz, 1 ms, [p5]m4) ss=1u;
+
+
+
+;$Id: 

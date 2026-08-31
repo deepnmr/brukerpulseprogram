@@ -1,0 +1,314 @@
+;noesyhsqcgpwgx13d
+;avance-version (20/03/03)
+;NOESY-HSQC
+;3D sequence with
+;   homonuclear correlation via dipolar coupling
+;   dipolar coupling may be due to noe or chemical exchange
+;   H-1/C-13 correlation via double inept transfer
+;   with C-13 (and N-15) filter in F1
+;
+;   H[C12,(N14)] (t1) -> C13 (t2) -> H[C13] (t3)
+;
+;phase sensitive (t1)
+;phase sensitive (t2)
+;with decoupling during acquisition
+;with gradient pulses in mixing time
+;water suppression using watergate sequence
+;with N-15 refocussing in t1
+;(use parameterset NOESYHSQCGPWGX13D)
+;
+;A.L. Breeze, Prog. NMR Spectrosc. 36, 323-372 (2000)
+;C. Zwahlen, P. Legault, S.J.F. Vincent, J. Greenblatt, R. Konrat &
+;   L.E. Kay, J. Am. Chem. Soc. 119 6711-6721 (1997)
+;K. Ogura, H. Terasawa & F. Inagaki, J. Biomol. NMR 8, 492-498 (1996)
+;J. Iwahara, J.M. Wojciak & R.T. Clubb, J. Biomol. NMR 19, 231-241 (2001)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"p22=p21*2"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+"d26=1s/(cnst4*4)"
+"d28=1s/(cnst6*4)"
+"d29=1s/(cnst7*4)"
+
+
+"p19=500u"
+
+
+
+"d0=5u"
+"d10=3u"
+
+"in0=inf1/2"
+"in10=inf2/2"
+
+
+"DELTA1=d4-p19-d16-p11-p2/2-12u"
+"DELTA2=d28-p19-d16-p15/2"
+"DELTA3=d26-d28-p15/2"
+"DELTA4=d26-p19-d16"
+"DELTA5=d29-p19-d16-p15/2"
+"DELTA6=d26-d29-p15/2"
+"DELTA7=d4-p8/2"
+"DELTA8=d4-p19-d16-p8/2-4u"
+"DELTA9=p22+d0*2+10u"
+
+#   ifdef LABEL_CN
+"DELTA=larger(p2,p22)+d10*2"
+#   else
+"DELTA=p2+d10*2"
+#   endif /*LABEL_CN*/
+
+
+"TAU=d8-p16-d16"
+
+
+aqseq 321
+
+
+1 ze
+  d11 pl12:f2
+2 d11 do:f2
+3 d1 pl1:f1
+  50u UNBLKGRAD
+
+  (p1 ph1)
+  p19:gp4
+  d16
+  DELTA2
+  (p15:sp18 ph1):f2
+
+#   ifdef LABEL_CN
+  DELTA3 pl3:f3
+  (center (p2 ph2) (p22 ph1):f3 )
+#   else
+  DELTA3
+  (p2 ph2)
+#   endif /*LABEL_CN*/
+
+  DELTA4
+  p19:gp4
+  d16 pl2:f2
+  (p1 ph11)
+
+  (p3 ph12):f2
+
+#   ifdef LABEL_CN
+  (p21 ph12):f3
+#   else
+#   endif /*LABEL_CN*/
+
+  p16:gp5
+  d16
+
+  (p1 ph1)
+  p19:gp6
+  d16
+  DELTA5
+  (p15:sp18 ph1):f2
+  DELTA6
+
+#   ifdef LABEL_CN
+  (center (p2 ph2) (p22 ph1):f3 )
+#   else
+  (p2 ph2)
+#   endif /*LABEL_CN*/
+
+  DELTA4
+  p19:gp6
+  d16 pl2:f2
+  (p1 ph11)
+
+  (p3 ph12):f2
+
+#   ifdef LABEL_CN
+  (p21 ph12):f3
+#   else
+#   endif /*LABEL_CN*/
+
+  p16:gp7
+  d16
+
+  (p1 ph7)
+  DELTA9
+  (p2 ph13)
+  d0 gron0
+  5u groff
+  (p22 ph1):f3
+  d0 gron0*-1
+  5u groff
+  (p1 ph8)
+  TAU
+  p16:gp8
+  d16
+  (p1 ph9)
+  DELTA7
+  (center (p2 ph1) (p8:sp13 ph1):f2 )
+  DELTA7
+
+#   ifdef TRIMP
+  (p28 ph1)
+#   endif /* TRIMP */
+
+  (p1 ph2) 
+
+  p16:gp1
+  d16 pl2:f2
+
+  (p3 ph3):f2
+  d10 
+
+#   ifdef LABEL_CN
+  (center (p2 ph6) (p22 ph1):f3 )
+#   else
+  (p2 ph6)
+#   endif /*LABEL_CN*/
+
+  d10
+  (p4 ph4):f2
+  DELTA
+  (p3 ph4):f2
+
+  p16:gp2
+  d16
+
+  (p1 ph1)
+  4u
+  p19:gp3
+  d16
+  (DELTA1 pl0 p11:sp1 ph5 4u 4u pl1 p2 ph1 4u pl0 p11:sp1 ph5 4u DELTA1):f1 (DELTA8 p8:sp13 ph1):f2
+  p19:gp3
+  d16 pl12:f2
+  4u BLKGRAD
+  go=2 ph31 cpd2:f2
+  d11 do:f2 mc #0 to 2 
+     F1PH(calph(ph7, +90) & calph(ph13, +90), caldel(d0, +in0))
+     F2PH(calph(ph3, +90), caldel(d10, +in10))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 2 2
+ph5=2
+ph6=0 0 2 2
+ph7=0 0 0 0 2 2 2 2
+ph8=0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+     2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ph9=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph10=2 2 2 2 2 2 2 2 0 0 0 0 0 0 0 0
+ph11=2
+ph12=0 1 2 3
+ph13=1 1 1 1 3 3 3 3
+ph31=0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0
+     2 0 0 2 0 2 2 0 0 2 2 0 2 0 0 2
+ 
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp1 : f1 channel - shaped pulse  90 degree
+;sp13: f2 channel - shaped pulse 180 degree (adiabatic)
+;spnam13: Crp60,0.5,20.1
+;sp18: f2 channel - shaped pulse 180 degree (adiabatic)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p8 : f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;p11: f1 channel -  90 degree shaped pulse
+;p15: f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;p16: homospoil/gradient pulse                         [1 msec]
+;p19: gradient pulse 2                                 [500 usec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p28: f1 channel - trim pulse in inept transfer        [1 msec]
+;d0 : incremented delay (F1 in 3D)                     [5 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(CH)av)
+;d8 : mixing time
+;d10: incremented delay (F2 in 3D)                     [3 usec]
+;d11: delay for disk I/O                               [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d26: 1/(4J(NH))
+;d28: 1/(4*J(CH)min)
+;d29: 1/(4*J(CH)max)
+;cnst2: = J(CH)av
+;cnst4: = J(NH)
+;cnst6: = 1J(CH)min
+;cnst7: = 1J(CH)max
+;inf1: 1/SW(H) = 2 * DW(H)
+;inf2: 1/SW(C) = 2 * DW(C)
+;in0: 1/(2 * SW(H)) = DW(H)
+;nd0: 2
+;in10: 1/(2 * SW(C)) = DW(C)
+;nd10: 2
+;ns: 8 * n
+;ds: >= 16
+;td1: number of experiments in F1
+;td2: number of experiments in F2
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz0: 2%
+;gpz1: 40%
+;gpz2: -50%
+;gpz3: 60%
+;gpz4: 3%
+;gpz5: 11%
+;gpz6: 2%
+;gpz7: 7%
+;gpz8: -20%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+;gpnam8: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with 
+;             option -DLABEL_CN (eda: ZGOPTNS)
+;TRIMP: to use trimpulse p28@pl1 start experiment with
+;          option -DTRIMP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+;for p15:sp18 use either "Crp60,0.5,20.1" or adiabatic pulse 
+;   with matched sweep 
+;for matched sweep use 
+;   low to high field sweep, 
+;   carrier shifted to center of spectrum (75 ppm) via spoffs18
+;   d28 = d29 = 1/(4*J(CH) center of spectrum [1.696 ms])
+
+
+
+;$Id:$

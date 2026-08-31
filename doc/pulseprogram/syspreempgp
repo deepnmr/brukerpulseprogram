@@ -1,0 +1,48 @@
+;syspreempgp
+;avance-version (00/06/30)
+;1D sequence
+;gradient recovery test
+;
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+;;"d11=30m"
+
+
+1 ze
+2 d1 BLKGRAD
+  50u UNBLKGRAD
+  p16:gp1
+  d16
+  p1 ph1
+  go=2 ph31
+  wr #0
+  d11 BLKGRAD
+exit
+
+
+ph1=0
+ph31=0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+
+;use gradient :         gp 1
+
+
+
+;$Id:$

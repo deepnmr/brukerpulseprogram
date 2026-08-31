@@ -1,0 +1,80 @@
+;hmqcbid
+;avance-version (12/01/11)
+;HMQC
+;1D H-1/X correlation via heteronuclear zero and double quantum
+;   coherence using BIRD sequence
+;with decoupling during acquisition
+;
+;A. Bax and S. Subramanian, J. Magn. Reson. 67, 565-569 (1986)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d0=3u"
+"d2=1s/(cnst2*2)"
+"d13=4u"
+
+
+1 ze 
+2 30m do:f2
+  d1
+  p1 ph1
+  d2 pl2:f2
+  (center (p2 ph1) (p4 ph4):f2 )
+  d2 
+  p1 ph2
+  d7
+  p3:f2 ph5
+  p1 ph1
+  d2
+  p3:f2 ph6
+  d13
+  p2 ph3
+  d13
+  p3:f2 ph7
+  d2 pl12:f2
+  go=2 ph31 cpd2:f2 
+  30m d2 do:f2 mc #0 to 2 F0(zd)
+exit 
+  
+  
+ph1=0 
+ph2=2 
+ph3=0 
+ph4=0 
+ph5=0 0 0 0 2 2 2 2
+ph6=0 2
+ph7=0 0 2 2 
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)XH
+;d7 : delay for inversion recovery
+;     optimize to give null for protons bound to C-12
+;d13: short delay                                    [4 usec]
+;cnst2: = J(XH)
+;ns: 4 * n, total number of scans: NS * TD0
+;ds: 16
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+
+;$Id:$

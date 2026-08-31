@@ -1,0 +1,164 @@
+;noesygpphw5
+;avance-version (12/01/11)
+;2D homonuclear correlation via dipolar coupling 
+;dipolar coupling may be due to noe or chemical exchange.
+;phase sensitive
+;water suppression using watergate W5 pulse sequence with gradients
+;using double echo
+;allowing for presaturation during relaxation delay in cases
+;   of radiation damping
+;
+;M. Liu, X. Mao, C. He, H. Huang, J.K. Nicholson & J.C. Lindon,
+;   J. Magn. Reson. 132, 125 - 129 (1998)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"d11=30m"
+"d12=20u"
+"d13=4u"
+
+
+"in0=inf1"
+
+"d0=in0/2-p1*4/3.1416"
+
+
+1 ze
+2 d11
+3 d12 pl32:f1
+  d1 cw:f1 ph29
+  d13 do:f1
+  d12 pl1:f1
+  p1 ph1
+  d0
+  p1 ph2
+  d8
+  p1 ph3
+
+  50u pl18:f1 UNBLKGRAD
+  p16:gp1
+  d16
+  p27*0.087 ph4
+  d19*2
+  p27*0.206 ph4
+  d19*2
+  p27*0.413 ph4
+  d19*2
+  p27*0.778 ph4
+  d19*2
+  p27*1.491 ph4
+  d19*2
+  p27*1.491 ph5
+  d19*2
+  p27*0.778 ph5
+  d19*2
+  p27*0.413 ph5
+  d19*2
+  p27*0.206 ph5
+  d19*2
+  p27*0.087 ph5
+  50u
+  p16:gp1
+  d16
+
+  4u
+
+  p16:gp2
+  d16
+  p27*0.087 ph4
+  d19*2
+  p27*0.206 ph4
+  d19*2
+  p27*0.413 ph4
+  d19*2
+  p27*0.778 ph4
+  d19*2
+  p27*1.491 ph4
+  d19*2
+  p27*1.491 ph5
+  d19*2
+  p27*0.778 ph5
+  d19*2
+  p27*0.413 ph5
+  d19*2
+  p27*0.206 ph5
+  d19*2
+  p27*0.087 ph5
+  p16:gp2
+  d16
+
+  4u BLKGRAD
+  go=2 ph31
+  d11 mc #0 to 2 F1PH(calph(ph1, +90) & calph(ph29, +90), caldel(d0, +in0))
+exit
+
+
+ph1=0 2
+ph2=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph3=0 0 2 2 1 1 3 3
+ph4=0
+ph5=2
+ph29=0
+ph31=0 2 2 0 1 3 3 1 2 0 0 2 3 1 1 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl18: f1 channel - power level for W5-pulse (watergate)
+;pl32: f1 channel - power level for low power presaturation
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse			     [500 usec]
+;p27: f1 channel -  90 degree pulse at pl18
+;d0 : incremented delay (2D)
+;d1 : relaxation delay; 1-5 * T1
+;d8 : mixing time
+;d11: delay for disk I/O                             [30 msec]
+;d12: delay for power switching                      [20 usec]
+;d13: short delay                                    [4 usec]
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns: 8 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+
+
+;use gradient ratio:    gp 1 : gp 2
+;                         34 :   22
+
+;for z-only gradients:
+;gpz1: 34%
+;gpz2: 22%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+;set pl32 to 0W when presaturation is not required
+;   use pl1 + 75 to 80dB to reduce radiation damping
+
+
+;Processing
+
+;PHC0(F1): 90
+;PHC1(F1): -180
+;FCOR(F1): 1
+
+
+
+;$Id:$

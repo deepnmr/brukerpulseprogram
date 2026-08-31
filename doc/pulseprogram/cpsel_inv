@@ -1,0 +1,111 @@
+;cpsel_inversion
+;avance-version (20/11/23)
+;
+;version: 4.0/ TS3.0 / 29/07/2014
+;
+;written by JOS 12/17/07
+;updated and prepared for release by JOS 7/31/2011
+;
+;for measuring selective inversion pulses 
+;following
+;Li et al J. Magn. Res. 179 (2006) 206-216; and
+;Band-selective 13C homonuclear 3D spectroscopy 
+;for Solid Proteins at high field with rotor synchronized soft pulses; DHH Zhou et al., JBNMR (2007)
+;
+;
+;Avance III version
+;parameters:
+;d1 :recycle delay
+;p1 :f1 90 or 180 deg pulse at plw11
+;p3 :f2 90 deg pulse at plw12
+;p15 : contact time; plw1 (rf-channel f1) and spw0 (rf-channel f2)
+;pl1 : rf-power contact pulse on X
+;pl11 : rf-power on X for 90 and 180 degree pulses
+;pl12 : rf-power for 1H pi/2 pulse p3 and standard proton decoupling during J-evolution
+;pl13 : rf=power for cw decoupling on 1H during acquisition
+;sp0 : rf-power for proton contact pulse, 50 -20% ramped amplitude modulation
+;spnam0 : file name for variable amplitude CP
+;sp1 : rf-power level for selective inversion or refocusing pulse
+;spnam1 : file name for selective inversion pulse
+;l29 :even number of rotor cycles for selective inversion pulse
+;cnst31 : MAS rotation rate
+;ZGOPTNS : -Dactive, -Dlacq, -Dlcp15 for active refocusing pulses 2n+1/2 rotor periods, else 2n periods long
+;cnst10 : 13C carrier position for selective inversion pulse, select Ca or CO 
+	;60 (NCA) or 170 (NCO) ppm
+;cnst9 : identical to 13C carrier position for detection (around 100 (ppm))
+;
+;
+;$CLASS=BioSolids
+;$DIM=1D
+;$TYPE=cross polarisation selective inversion
+;$SUBTYPE=simple 1D
+;$COMMENT=cp experiment fro mesuring selective inversion pulses, 
+
+
+prosol relations=<solids_cp>
+
+#include <trigg.incl>	/*10 usec trigger pulse at TCU connector I cable 6 */
+#include <Avance.incl>
+#include <lgcalc.incl>
+
+
+# ifdef active
+"d29=(l29+0.5)*1s/cnst31"
+
+#else 
+"d29=(l29)*1s/cnst31"
+
+#endif
+"p29=d29"
+
+;preset off
+"acqt0=1u*cnst11"
+
+1 ze				;accumulate into an empty memory
+
+2 d1 do:f2
+  1m fq=cnst21:f2		;recycle delay, decoupler off in go-loop
+  10u reset:f1 reset:f2
+#ifndef lcp15
+#include <p15_prot.incl>
+			;make sure p15 does not exceed 10 msec 
+			;let supervisor change this pulseprogram if 
+			;more is needed
+#endif
+#ifndef lacq		
+			;disable protection file for long acquisition change decoupling power !!! or you risk probe damage
+			;if you set the label lacq (ZGOPTNS -Dlacq), the protection is disabled
+
+#include <aq_prot.incl>	
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#endif
+  10u pl12:f2 pl1:f1		;preselect pl12 drive power for F2, pl1 for F1
+  trigg				;trigger for scope, 10 usec
+  p3:f2 ph1			;proton 90 pulse
+  0.3u
+  (p15 ph2):f1 (p15:sp0 ph10):f2	;contact pulse with square or ramp
+ 																	;shape on F2, at pl2 proton power level
+  (p1 ph3 fq=cnst10(bf ppm) pl11):f1
+  (p29:sp1 ph4):f1 (2u cpds2):f2 
+  
+  (p1 ph5 fq=cnst9(bf ppm) pl11):f1 ;(1u cpds2):f2		;at pl12 or pl13, depending on cpd sequence
+  go=2 ph31					;select appropriate decoupling sequence, cw or
+	1m do:f2					;decoupler off
+	wr #0							;save data to disk
+HaltAcqu, 1m				;jump address for protection files
+exit								;quit
+
+ph0= 0
+ph1= 1 3
+ph2= 0 0
+ph3= 3 1
+ph4= 0
+ph5= 0 0 2 2 1 1 3 3
+ph10= 0
+ph31= 0 0 2 2 1 1 3 3
+
+
+
+;$Id:$

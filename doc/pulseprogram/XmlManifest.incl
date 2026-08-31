@@ -1,0 +1,150 @@
+;XmlManifest.incl
+;avance-version (22/02/03)
+;manifest version 2.0
+;
+;$CLASS=Common Incl
+;$COMMENT=
+
+#ifndef XMLMANIFEST_INCL
+#define XMLMANIFEST_INCL
+
+define realnumber Pi
+"Pi=3.14159265"
+
+define realnumber giroMR1H
+"giroMR1H=42577469.1"		;[Hz/T] Pure Appl. Chem., Vol. 80, No. 1, pp. 59-84, 2008 
+
+define realnumber giroMR
+"giroMR=(sfo1/bf1)*giroMR1H"
+
+define realnumber gradCalib
+"gradCalib=(gradcc/giroMR1H)*100"	;[T/m]
+
+define realnumber gradAmpFactor
+"gradAmpFactor=sqrt(pow(gpx6,2)+pow(gpy6,2)+pow(gpz6,2))/100"
+
+define realnumber gradAmpFactor2
+"gradAmpFactor2=sqrt(pow(gpx7,2)+pow(gpy7,2)+pow(gpz7,2))/100"
+
+define realnumber bPreFactor
+
+define realnumber bPreFactor2
+
+define realnumber gradShapeIntegFac
+"gradShapeIntegFac=cnst53"
+
+"spnam51='F1'" 					; dimension default value 
+"spnam53='Difframp'"			; default value for ramp file name
+
+
+define delay tau
+define loopcounter bp
+define loopcounter echoType
+define delay offset
+"offset=0.0"
+
+
+#define xmlStart manifest_append<manifest version="2.0">manifest_end
+
+#define xmlEnd manifest_append</manifest>manifest_end
+
+subroutine StejskalTanner(any gL, delay littleDDel, delay bigD)
+{
+    xmlStart
+    manifest_append    <$spnam51 type="Diff_VarGrad" listName="$gL" listDir="gp" littleDelta="$littleDDel" bigDelta="$bigD" 
+	    gradAmpFactor="$gradAmpFactor" gradShapeIntegFac="$gradShapeIntegFac" gradCalib="$gradCalib" gamma="$giroMR" bCalc="$bPreFactor*x*x">
+        <comment>
+            The Stejskal Tanner equation (Stejskal, Tanner, J. Chem. Phys. 42, 1 (1965))
+            always applies. Effective bigDelta and littleDelta are calculated 
+            in the pulse program to fulfill this equation for each experiment:
+                g[i] = list[i]*gradAmpFactor*gradCalib
+                b[i] = pow(2*Pi*gamma*g[i]*gradShapeIntegFac*littleDelta, 2)*(bigDelta - littleDelta/3)
+                I[i]/I0 = exp(-b[i]*D)
+        </comment>
+    </$spnam51>manifest_end
+    xmlEnd
+}
+
+
+subroutine DiffVarGradXml( any gL, delay littleDDel, delay bigD, loopcounter bp)
+{
+    if ( bp == 1 ) {
+        "gradAmpFactor=gradAmpFactor*(1+cnst7)/2"
+    }
+	"bPreFactor=2*Pi*giroMR*gradAmpFactor*gradCalib*gradShapeIntegFac*littleDDel"
+	"bPreFactor=bPreFactor*bPreFactor*(bigD-littleDDel/3)"
+    subr StejskalTanner( gL, littleDDel, bigD) 
+}
+
+subroutine DiffVarBigDeltaXml(any vdL, delay littleDDel, delay offset)
+{
+	"bPreFactor=2*Pi*giroMR*gradAmpFactor*gradCalib*gradShapeIntegFac*littleDDel"
+	"bPreFactor=bPreFactor*bPreFactor"
+    xmlStart
+    manifest_append    <F1 type="Diff_VarBigDelta" listName="$vdL" listDir="vd" listUnit="s" offset="$offset" littleDelta="$littleDDel"  
+        gradAmpFactor="$gradAmpFactor" gradShapeIntegFac="$gradShapeIntegFac" gradCalib="$gradCalib" bCalc="$bPreFactor*( x + $offset - $littleDDel/3)">
+        <comment>
+            Stejskal Tanner equation applies
+            bigDelta[i] = list[i] + offset"
+            b[i] = pow(2*Pi*gamma*bigDelta[i]*gradAmpFactor*gradCalib*gradShapeIntegFac*littleDelta, 2)*(bigDelta[i] - littleDelta/3) 
+            I[i]/I0 = exp(-b[i]*D)
+        </comment>
+    </F1>manifest_end
+    xmlEnd
+}
+
+subroutine DDCOSY(any gL, any gL2, delay littleDDel, delay bigD, delay bigD2)
+{
+    "gradAmpFactor2=sqrt(pow(gpx7,2)+pow(gpy7,2)+pow(gpz7,2))/100"          ;gradAmpFactor2
+    "bPreFactor=2*Pi*giroMR*gradAmpFactor*gradCalib*gradShapeIntegFac*littleDDel"
+    "bPreFactor=bPreFactor*bPreFactor*(bigD-littleDDel/3)"                 ; bPreFactor
+    "bPreFactor2=2*Pi*giroMR*gradAmpFactor2*gradCalib*gradShapeIntegFac*littleDDel"
+    "bPreFactor2=bPreFactor2*bPreFactor2*(bigD2-littleDDel/3)"                 ; bPreFactor2
+    xmlStart
+    manifest_append    <F2 type="Diff_VarGrad" listName="$gpnam31" listDir="gp" littleDelta="littleDDel" bigDelta="$bigD"
+            gradAmpFactor="$gradAmpFactor" gradShapeIntegFac="$gradShapeIntegFac" gradCalib="$gradCalib" gamma="$giroMR" bCalc="$bPreFactor*x*x" >
+        </F2>
+        <F1 type="Diff_VarGrad" listName="$gpnam30" listDir="gp" littleDelta="littleDDel" bigDelta="$bigD2"
+            gradAmpFactor="$gradAmpFactor2" gradShapeIntegFac="$gradShapeIntegFac" gradCalib="$gradCalib" gamma="$giroMR" bCalc="$bPreFactor2*x*x">
+        </F1>manifest_end
+    xmlEnd
+}
+
+subroutine DosyXml(loopcounter bp)
+{
+    define delay littleDDel
+	"littleDDel=p30"
+	if ( bp == 1 )
+	{
+		littleDDel *= 2
+	}
+    "gradAmpFactor=gpz6"
+    subr StejskalTanner( spnam53, littleDDel, d20) 
+}
+
+
+subroutine T2LoopCounterListXml(any vCL, delay fac)
+{
+xmlStart
+manifest_append    <F1 type="T2" listName="$vCL" listDir="vc" loopLength="$fac" >
+        <comment>
+            t[i] = loopCounterList[i] * loopLength
+            I[i]/I0 = exp(-t[i]/T2)
+        </comment>
+    </F1>manifest_end
+xmlEnd
+}
+
+subroutine T1SatRecVdListXml(any vdL, delay offset)
+{
+xmlStart
+manifest_append    <F1 type="T1_SatRec" listName="$vdL" listDir="vd" listUnit="s" initialDelay="$offset">
+        <comment>
+            t[i] = delayList[i] + initialDelay
+            I[i]/I0 = 1 - exp(-t[i]/T1)
+        </comment>
+    </F1>manifest_end
+xmlEnd
+}
+
+#endif

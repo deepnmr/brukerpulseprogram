@@ -1,0 +1,428 @@
+;mehmqcrexcpmg3d.2
+;avance-version (23/08/09)
+; 1H/13C correlation using HMQC transfer
+; 
+; for measuring multiple quantum 13C R(exchange) in methyl
+;	     groups using a 13C CPMG train with variable frequency
+; exchange contributions from 1H are suppressed by a constant
+;	     frequency 1H CPMG train
+; use for proteins with selectively 13C labeled methyl groups 
+; heating compensation after acquisition time
+; water suppression using presaturation
+; as pseudo3D
+;
+; Total CPMG relaxation delay length is set by d20. 13C CPMG frequencies are 
+; given via a vd list, list entries are in Hz (e.g. an entry 100 in the vd
+; list corresponds to 100 Hz CPMG frequency). To ensure an even number of 
+; 180 degree pulses during the CPMG delay, the CPMG frequencies are rounded 
+; to multiples of 1/d20 (displayed as cnst50 in the pulse program). For 
+; measuring I0 (signal intensity in the absence of the CPMG relaxation delay) 
+; set the first entry in the vd list to 0. 
+; The constant frequency 1H CPMG train utilizes composite 90-180-90 pulses.
+; The 1H CPMG frequency is set by cnst51 and rounded to a multiple of 2/d20  
+; (the actual value used during the experiment is shown as cnst52). The 1H 
+; CPMG element leads to increased R2 rates at 13C CPMG frequencies  close to
+; cnst52/2 (in Hz). These values should be excluded from data analysis 
+; (see publication for details).
+;
+; use parameterset (MEHMQCREXCPMG3D.2)
+;
+; V. Tugarinov, J.L. Baber & G.M. Clore, J. Biomol. NMR, 77, 83-91 (2023)
+
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+prosol relations=<triple>
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+define list<delay> RF_field=<$VDLIST>
+define delay RF_max
+define loopcounter COUNTER2
+define loopcounter COUNTER3
+
+"d2=1/(cnst2*2)"
+"d3=1/(cnst2*8)"
+"in10=inf2"
+"d11=30m"
+
+"p2=p1*2"
+"p4=p3*2"
+
+"plw0=0"
+
+"d10=(in10/2)"
+"d21=d20/2"
+"d31=0"
+"d32=0"
+
+"cnst50=1/d20"
+
+"DELTA1=d2-p1*2/PI-p16-d16"
+"DELTA2=d3-p19-d16"   
+"DELTA3=d3-p19-d16"  
+"DELTA4=d2-p3-24u-p16-d16-de"
+"DELTA5=d20/2-p2-p3*2/PI"
+"DELTA7=p3*2/PI"
+"acqt0=0"
+
+"COUNTER2=cnst51*d20/4"
+"cnst52=COUNTER2*4/d20"
+"DELTA6=1u*cnst52"
+"TAU2=d20/(COUNTER2*16)-p2"
+"TAU3=d20/(COUNTER2*16)-p2*2"
+"TAU4=d20/(COUNTER2*16)-p2-p3*2/PI"
+
+"l0=0"
+"l1=2*COUNTER2-1"
+"l2=8*COUNTER2" 
+"l3=td1"
+"l11=0"
+
+
+baseopt_echo
+
+aqseq 312
+
+1 ze
+  d11 pl1:f1
+  DELTA6
+  if "td1 != RF_field.len" 
+     {
+     2u
+     print "Warning: td1 is not equal to the number of CPMG frequencies in the vdlist"
+     }
+
+  "RF_max=0"
+
+; determine maximum CPMG frequency in vd list and check whether all frequencies are multiples of 1/d20
+; set RF_max to the closest CPMG frequency corresponding to an integer number of CPMG repeats
+3 20u
+  if "RF_field > RF_max"
+    {
+    20u
+    "RF_max=RF_field"
+    }
+
+   if "1 > ((RF_field/cnst50) - trunc(RF_field/cnst50))*cnst50 || (1-((RF_field/cnst50) - trunc(RF_field/cnst50)))*cnst50 < 1"
+     {
+     }
+  else
+     {
+     2u
+     print "CPMG frequencies are not multiples of 1/d20 and will be rounded to multiples of 1/d20"
+     }
+
+  3m RF_field.inc
+  lo to 3 times l3
+  3m RF_field.res
+  "d31=RF_max"
+  "COUNTER=d20*d31"
+  "RF_max=COUNTER/(d20)"
+  "d31=RF_field[0]"
+  "COUNTER=0"
+
+2 d11 do:f2
+
+; start of heating compensation (applied for a duration of d20, at a CPMG frequency
+; corresponding to the difference of RF_max and the current value of d31
+; (d31: CPMG frequency of the previous experiment), 1H heating comensation is only
+; applied for reference experiment
+  if "RF_max>d31"
+    { 
+    20u
+    "d32=RF_max-d31"
+    20u
+    "COUNTER2=d20*d32"
+    20u
+    "d32=COUNTER2/(d20)"
+    20u
+    "TAU=(1 / (d32*4) ) - p9/1000000"
+    } 
+
+  if "abs(RF_max-d31) < 0.1"
+    {
+    d20
+    90u
+    }
+  else
+    {
+  if "COUNTER == 0" 
+    {
+    10u pl15:f2  
+    } 
+  else
+    {
+    10u pl0:f1 pl15:f2    
+    }
+
+exec_on_chan:f2
+5  TAU
+   (p9*2 ph1):f2
+   TAU
+   TAU
+   (p9*2 ph1):f2
+   TAU
+   lo to 5 times COUNTER2
+exec_wait
+
+exec_on_other
+4   TAU2  
+    (p1 ph4):f1
+    (p2 ph1):f1
+    (p1 ph4):f1
+    TAU2
+    lo to 4 times l2
+exec_wait
+    }
+; heating compensation end
+
+; calculate number of CPMG cycles (COUNTER), actual CPMG frequency (d31), 
+; half inter-pulse delay (TAU) from desired current CPMG frequency (RF_field)
+  "d31=RF_field[l11]"
+  "if (d31 == 0) \
+     { \
+     COUNTER=0; \
+     TAU=1s;\
+     TAU1=1s;\
+     } \
+  else \
+     { \
+     COUNTER=d20*d31*2; \
+     d31=COUNTER/(d20*2); \
+     TAU=(1 / (d31*4) ) - p9/1000000; \
+     l0=COUNTER-1; \
+     TAU1=TAU - p3*2/PI; \
+     }"
+
+; purge residual 1H magnetization
+  4u fq=0:f1 pl2:f2  
+  p16:gp0
+  d16      
+  (p1 ph1):f1        
+  p16:gp1
+  d16
+  4u pl9:f1
+
+; recycle delay, presaturation
+  d1 cw:f1 ph1         
+  4u do:f1                    
+
+; start actual pulse sequence
+  20u UNBLKGRAD        
+  (p3 ph1):f2              
+  p16:gp2               
+  d16  pl1:f1 fq=cnst22 (bf ppm):f1              
+
+; H -> C transfer
+  (p1 ph1):f1                                 
+   
+  p16:gp3                                        
+  d16  
+  DELTA1    
+
+  (p3 ph5):f2     
+
+; purge element to eliminate L1/3
+  p19:gp4    
+  d16       
+  DELTA2
+  (center (p2 ph1):f1 (p4 ph1):f2)                        
+  p19:gp4                          
+  d16                                
+  DELTA3
+
+  (p3 ph6):f2    
+
+; CPMG relaxation start                 
+
+ if "COUNTER > 0"
+ {
+exec_on_chan:f2
+   TAU1 pl15:f2
+   (p9*2 ph2):f2
+6  TAU
+   TAU
+   (p9*2 ph2):f2
+   lo to 6 times l0
+   TAU pl2:f2
+exec_wait
+
+exec_on_other
+  TAU4
+  (p1 ph4):f1
+  (p2 ph1):f1
+  (p1 ph4):f1
+  TAU2
+7 TAU2
+  (p1 ph1):f1
+  (p2 ph2):f1
+  (p1 ph1):f1
+  TAU2
+  TAU2
+  (p1 ph4):f1
+  (p2 ph1):f1
+  (p1 ph4):f1
+  TAU2
+lo to 7 times l1
+  TAU2
+  (p1 ph1):f1
+  (p2 ph2):f1
+  (p1 ph1):f1
+  TAU3
+  (p1 ph8):f1
+  (p2 ph7):f1  
+  (p1 ph8):f1 
+  TAU3
+  (p1 ph1):f1
+  (p2 ph4):f1
+  (p1 ph1):f1
+  TAU2
+8 TAU2
+  (p1 ph2):f1
+  (p2 ph1):f1
+  (p1 ph2):f1
+  TAU2
+  TAU2
+  (p1 ph1):f1
+  (p2 ph4):f1
+  (p1 ph1):f1
+  TAU2
+lo to 8 times l1
+  TAU2
+  (p1 ph2):f1
+  (p2 ph1):f1
+  (p1 ph2):f1
+  TAU2
+exec_wait
+ }
+else {
+  (p1 ph8):f1
+  (p2 ph7):f1  
+  (p1 ph8):f1 
+}
+
+; CPMG relaxation end
+
+; 13C chem. shift evolution
+if "COUNTER == 0" 
+{
+  "INCR1 = d10 - p3*4/PI - p2*2"
+(center(p1 ph2 p2 ph1 p1 ph2):f1  (INCR1):f2)
+}
+else {
+  "INCR1 = d10 - p3*2/PI"
+(center(p1 ph2 p2 ph1 p1 ph2 DELTA7):f1  (INCR1):f2)
+}
+
+; back-transfer
+  (p3 ph9):f2                            
+  DELTA4    
+  p16:gp3                                
+  d16 
+  20u BLKGRAD                                   
+  4u pl12:f2    
+
+; acquisition                     
+  go=2 ph31 cpd2:f2
+  d11 do:f2 mc #0 to 2
+   F1QF(calclc(l11,1))
+   F2PH(calph(ph9, -90), caldel(d10, +in10))
+
+exit
+
+ph1=0
+ph2=1
+ph3=2
+ph4=3
+ph5=0 2
+ph6=1 1 3 3 
+ph7=0 0 0 0 2 2 2 2 1 1 1 1 3 3 3 3 
+ph8=1 1 1 1 3 3 3 3 2 2 2 2 0 0 0 0
+ph9=0
+ph31=0 2 0 2 0 2 0 2 2 0 2 0 2 0 2 0              
+
+
+;pl1 : f1 channel - power level for pulse (default)              
+;pl2 : f2 channel - power level for pulse (default)   
+;pl9 : f1 channel - power level for presaturation               
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl15: f2 channel - power level for CPMG pulse train 
+
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p9 : f2 channel -  90 degree low power pulse for CPMG train   
+;p29: f1 channel -  90 degree shaped pulse (water selective)
+
+;p16: homospoil/gradient pulse   [1 ms]
+;p19: homospoil/gradient pulse 2 [600 us]
+
+;sp11 : f1 channel - shaped pulse (water selective)
+
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)CH [4 ms]
+;d3 : 1/(8J)CH [1 ms]
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery [200 us]
+;d20: total CPMG relaxation period
+;d21: d20/2
+;d31: used for internal calculations
+;d32: used for internal calculations
+;TAU: variable CPMG pulse spacing
+;TAU1: variable CPMG pulse spacing
+
+
+;cpd2 : 13C decoupling according to program defined by cpdprg2
+;pcpd2: f2 channel -  90 degree pulse for decoupling sequence
+
+;d10: incremented delay   
+;inf2 : 1/SW = DW(X)
+;in10: 1/(SW(x))=DW(X)
+
+;l0 : internal counter 
+;l1 : internal counter  
+;l2 : internal counter 
+;l3 : internal counter   
+;l11 : internal counter   
+
+;cnst2: = J(CH) in Hz [125]
+;cnst22: Center Hmethyl region (in ppm)  [0.5 - 1]
+;cnst50: 1/d20, set 13CCPMG frequencies to multiples of this value
+;cnst51: 1H CPMG frequency
+;cnst52: actual 1H CPMG frequency used during experiment
+
+;ns: 8 * n
+;ds: >=64
+
+
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: States-TPPI in F2
+
+;for z-only gradients:
+;gpz0: 5%
+;gpz1: 15%
+;gpz2: -30%
+;gpz3: 60%
+;gpz4: 34%
+
+;use gradient files:   
+;gpnam0: SMSQ10.100
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.50
+
+;Processing
+
+;PHC0(F2): 90
+;PHC1(F2): -180
+;FCOR(F2): 1
+
+;$Id:$

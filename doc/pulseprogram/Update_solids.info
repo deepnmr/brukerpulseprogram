@@ -1,0 +1,655 @@
+;Update_solids.info
+;avance-version (25/07/14)
+;
+;difference to previous versions 
+;
+;$CLASS=Solids Info
+;$COMMENT=
+
+********************************************************************
+differences to (24/01/18)
+
+added          HH_Reference_H2d.dp
+			   hXHETCORsd.cp
+               CODEX_echo.cpdp		        CODEX experiment CP based 1D version 
+			   hXtoss.dp
+			   hXtoss243.dp
+			   hXtoss243.cp
+			   hXsl.dp
+               qcpmg.dp
+			   hXqcpmg.dp
+			   hXhsatrect1.cp
+			   hXhT1ir.cp
+			   hX_3pulse_bs.dp
+			   hXsatrect1_echo.dp
+
+modified       hX.cp
+               hXcppi.cp
+               hXtoss.cp
+               hXtoss_nqs.cp
+               hXnqs.cp
+               hXHETCOR.cp
+               hXhT1rho.cp
+               hXT1rho.cp
+               hXT12D.cp
+               hXmulticp_comp.cp
+               hX.dp
+               satrect1_echo.dp       1H or 19F satruation recivery experiment with optional 1H or 19F decoupling
+               hXPC7SQDQ.cp
+			   hXPC7DQMIX.cp
+               hXSC14DQMIX.cp
+               hXSC14SQDQ.cp
+               hXSPC53DQMIX.cp
+               hXSPC53SQDQ.1.cp
+               hXSPC53SQDQ.cp
+               hXSPC5DQMIX.cp
+               hXSPC5SQDQ.cp
+			   hX_cp.incl
+               hX_inv_cp.incl
+               fHX_dcp.incl
+               hX_inv_cp.incl
+               Decoup_Solids.incl
+               Decoupl_fh_Solids.incl
+			   Decoup_f3_Solids.incl
+               hXpp.cp
+               hXRINADEQUATE.cp
+			   hXSARCOSY.cp
+			   hXROCSA.cp
+			   hXAPT.cp
+			   hXSUPER.cp
+			   hXtoss.cp
+			   hXtoss_nqs.cp
+			   hXcppi.cp
+			   hX2D.dp
+			   hX_T2filter.cp
+			   hX_T2filter.dp
+			   hXPASS.cp
+			   onepulsecw
+               pulsecal_cw
+
+********************************************************************
+differences to (24/01/11)
+
+modified       fHXHETCOR.dcp
+               hFX.dcp
+               hX.dp
+               satrect1_echo.dp
+
+added          hH_HOMCOR.dp
+
+********************************************************************
+differences to (23/03/31)
+
+added          hX_cp.incl
+               hX_inv_cp.incl
+               fHX_dcp.incl
+               hX_inv_cp.incl
+               Decoup_Solids.incl
+               Decoupl_fh_Solids.incl
+               hXpp.cp			    cp Experiment with pi/2 pulse on X before CP for liquids/ dynamically averaged resonances.
+               CODEX.cp		        CODEX experiment CP based 1D version 
+               hH_HOMOCOR.dp		Experiment for referencing 1H chemical shift in FSLG HETRCO experiments
+               hXX_exchange.dp
+               hX_T2filter.cp
+               hX_T2filter.dp
+               hXPC7DQMIX.cp
+               hXSC14DQMIX.cp
+               hXSPC5DQMIX.cp
+               hXSPC53DQMIX.cp
+
+modified       hX.cp
+               hXcppi.cp
+               hXtoss.cp
+               hXtoss_nqs.cp
+               hXnqs.cp
+               hXHETCOR.cp
+               hXhT1rho.cp
+               hXT1rho.cp
+               hXT12D.cp
+               hFX.dcp
+               fHXHETCOR.dcp             
+               hX.dp
+               satrect1_echo.dp       1H or 19F satruation recivery experiment with optional 1H or 19F decoupling
+               hXPC7SQDQ.cp
+               hXSC14SQDQ.cp
+               hXSPC5SQDQ.cp
+               hXSPC53SQDQ.cp
+
+********************************************************************
+differences to (23/01/12)
+
+added          hXf.dp
+               hXfT12D.cp
+               
+modified       fXh.cp
+               hX.cp
+               hXcppi.cp
+               hXf.cp
+               hXHETCOR.cp
+               hXnqs.cp
+               hXT1rho.cp
+               hXT12D.cp
+               hXtoss.cp
+               hXtoss_nqs.cp
+               
+********************************************************************
+differences to (22/06/21)
+
+added          hX2D.dp
+
+********************************************************************
+differences to (22/06/14)
+
+added          hXHETCOR.cp
+               hXT1rho.cp  
+	           satrect1_echo.dp
+               hXhT1rho.cp  
+               hXT1rho.dp
+
+********************************************************************
+differences to (22/01/12)
+
+added          satrect1_echo
+               satrect1_echo.dp
+
+modified       fHXHETCOR.dcp
+               hFX.dcp
+	           hX.dp
+               satrect1
+
+********************************************************************
+differences to (21/10/21)
+
+added          hXBR212_CTDQ.dp
+
+********************************************************************
+differences to (21/06/23)
+
+modified       fHXHETCOR.dcp
+               fXh.cp
+               hFHETCOR.cp
+               hFX.dcp
+               hXAPT.cp
+               hX.cp
+               hXcppi.cp
+               hX.dp
+               hXf.cp
+               hXHETCOR.cp
+               hXmulticp_comp.cp
+               hXnqs.cp
+               hXPC7DQMIX.cp
+               hXPC7SQDQ.cp
+               hXRINADEQUATEaws.cp
+               hXSC14DQMIX.cp
+               hXSC14SQDQ.cp
+               hXSPC53DQMIX.cp
+               hXSPC53SQDQ.1.cp
+               hXSPC53SQDQ.cp
+               hXSPC5DQMIX.cp
+               hXSPC5SQDQ.cp
+               hXT12D.cp
+               hXtoss.cp
+               hXtoss_nqs.cp
+
+********************************************************************
+differences to (21/06/23)
+
+changed all occurences of spoff to spoffs
+
+********************************************************************
+differences to (21/02/18)
+
+added          Param_solids.info
+               cpsuper
+	           fHXHETCOR.dcp
+	           fXh.cp
+	           hFHETCOR.cp
+	           hFX.dcp
+	           hXAPT.cp
+	           hXCa.dcp
+	           hXPASS.cp
+	           hXPC7DQMIX.cp
+	           hXPC7SQDQ.cp
+	           hXRINADEQUATEaws.cp
+	           hXROCSA.cp
+	           hXSC14DQMIX.cp
+	           hXSC14SQDQ.cp
+	           hXSPC5DQMIX.cp
+	           hXSPC5SQDQ.cp
+	           hXSPC53DQMIX.cp
+	           hXSPC53SQDQ.cp
+	           hXSUPER.cp
+	           hXXCORDxy4.cp
+	           hXY.dcp
+	           hXf.cp
+	           hXmulticp_comp.cp
+	           satrect1_echo
+
+changed        hX.cp
+               hX.dp
+	           hXHETCOR.cp
+	           hXT12D.cp
+	           hXcppi.cp
+	           hXnqs.cp
+	           hXtoss.cp
+	           hXtoss_nqs.cp
+
+********************************************************************
+differences to (20/12/14)
+
+
+changed        dumbod2dqsq            float replaced by degree
+               dumbod2dqsqspc5
+               pc71df
+               pc72daswf
+               pc7cp1df
+               pc7cp2daswf
+               sc14cp1df
+               sc14cp2daswf
+               spc5cp1df
+               spc5cp2daswf
+               wpmlgd2dqsq
+               wpmlgd2dqsqspc5
+
+********************************************************************
+differences to (20/12/01)
+
+changed        Avancesolids4.incl     ifndef/define removed
+
+********************************************************************
+differences to (20/11/24)
+
+changed        cpNCCXsel3D            comment FnMODE added
+               cpCNCCXsel3D
+
+********************************************************************
+differences to (20/11/16)
+
+changed        Avancesolids.incl      includes Avance.incl 
+               Desolids.incl          includes De.incl
+
+               cp                     Avancesolids.incl -> Avance.incl
+               cp90
+               cpadc
+               cpCNCCXsel3D
+               cpNCCXsel3D
+               cpredorxy8i
+               cpsel_inv
+               cpSPINDIFF
+               cp_stab
+               dumbod2
+               dumbod2dqsq
+               dumbod2dqsqspc5
+               qcpmg
+               wpmlgd2
+               wpmlgd2dqsq
+               wpmlgd2dqsqspc5
+
+
+               dumbod2                Desolids.incl -> De.incl
+               dumbod2dqsq
+               dumbod2dqsqspc5
+               qcpmg
+               wpmlgd2
+               wpmlgd2dqsq
+               wpmlgd2dqsqspc5
+
+********************************************************************
+differences to (20/09/30)
+
+changed        cphirt1                list handling (define list)
+               cphsatrect1
+               cpht1rho
+               cpxt1
+               cpxt1rho
+
+********************************************************************
+differences to (20/08/17)
+
+changed        hX.cp                  CLASS -> SolidsIcon
+               hXT12D.cp
+               hXtoss.cp
+
+********************************************************************
+differences to (20/07/16)
+
+changed        hX.cp                  diydec handling
+               hXcppi.cp
+               hX.dp
+               hXHETCOR.cp
+               hXnqs.cp
+               hXtoss.cp
+               hXtoss_nqs.cp
+
+
+added          hXT12D.cp
+********************************************************************
+differences to (20/07/10)
+
+changed        satrect1               new list handling
+
+removed        satrect1nodec
+
+********************************************************************
+differences to (20/07/08)
+
+changed        hX*                    relations file
+
+********************************************************************
+differences to (20/04/23)
+
+changed        satrect1               phasecycle changed
+
+
+added          hX.cp
+               hXcppi.cp
+               hX.dp
+               hXHETCOR.cp
+               hXnqs.cp
+               hXtoss.cp
+               hXtoss_nqs.cp
+
+********************************************************************
+differences to (18/01/29)
+
+removed        Avancesolids.incl
+               Avancesolids2.incl
+
+********************************************************************
+differences to (18/01/18)
+
+removed        wpmlg2d 
+               wpmlgd
+               dumboa
+               dumboa2
+               wpmlga
+               wpmlga2
+               cpqcpmg
+
+renamed        DUMBO2dqsq -> dumbodd2qsq
+               wpmlgdqsqspc5 -> wpmlgd2dqsqspc5
+
+
+changed        cpadc
+               qcpmg
+               dumbod2
+               wpmlgd2
+               wpmlgd2dqsq
+               Avancesolids4.incl
+               Delayssolids.incl
+
+added          Desolids.incl
+
+********************************************************************
+differences to (18/01/12)
+
+changed        hCOcaNH3D.tcp          30m at Start
+
+********************************************************************
+differences to (17/10/06)
+
+added          cpredorxy8i
+               hC_fsREDOR.cp
+               hC_fsREDOR.cp_comp
+               hC_fsREDOR.cp_comp.1
+               hC_fsREDOR.cp_comp.2
+               hCNzTEDOR2D.cp
+
+********************************************************************
+differences to (17/07/31)
+
+added          hCH2D.hsqc
+               hNH2D.hsqc
+
+********************************************************************
+differences to (17/03/30)
+
+added          onepulsecw
+
+********************************************************************
+differences to (17/02/23)
+
+added          onepulse30
+               onepulsepg
+
+********************************************************************
+differences to (17/02/22)
+
+added          p20bio_prot.incl
+
+********************************************************************
+differences to  (17/01/31)
+
+removed        cpCN
+
+changed        hahnecho               changed to 1D
+
+********************************************************************
+differences to (16/06/17)
+
+modified       doubcp                 prosol entry added
+
+********************************************************************
+differences to  (16/05/23)
+
+modified       hCONCaCX3D.tcp         flag "-DnoMix" added
+
+********************************************************************
+differences to  (16/04/05)
+
+added          X.dp
+               XH_defs.incl
+
+********************************************************************
+differences to (16/02/08)
+
+modified       hpdec                  lowpower option added
+
+********************************************************************
+differences to (15/11/05)
+
+modified       hcaCbcacoNH3D.tcp      o3 handling (+ TPPI scheme)
+               hcaCbcaNH3D.tcp
+               hCaH1D.dcp
+               hCaNH3D.tcp
+               hcoCacoNH3D.tcp
+               hCOcaNH3D.tcp
+               hCOH1D.dcp
+               hCONH3D.tcp
+
+********************************************************************
+differences to (15/09/01)
+
+corrected      hCOcaNH3D.tcp          delay at "Start"
+
+********************************************************************
+differences to (15/08/14)
+
+changed        hCC_par2D.cp           phase cycle
+               hNC_pain2D.cp          phase cycle
+
+added          hcaCbcacoNH3D.tcp
+               hcaCbcaNH3D.tcp
+               hcoCacoNH3D.tcp
+               hCOcaNH3D.tcp
+
+********************************************************************
+differences to (15/03/26)
+
+
+changed        hCaH1D.dcp             CABQ3 flag added
+
+               hCaNH3D.tcp            additional spoffs
+               hCH2D.dcp                 statements
+               hCOH1D.dcp
+               hCONH3D.tcp
+               hNH2D.dcp
+
+
+added          N.dp
+               hNC_pain2D.cp
+               hNCaCX_var3D.dcp
+               hCONCaCX_var4D.tcp
+               hCC_par2D.cp
+               hCC_dream2D.cp
+
+               p10bio_prot.incl
+               p9bio_prot.incl
+
+********************************************************************
+differences to (15/03/23)
+
+changed        hCONH3D.tcp            comment spnam5
+               hCaNH3D.tcp            comment spnam6
+
+********************************************************************
+differences to (14/11/26)
+
+added           hNH2D.dcp             H1 detected experiments
+                hCONH3D.tcp
+                hCOH1D.dcp
+                hCH2D.dcp
+                hCaNH3D.tcp
+                hCaH1D.dcp
+
+                noH2Obio_prot.incl
+                ONTIME_H_prot.incl
+                p3334bio_prot.incl
+                p2324bio_prot.incl
+                p45bio_prot.incl
+                p39bio_prot.incl
+                p38bio_prot.incl
+                p19bio_prot.incl
+                p18bio_prot.incl
+
+                HNC_defs.incl
+
+********************************************************************
+differences to (14/08/20)
+
+changed         *.bsh                 comment PY program
+
+********************************************************************
+differences to (14/08/06)
+
+changed         C90.hpdec             lacq flag added
+                hCC.cp
+                hC.cp
+                hN.cp
+
+********************************************************************
+differences to (14/07/24)
+
+added           recoup_prot.incl
+
+corrected       cpqcpmg               HaltAcqu missing
+                cpsel_inv             ; missing
+
+********************************************************************
+differences to (14/03/25)
+
+corrected       Avancesolids2.incl    RGP and REC macros changed
+
+added           DREAMbio_prot.incl
+                p26bio_prot.incl
+                p27bio_prot.incl
+
+                hCa(N)COCa1D.bsh
+                hCaNCOCa1D.bsh
+                hCaNCOCa2D.bsh
+                hCa(N)COCa3D.bsh
+                hCaNCOCa3D.bsh
+                hCaNCOCa4D.bsh
+                hNCaCO1D.bsh
+                hNCaCO2D.bsh
+                hNCaCO3D.bsh
+                hNCOCa1D.bsh
+                hNCOCa2D.bsh
+                hNCOCa3D.bsh
+                hNCOCaCb1D.bsh
+                hNCOCaCb2D.bsh
+                hNCOCaCb3D.bsh
+                hNCOCaCb4D.bsh
+
+********************************************************************
+differences to (14/02/17)
+
+corrected       hCONCaCX4D.tcpQ       in28
+                hCaNCOCX4D.tcp
+
+********************************************************************
+differences to (14/02/11)
+
+changed         hCaNCOCX3D.tcp        phasecycles unconditional
+
+********************************************************************
+differences to (13/08/28)
+
+changed         hCaNCOCX3D.tcp        -DnoMix added
+
+********************************************************************
+differences to (13/03/05)
+
+added           C.90                  Bio-Solids experiments
+                C90.hpdec
+                C.dp
+                H.90
+                hCaNCOCX3D.tcp
+                hCaNCOCX4D.tcp
+                hCC.cp
+                hC.cp
+                hChhC.cp
+                hCONCaCX3D.tcp
+                hCONCaCX4D.tcp
+                hNCaCX2D.dcp
+                hNCaCX3D.dcp
+                hNCa.dcp
+                hNCOCX2D.dcp
+                hNCOCX3D.dcp
+                hNCO.dcp
+                hN.cp
+                hNhhC.cp
+                Hpulsecal.90
+                CHN_defs.incl
+                HCD_defs.incl
+                HCN_defs.incl
+                NHC_defs.incl
+                TauR_def.incl
+                acq_prot.incl
+                DARR_prot.incl
+                HHmix_prot.incl
+                ONTIME_prot.incl
+                p15bio_prot.incl
+                p16bio_prot.incl
+                p17bio_prot.incl
+                p25bio_prot.incl
+                p44bio_prot.incl
+                p46bio_prot.incl
+                p48bio_prot.incl
+                t1_prot.incl
+                t2_prot.incl
+                t3_prot.incl
+                TauR_prot.incl
+
+********************************************************************
+differences to (13/01/31)
+
+added           hmqcf2
+
+                hxinept1D
+                hxinept2D
+
+********************************************************************
+differences to 
+
+corrected       hpdec                 added HaltAcqu
+                hpdec_f2f3
+
+changed         dumbod2               timing
+
+                fastCRAMPS.incl       new spinrate calculation
+
+********************************************************************
+
+
+;$Id: $

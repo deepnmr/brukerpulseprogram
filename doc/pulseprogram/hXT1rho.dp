@@ -1,0 +1,117 @@
+;hXT1rho.dp
+;version: 1.0/ TS4.1.4 03/01/2022
+; JOS
+
+;###############################################################
+;#                                                             #
+;#  X T1rho experiment DP with optional decoupling             #
+;#  cnst14 is spinlock field in Hz for X spinlock              #
+;#                                                             #
+;###############################################################
+
+;getting ready for ICONNMR - pulse calculation
+
+;direct excitation and acquisition on X 
+
+;$COMMENT= single pulse excitation T1rho 
+;$CLASS=SolidsIcon
+;$DIM=pseudo2D
+;$TYPE=relaxation 
+;$SUBTYPE=direct polarization
+
+prosol relations=<solids_ICON>
+
+#include <trigg.incl>
+        ; definition of external trigger output 
+
+
+#ifdef dec
+#include <Decoup_Solids.incl>
+#endif
+
+"plw14=plw31*pow((cnst14/(10000)),2)"
+define list<pulse> vp_list = <$VPLIST>
+"acqt0=-p1*2/3.1416"
+
+
+Prepare, ze
+
+#ifdef dec
+Start, 10m  do:f2
+ d1 do:f2   
+#else
+Start, 10m
+ d1
+#endif
+ 
+#ifndef lacq
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#endif
+
+#ifndef lvp
+#include <vp_protH.incl>
+     ;make sure vplist max value does not
+     ;exceed 100 ms
+#endif
+	
+ trigg
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+
+    (p1 pl1 ph1):f1 
+#ifdef dec
+	  (vp_list pl14 ph10):f1 
+ go=Start ph31 cpds2:f2 finally do:f2
+ 1m do:f2
+#else
+ (vp_list pl14 ph10):f1
+ go=Start ph31
+#endif
+
+
+  
+;#######################################################
+;#                     Acquisition                     #
+;#######################################################
+
+  10m mc #0 to Start F1QF(calclist(vp_list, 1))
+  
+HaltAcqu, 1m
+Exit, exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph1= 0 2 1 3		; C hard pulse
+ph10= {{1}*2}^1
+ph31=0 2 1 3		; receiver
+
+;#######################################################
+
+
+;Avance NEO / III version
+;parameters:
+;p1  : X, f1 90 at pl1
+;pl1 : X, f1 pulse power
+;pl12: f2 dec power
+;cnst14: spinlock field in Hz
+;cnst31 : MAS rate in Hz 
+;cnst34 : correction factor spinlock field
+;cnst32  : 1H decoupling power correction factor in %
+;d1  : recycle delay
+;pcpd2   : not used, instead p31 is H dec pulse cpdprg2 (calculated)
+;cpdprg2 : Decoupling file cw, tppm (at pl12)
+;ZGOPTNS : -Ddec, -Dpidec, -Dlacq, -Dlvp
+;          -Ddec to turn decoupling on
+;          -Dpidec to turn pi pulse decoupling on
+;          -Dlacq to allow acquisition > 50 ms
+;          -Dlvp to use spin lock pulses longer than 100 ms
+;ns: 4 (full:4)
+
+
+
+;$Id: hXT1rho.dp   Exp $

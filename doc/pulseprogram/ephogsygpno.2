@@ -1,0 +1,171 @@
+;ephogsygpno.2
+;avance-version (12/01/11)
+;1D sequence
+;water suppression using excitation sculpting with gradients
+;with flip-back pulse (optional)
+;with spinlock (optional)
+;
+;C. Dalvit, GP. Fogliatto, A. Stewart, M. Veronesi & 
+;   B. Stockman, J. Biomol. NMR 21, 349-359 (2001)
+;C. Dalvit, J. Biomol. NMR 11, 437 - 444 (1998)
+;T.-L. Hwang & A.J. Shaka, J. Magn. Reson.,
+;   Series A 112 275-279 (1995)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple2>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define pulse P_SL
+
+
+"p2=p1*2"
+"d12=20u"
+
+
+#   ifdef FLAG_FP
+"DELTA1=d8-p29-16u"
+#   else
+"DELTA1=d8-8u"
+#   endif /*FLAG_FP*/
+
+"TAU=de+p1*2/PI"
+
+"P_SL=d29"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+2 30m
+  d12 pl1:f1 BLKGRAD
+  d1
+  50u UNBLKGRAD
+
+  (p1 ph1)
+  4u
+  p16:gp1
+  d16
+
+  (p7:sp21 ph2:r):f1
+
+  4u
+  p16:gp1
+  d16 pl1:f1
+  (p1 ph1)
+
+  4u gron2
+  DELTA1
+  4u groff
+
+#   ifdef FLAG_FP
+  (p29:sp11 ph3:r):f1
+  4u
+  4u pl1:f1
+#   else
+#   endif /*FLAG_FP*/
+
+  (p1 ph1)
+
+#   ifdef FLAG_SL
+  4u pl33:f1
+  (P_SL ph7)
+#   else
+#   endif /*FLAG_SL*/
+
+  p19:gp4
+  d16
+  (p12:sp1 ph4:r):f1
+  4u
+  4u pl1:f1
+
+  p2 ph1
+
+  4u
+  p19:gp4
+  d16 
+  TAU
+  p19:gp5
+  d16
+  (p12:sp1 ph5:r):f1
+  4u
+  4u pl1:f1
+
+  p2 ph6
+
+  4u
+  p19:gp5
+  d16
+
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+  4u BLKGRAD
+exit
+
+
+ph1=0
+ph2=0 1 2 3
+ph3=2 0
+ph4=2
+ph5=2 2 2 2 1 1 1 1 0 0 0 0 3 3 3 3
+ph6=0 0 0 0 3 3 3 3 2 2 2 2 1 1 1 1
+ph7=1
+ph31=0 2 0 2 2 0 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl33: f1 channel - power level for trim pulse
+;sp1 : f1 channel - shaped pulse 180 degree
+;sp11: f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;sp21: f1 channel - shaped pulse 180 degree (H2O on resonance)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p7 : f1 channel - 180 degree shaped pulse (H2O on resonance)  [7.5 ms]
+;p12: f1 channel - 180 degree shaped pulse (Squa100.1000)      [2 msec]
+;p16: homospoil/gradient pulse
+;p19: gradient pulse 2                                         [500 usec]
+;p29: f1 channel -  90 degree shaped pulse (flipback pulse)
+;d1 : relaxation delay: 1-5 * T1
+;d8 : mixing time
+;d12: delay for power switching                                [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d29: mixing time for CLEANEX spinlock
+;ns: 8 * n, total number of scans: NS * TD0
+;ds: 4
+
+
+;for z-only gradients:
+;gpz1: 40%
+;gpz2: 1%
+;gpz4: 62%
+;gpz5: 22%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;FLAG_FP: to use a flip-back pulse start experiment with
+;             option -DFLAG_FP: (eda: ZGOPTNS)
+;FLAG_SL: to use a spinlock start experiment with
+;             option -DFLAG_SL: (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id:$

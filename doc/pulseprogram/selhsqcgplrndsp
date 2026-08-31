@@ -1,0 +1,123 @@
+;selhsqcgplrndsp
+;avance-version (21/09/15)
+;selective 1D-longrange-HSQC
+;1D H-1/X correlation via double inept transfer
+;using trim pulses in inept transfer
+;using shaped pulses for inversion on f2 - channel
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d6=1s/(cnst13*4)"
+"d11=30m"
+
+
+"DELTA1=d6-larger(p2,p14)/2"
+
+
+#   ifdef CALC_SPOFFS
+"spoffs26=bf2*(cnst22/1000000)-o2"
+#   else
+#   endif /*CALC_SPOFFS*/
+
+
+1 ze
+2 d11
+3 d1
+  (p1 ph1)
+  DELTA1 pl0:f2
+  4u
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  4u
+  DELTA1 pl2:f2 UNBLKGRAD
+
+#   ifdef TRIMP
+  p28 ph1
+#   endif /* TRIMP */
+
+  (p1 ph2) 
+
+  p16:gp1
+  d16
+
+  (p3 ph3):f2
+  p16:gp2*-1
+  d16
+  (p36:sp26 ph1:r):f2
+  p16:gp2
+  d16 pl2:f2
+  (p3 ph4):f2
+
+  (p1 ph1) 
+  4u
+  p16:gp3*-1
+  d16
+  (p2 ph1)
+  p16:gp3
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  d11 mc #0 to 2 F0(zd)
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 2 2
+ph31=0 2 2 0
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;sp3 : f2 channel - shaped pulse 180 degree
+;spnam3: Crp60,0.5,20.1
+;sp26: f2 channel - shaped pulse 180 degree
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion
+;     = 500usec for Crp60,0.5,20.1
+;p16: homospoil/gradient pulse
+;p28: f1 channel - trim pulse
+;p36: f2 channel - 180 degree shaped pulse
+;d1 : relaxation delay; 1-5 * T1
+;d6 : delay for evolution of long range couplings (1/2Jlr)
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;cnst13: = J(CH) long range
+;cnst22: chemical shift for selective pulse (offset, in ppm)
+;ns: 2 * n, total number of scans: NS * TD0
+;ds: >= 16
+
+
+;for z-only gradients:
+;gpz1: 50%
+;gpz2: 80%
+;gpz3: 20.1%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;TRIMP: to use trimpulse p28@pl1 start experiment with
+;          option -DTRIMP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: $

@@ -1,0 +1,146 @@
+;hXBR212_CTDQ.dp  (TopSpin 4.1.4)
+
+; getting ready for ICONNMR - pulse calculation
+
+;Q.Wang, B. Hu, O. Lafon, J. Trbosc, F. Deng, J. P. Amoureux, J.
+;Magn. Reson. 2009, 200, 251
+;
+;$CLASS=Solids
+;$DIM=2D
+;$TYPE=DP MAS half integer quadrupole correlation
+;$SUBTYPE=SQDQ buildup
+;$COMMENT=
+
+prosol relations=<solids_ICON>
+define loopcounter Spinfac
+"Spinfac=l29"
+#include <Delay.incl>
+#include <trigg.incl>
+		; definition of external trigger output$
+
+#include <Decoup_Solids.incl>
+
+"TAU1=l1*4s/cnst31"
+
+define pulse pul90
+"pul90=((0.5s/cnst31))"
+
+
+"plw11=plw0*pow((((cnst31*0.5)+cnst38)*4*p0/(1000000*Spinfac)),2)"
+
+
+#include <trigg.incl>
+        ; definition of external trigger output$
+
+define loopcounter lmin
+"d0=0"
+"d10=2*p1"
+"lmin=(d10*cnst31)+1"
+"TAU2=((lmin*1s/cnst31)-2*p1-d0)/2"
+
+"l0=0"
+"d31=1s/cnst31"
+
+
+define delay excite
+"excite=TAU1"
+"in0=inf1"
+
+
+
+;for digmod=baseopt
+"acqt0=(-2.0*p1)/3.14159"
+
+
+Prepare, ze
+
+excite
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 30m 
+  d1 1m do:f2 
+   "d10=(2*p1)+d0"
+"lmin=(d10*cnst31)+1"
+"TAU2=((lmin*1s/cnst31)-2*p1-d0)/2"
+   trigg
+  
+  
+3 (pul90*2 pl11 ph11):f1 	        ; R20 excitation 
+  (pul90*2 ph12):f1 
+ lo to 3 times l1
+4
+  (pul90*2  ph12):f1 	        ; R20 excitation 
+  (pul90*2 ph11):f1  
+  lo to 4 times l1
+
+ TAU2 cpds2:f2
+ (p1*2 pl1 ph1):f1
+ TAU2 
+d0
+ 
+13 (pul90*2 pl11 ph15):f1 (1u do):f2	        ; R20 excitation 
+  (pul90*2 ph16):f1 
+lo to 13 times l1
+14
+  (pul90*2 ph16):f1 	        ; R20 excitation 
+  (pul90*2 ph15):f1  
+  lo to 14 times l1
+
+  (p1 pl1 ph2):f1
+ go=Start ph31 cpds2:f2 finally do:f2
+ 
+30m mc #0 to Start F1PH(calph(ph1, +45) & calph(ph11, +45.0) & calph(ph12, +45.0), caldel(d0, +in0))
+ 
+
+HaltAcqu, 1m
+Exit, exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph0 = 0                ; H CP spin lock
+ph1= (8) {{0}*4}^1^2^3^4^5^6^7
+ph2= {{0}*32}^2
+ph10= 0
+ph11=(8) 2 4 6 0
+ph12=(8) 6 0 2 4	
+
+
+ph15=1 
+ph16=3
+
+
+ph31= {{0 2 0 2}^2^0^2^0^2^0^2}^2		;phase cycling for DQ filtration
+
+
+;#######################################################
+
+
+;basic cp experiment
+
+;Avance NEO/ AVIII version
+;parameters:
+;p1      : X 90 low power central transition pulse 18 to 25us at pl1
+;pl1     : X 90 selective cnetral transition pulse at pl1
+;pl11	 : X recoupling power, calculated through pl31
+;pl12    : H dec power
+;pl30	: H for 10 kHz spinlock field
+;pl31	: X for 10kHz spinlock field
+;cnst31 : MAS rate in Hz 
+;cnst32 : correction term for 1H decoupling power in %
+;cnst38 : correction term for X recoupling power for R212 sequence
+;cnst52  : 1H heteronuclear decoupling in Hz pl12 decoupling
+;d1      : recycle delay; 1 to 5 times T1
+;pcpd2   : pulse length in decoupling sequence cpdprg2
+;cpdprg2 : spinal64, swftppm, tppm etc. decoupling program
+;l1 	; length of recoupling blocks, 1, 2, 3, ... 
+;l10 : number of R20 cycles for DQ excitation&reconversion
+;l0 :  R20 increments for DQ excitation&reconversion=l0*(TD1-1) =0
+;zgoptns : blank or =fixed (l1=l0)
+;ns    : 32*n 
+
+;$Id: hXBR212_CTDQ.dp,v 1.1                    Exp $

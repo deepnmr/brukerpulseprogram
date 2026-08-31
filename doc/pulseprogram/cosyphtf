@@ -1,0 +1,75 @@
+;cosyphtf
+;avance-version (12/01/11)
+;2D homonuclear shift correlation
+;phase sensitive
+;with triple quantum filter
+;
+;A. Wokaun & R.R. Ernst, Chem. Phys. Lett. 52, 407 (1977)
+;U. Piantini et al., J. Am. Chem. Soc. 104, 6800 (1982)
+;A.J. Shaka & R. Freeman, J. Magn. Reson. 51, 169 (1983)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"d13=4u"
+
+
+"in0=inf1"
+
+"d0=in0/2-p1*4/3.1416"
+
+
+1 ze
+2 d1
+3 p1 ph1
+  d0
+  p1 ph2
+  d13
+  p1 ph3
+  go=2 ph31
+  d1 mc #0 to 2 F1PH(calph(ph1, +270), caldel(d0, +in0))
+exit
+
+
+ph1=(12) 0 6 4 10 8 2 3 9 7 1 11 5 
+         6 0 10 4 2 8 9 3 1 7 5 11
+         6 0 10 4 2 8 9 3 1 7 5 11
+         0 6 4 10 8 2 3 9 7 1 11 5
+ph2=(12) 0 6 4 10 8 2 3 9 7 1 11 5
+         6 0 10 4 2 8 9 3 1 7 5 11 
+ph3=(12) 0 0 0 0 0 0 3 3 3 3 3 3
+         6 6 6 6 6 6 9 9 9 9 9 9 
+ph31=0 2 0 2 0 2 1 3 1 3 1 3 2 0 2 0 2 0 3 1 3 1 3 1
+     2 0 2 0 2 0 3 1 3 1 3 1 0 2 0 2 0 2 1 3 1 3 1 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;d0 : incremented delay (2D)
+;d1 : relaxation delay; 1-5 * T1
+;d13: short delay                                    [4 usec]
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns: 24 * n
+;ds: 24
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+
+
+;Processing
+
+;PHC0(F1): 90
+;PHC1(F1): -180
+;FCOR(F1): 1
+
+
+
+;$Id:$

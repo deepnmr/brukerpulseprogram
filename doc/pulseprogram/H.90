@@ -1,0 +1,84 @@
+;H.90
+
+;;version: 1.0/ TS3.2 /2013/07/12
+
+;written for BioToolkit: VEDA July 2013
+;double-checked: VEDA SEWE July 2013
+
+
+;direct excitation and acquisition on H 
+
+
+;Avance II / III version
+;parameters:
+;p3      : H 90 at pl2
+;pl2     : H pulse power
+;d1 : recycle delay
+;ns		 : 4 (full:4)
+
+
+;$COMMENT= single pulse excitation, acquisition without decoupling
+;$CLASS=BioSolids
+;$DIM=1D
+;$TYPE=direct excitation
+;$SUBTYPE=Setup
+
+
+prosol relations=<biosolHNC>
+
+
+#include <HCN_defs.incl> 
+		; defines which channel corresponds to which nucleus
+#include <trigg.incl>
+		; definition of external trigger output
+
+
+"acqt0=-p3*2/3.1416"
+
+
+                            ;##########################
+;$EXTERN                    ;# Python insertion point #
+                            ;##########################
+
+Prepare, ze
+
+;######################################################
+;#               Protections: Pre-Check               #
+;######################################################
+
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 30m
+  d1
+
+  trigg
+  1u fq=0.0:H				;set 1H on resonance
+
+  (p3 pl2 ph1):H
+  
+;#######################################################
+;#                     Acquisition                     #
+;#######################################################
+
+  go=Start ph31         
+  30m mc #0 to Start F0(zd)
+  
+HaltAcqu, 1m
+Exit, exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph1= 0 2 1 3		; H hard pulse
+
+ph31=0 2 1 3		; receiver
+
+;#######################################################
+
+
+
+;$Id:$

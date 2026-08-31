@@ -1,0 +1,74 @@
+;imgegp2d2h
+;avance-version (13/05/03)
+;1D Gradient Echo
+;using 2H lockswitch unit or BSMS 2H-TX board
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+#include <De.incl>
+#include <Sysconf.incl>
+
+
+"d11=30m"
+"d12=20u"
+
+
+"DELTA=d20-((d1+aq+d27+d15+d21+10u)*(ns+ds))-30m"
+
+
+1 ze
+  d11 LOCKDEC_ON
+  d11 UNBLKGRAMP
+  d11 H2_PULSE
+
+2 DELTA
+3 d1 
+  4u reset:f1
+  d12 reset:D
+  (p0 ph1):D
+  d27 gron1
+  5u groff
+  d15
+  d21 gron2
+  ACQ_START(ph30,ph31)
+  aq DWELL_GEN:f1
+  5u groff
+  rcyc=3
+  30m wr #0 if #0 ze
+  lo to 2 times td1
+  
+  d11 H2_LOCK
+  d11 BLKGRAMP
+  d11 LOCKDEC_OFF
+exit
+
+
+ph1=0 2 1 3
+ph30=0
+ph31=0 2 1 3
+
+
+;pl_ : f_ channel - power level for pulse (default)
+;p1 : f_ channel -  90 degree high power pulse
+;d1 : relaxation delay
+;d11: delay for disk I/O                             [30 msec]
+;d15: echo time
+;d21: gradient stabilisation delay
+;d27: length of dephasing gradient (phase encode time)
+;ns: 1 * n
+;ds: 0
+
+
+;define channel number in Sysconf.incl (default is f1)
+
+
+
+;$Id:$

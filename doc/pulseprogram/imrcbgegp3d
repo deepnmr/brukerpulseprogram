@@ -1,0 +1,73 @@
+;imrcbgegp3d
+;avance-version (12/01/11)
+;3D Gradient Echo for gradshim-procedure with BSMS RCB board
+;requires probe with Z-gradient
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <De.incl>
+
+
+"d11=30m"
+
+"p0=2u"
+
+"plw0=plw1/31.626"
+
+
+"l1=td1*td2"
+
+
+  1s
+1 ze
+  d11 UNBLKGRAMP
+2 d11*0.5 RCB_INCR
+  3u
+  d11*0.5 RCB_CONT
+3 d1
+  20u pl0:f1
+  p0:f1 ph1
+  d27 gron1
+  5u groff
+  d15
+  d21 gron2
+  ACQ_START(ph30,ph31)
+  aq DWELL_GEN:f1
+  5u groff
+  rcyc=3
+  5m st
+  lo to 2 times l1
+  400m wr #0 if #0
+  d11 BLKGRAMP
+exit
+
+
+ph1=0
+ph30=0
+ph31=0
+
+
+;pl0: f1 channel : pl1+15dB
+;pl1 : f1 channel - power level for pulse (default)
+;p0 : f1 channel -  small flip angle                 [2 usec]
+;d1 : relaxation delay                               [200 msec]
+;d11: delay for disk I/O                             [30 msec]
+;d15: echo time
+;d21: gradient stabilisation delay
+;d27: length of dephasing gradient (phase encode time)
+;ns: 1
+;ds: 0
+;NBL: = l1
+
+;use gradient program (GRDPROG) :	Imgegs1d
+
+
+
+;$Id:$

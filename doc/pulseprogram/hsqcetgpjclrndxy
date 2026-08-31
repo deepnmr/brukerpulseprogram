@@ -1,0 +1,183 @@
+;hsqcetgpjclrndxy
+;avance-version (20/03/03)
+;CPMG-HSQMBC
+;2D H-1/X correlation via double inept transfer
+;   using XY16-CPMG for transfer
+;for determination of XH long range coupling constants
+;   via splitting in F2
+;phase sensitive using Echo/Antiecho-TPPI gradient selection
+;no decoupling during acquisition
+;using trim pulses in inept transfer
+;
+;B.L. Marquez, W.H. Gerwick & R.T. Williamson, Magn. Reson. 
+;   Chem. 39, 499-530 (2001)
+;R.T. Williamson, B.L. Marquez, W.H. Gerwick & K.E. Kover,
+;   Magn. Reson. Chem. 38, 265-273 (2000)
+;H. Koskela, I. Kilpelainen & S. Heikkinen, 
+;   J. Magn. Reson. 164, 228-232 (2003)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+"d6=1s/(cnst13*2)"
+"d12=20u"
+
+"d21=450u"
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+
+"DELTA=p16+d16+p2+d0*2-4u"
+"DELTA1=p16+d16+4u"
+
+
+"COUNTER=(d6-p16*2-d16*2-100u)/((d21*2+larger(p2,p14))*16*2)"
+"l4=COUNTER*16"
+
+"d31=((d21*2+larger(p2,p14))*l4+p16+d16+50u)*2"
+
+
+1 ze
+2 d1
+3 d12
+  20u rpp6
+  20u rpp16
+
+  (p1 ph1)
+
+4 d21
+  (center (p2 ph6^) (p14:sp3 ph16^):f2 )
+  d21
+  lo to 4 times l4
+
+  50u UNBLKGRAD
+  p16:gp3
+  d16
+  (p1 ph1)
+  d2
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  d2
+  (p1 ph7)
+  50u
+  p16:gp3
+  d16
+
+5 d21
+  (center (p2 ph6^) (p14:sp3 ph16^):f2 )
+  d21
+  lo to 5 times l4
+
+#   ifdef TRIMP
+  p28 ph1
+#   endif /* TRIMP */
+
+  (p1 ph2) 
+  
+  (p3 pl2 ph3):f2
+  d0 
+  p2 ph5
+  d0
+  p16:gp1*EA
+  d16
+  (p24:sp7 ph4):f2
+  4u
+  DELTA pl2:f2
+  (p3 ph4):f2
+
+  p16:gp4
+  d16
+
+  (p1 ph1) 
+  DELTA1
+  (p2 ph1)
+  p16:gp2
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  d1 mc #0 to 2 
+     F1EA(calgrad(EA), caldel(d0, +in0) & calph(ph3, +180) & calph(ph31, +180))
+  d31
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=0 0 2 2
+ph6=0 1 0 1 1 0 1 0 2 3 2 3 3 2 3 2
+ph7=2
+ph16=0 1 0 1 1 0 1 0 2 3 2 3 3 2 3 2
+ph31=0 2 0 2 2 0 2 0
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;sp3: f2 channel - shaped pulse (180degree inversion)
+;spnam3: Crp60,0.5,20.1
+;sp7: f2 channel - shaped pulse (180degree refocussing)
+;spnam7: Crp60comp.4
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion
+;     = 500usec for Crp60,0.5,20.1
+;p16: homospoil/gradient pulse
+;p24: f2 channel - 180 degree shaped pulse for refocussing
+;     = 2msec for Crp60comp.4
+;p28: f1 channel - trim pulse
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)CH
+;d6 : delay for evolution of long range couplings (1/2Jlr)
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d21: delay in XY16-CPMG                             [450 usec]
+;d31: 1/(2J(CHlr)) as executed
+;cnst2: = J(CH)
+;cnst13: = J(CH) long range
+;l4: loop for XY16-CPMG
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;nd0: 2
+;ns: 8 * n
+;ds: >= 16
+;td1: number of experiments
+;FnMODE: echo-antiecho
+
+
+;for z-only gradients:
+;gpz1: 80%
+;gpz2: 20.1% for C-13
+;gpz3: 17%
+;gpz4: 11%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;TRIMP: to use trimpulse p28@pl1 start experiment with
+;          option -DTRIMP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id:$

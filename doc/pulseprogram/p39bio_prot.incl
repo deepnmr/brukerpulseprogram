@@ -1,0 +1,18 @@
+;p39bio_prot.incl
+
+; Test the rf on-time for short CO to H CP
+; 2 ms is maximum
+
+;$COMMENT=Protection against long CP time
+;$CLASS=BioSolids PROT
+
+
+if "p39<2.1m" goto Passp39
+1u
+print "CO-H CP contact time p39 exceeds 2 msec limit!"
+goto HaltAcqu
+Passp39, 1m
+
+
+
+;$Id:$

@@ -1,0 +1,98 @@
+;ht_cosygpppqf
+;avance-version (17/08/18)
+;Hadamard COSY
+;2D Hadamard encoded homonuclear shift correlation
+;based on the cosygpppqf pulse program
+;using gradient pulses for selection
+;using purge pulses before d1
+;
+;E. Kupce & R. Freeman, J. Magn. Reson. 162, 300-310 (2003)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;
+;Experiment Setup:
+;(1) use had_pl au-program to get the peak list
+;(2) execute the 'wvm -a' command
+;(3) start the experiment
+;(4) use proc_had au-program for processing
+;the J(HH) evolution happens during Hadamard encoding pulse
+;reduce cnst22 to enhance correlations via small J(HH) couplings
+ 
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+define list<shape> SPL=<$VALIST>
+
+
+"d11=30m"
+"d12=20u"
+
+
+1 ze
+2 d11 
+3 d12 pl10:f1
+  p17 ph3
+  p17*2 ph4
+  d1
+  (p33:SPL ph31):f1
+  4u pl1:f1
+  50u UNBLKGRAD
+  p16:gp1
+  d16
+  p0 ph2
+  4u
+  p16:gp1
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  d11 mc #0 to 2 F1QF(SPL.inc)
+exit
+
+
+ph1=0 2
+ph2=0 0 2 2
+ph3=0
+ph4=1
+ph31=0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;p0 : f1 channel -  20 to 90 degree high power pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;p17: f1 channel - trim pulse                             [2.5 msec]
+;p33: f1 channel - 90 degree shaped pulse for Hadamard experiment
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                                  [30 msec]
+;d12: delay for power switching                           [20 usec]
+;d16: delay for homospoil/gradient recovery
+;cnst22: bandwidth for Hadamard encoding pulses
+;ns: 1 * n
+;ds: 4
+;td1: size of Hadamard matrix, power of 2 (> # of peaks);
+;FnMODE: QF
+
+
+;for z-only gradients (optional):
+;gpz1: 10%
+
+;use gradient files (optional):   
+;gpnam1: SMSQ10.100
+
+
+
+;WaveMaker shapes
+;use 'wvm -a' command to create the necessary shape files
+;SPL:wvm:HTex: gaus90(cnst22 Hz, PL, had) 
+;gp1:wvm:gwurst.100: wurst_g(5 G/cm, 1 ms)
+
+
+
+;$Id:$

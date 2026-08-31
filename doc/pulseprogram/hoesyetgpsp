@@ -1,0 +1,121 @@
+;hoesyetgp
+;avance-version (14/08/08)
+;2D heteronuclear NOE
+;phase sensitive using Echo/Antiecho-TPPI gradient selection
+;with decoupling during acquisition
+;for detection of nucleus with lower gamma
+;
+;(C. Yu & G. Levy, J. Am. Chem. Soc. 106, 6533 (1984))
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+
+
+"cnst30=sfo1/sfo2"
+
+define list<gradient> EA1 = {cnst30 -cnst30}
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d12=20u"
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+
+"DELTA=d0*2+p2+p16+d16"
+"DELTA1=p16+d16+4u"
+
+"TAU=d8-p16-d16-54u"
+
+"acqt0=0"
+baseopt_echo
+
+1 ze
+  d12 pl12:f2
+2 d1 do:f2 pl1:f1
+3 d12 pl2:f2
+  50u UNBLKGRAD
+  
+  (p3 ph1):f2
+  DELTA
+  (p4 ph5):f2
+  ;(p24:sp7 ph5):f2
+  d0
+  ;p2 ph3
+  (p26:sp8 ph3):f1
+  d0
+  p16:gp1*EA1
+  d16  pl1:f1
+  (p3 ph2):f2
+  TAU
+  p16:gp2
+  d16
+  p1 ph1
+  DELTA1
+  ;(p2 ph1)
+ (p13:sp5 ph1)
+  p16:gp1
+  d16 pl12:f2
+  4u BLKGRAD
+
+  go=2 ph31 cpd2:f2
+  d1 do:f2 mc #0 to 2 
+     F1EA(calgrad(EA1), caldel(d0, +in0) & calph(ph2, +180) & calph(ph31, +180))
+exit
+
+
+ph1=0
+ph2=0 2
+ph3=0 0 2 2
+ph5=1
+ph31=0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse                       [1 msec]
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d8 : mixing time
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;inf1: 1/SW = 2 * DW
+;in0: 1/(2 * SW) = DW
+;nd0: 2
+;ns: 4 * n
+;ds: 32
+;td1: number of experiments
+;FnMODE: echo-antiecho
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+
+;for z-only gradients:
+;gpz1: 80%
+;gpz2: 30%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+
+;$Id: hoesyetgp,v 1.2 2014/08/22 13:46:21 ber Exp $

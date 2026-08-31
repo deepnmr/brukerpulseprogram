@@ -1,0 +1,224 @@
+;hsqct1etgpsi3d.2
+;avance-version (21/09/15)
+;3D H-1/X correlation via double inept transfer
+;   using sensitivity improvement
+;for measuring C-13 T1 relaxation times
+;phase sensitive using Echo/Antiecho-TPPI gradient selection
+;with decoupling during acquisition
+;using H-1 180o pulses rather than cpd decoupling
+;as pseudo3D
+;using shaped pulses for all 180degree pulses on f2 - channel
+;(use parameterset )
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<delay> vd_list=<$VDLIST>
+
+
+"p2=p1*2"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+"d24=1s/(cnst2*cnst11)"
+"d25=1s/(cnst2*cnst12)"
+
+
+"d10=3u"
+
+"in10=inf2/2"
+
+"DELTA1=d25-p16-d16-p2-d10*2"
+"DELTA2=p16+d16+8u"
+"DELTA3=d25-p16-d16-4u"
+"DELTA4=2.5m-p2/2"
+"DELTA5=2.5m-p2/2-p16-d16-4u"
+"DELTA6=d4-larger(p2,p14)/2"
+"DELTA7=d25-cnst17*p24/2-4u"
+"DELTA8=d24-cnst17*p24/2-4u"
+
+
+"spoffs3=0"
+"spoffs7=0"
+
+
+aqseq 312
+
+
+1 ze
+  d11 pl12:f2 st0
+2 6m do:f2
+3 6m
+4 d1
+ 
+  "COUNTER=( (vd_list-10m) / 10m )"
+
+  (p1 ph1)
+  DELTA6
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  DELTA6 UNBLKGRAD
+  (p1 ph2)
+
+  p16:gp3
+  d16 pl2:f2
+
+  (p3 ph3):f2
+  DELTA7 
+  4u
+  (center (p2 ph1) (p24:sp7 ph1):f2 )
+  4u
+  DELTA7 pl2:f2
+  (p3 ph2):f2
+
+  DELTA4
+  (p2 ph10)
+  DELTA4
+
+6 DELTA4
+  (p2 ph1)
+  DELTA4
+  DELTA4
+  (p2 ph10)
+  DELTA4
+  lo to 6 times COUNTER
+
+  DELTA4
+  (p2 ph1)
+  4u
+  p16:gp4
+  d16
+  DELTA5
+
+  (p3 ph8):f2
+  4u
+  p16:gp1*-1*EA
+  d16
+  DELTA3
+  (p24:sp7 ph6):f2
+  d10
+  (p2 ph9)
+  d10
+  p16:gp1*EA
+  d16
+  DELTA1 pl2:f2
+
+  (center (p1 ph1) (p3 ph4):f2 )
+  DELTA8
+  4u
+  (center (p2 ph1) (p24:sp7 ph1):f2 )
+  4u
+  DELTA8 pl2:f2
+  (center (p1 ph2) (p3 ph5):f2 )
+  DELTA6
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  DELTA6
+  (p1 ph1)
+  DELTA2
+  (p2 ph1)
+  4u
+  p16:gp2
+  d16 pl12:f2
+  4u  BLKGRAD
+  goscnp ph31 cpd2:f2
+
+  3m do:f2
+  3m st vd_list.inc
+  lo to 3 times nbl
+
+  3m vd_list.res
+  3m ipp3 ipp4 ipp5 ipp8 ipp9 ipp31
+  lo to 4 times ns
+
+  d1 mc #0 to 4
+     F1QF()
+     F2EA(calgrad(EA) & calph(ph5, +180) & exec(rppall), caldel(d10, +in10) & calph(ph6, +180) & calph(ph8, +180) & calph(ph31, +180))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 0 0 0 2 2 2 2 
+ph4=0 0 2 2
+ph5=3 3 1 1
+ph6=0
+ph7=3
+ph8=1 3
+ph9=0 0 2 2
+ph10=2
+ph31=0 2 2 0 2 0 0 2
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp3: f2 channel - shaped pulse (180degree inversion)
+;spnam3: Crp60,0.5,20.1
+;sp7: f2 channel - shaped pulse (180degree refocussing)
+;spnam7: Crp60comp.4
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;     = 500usec for Crp60,0.5,20.1
+;p16: homospoil/gradient pulse
+;p24: f2 channel - 180 degree shaped pulse for refocussing
+;     = 2msec for Crp60comp.4
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(XH))
+;d10: incremented delay                              [3 usec]
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d24: 1/(4J)XH for XH
+;     1/(8J)XH for all multiplicities
+;d25: 1/(6J)XH for all multiplicities
+;cnst2: = J(XH)
+;cnst11: for multiplicity selection = 4 for CH, 8 for all multiplicities
+;cnst12: for multiplicity selection = 6 for all multiplicities
+;cnst17: = -0.5 for Crp60comp.4
+;inf2: 1/SW(X) = 2 * DW(X)
+;in10: 1/(2 * SW(X)) = DW(X)
+;nd10: 2
+;ns: 8 * n
+;ds: >= 32
+;td1: number of delays in vd-list
+;td2: number of experiments in F2
+;NBL: = td1
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: echo-antiecho in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:	gp 1 : gp 2 : gp 3 : gp 4
+;                         80 : 40.2 :   50 :   30  for C-13
+
+;for z-only gradients:
+;gpz1: 80%
+;gpz2: 40.2%
+;gpz3: 50%
+;gpz4: 30%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+;cnst17: Factor to compensate for coupling evolution during a pulse
+;       (usually +1). A positive factor indicates that coupling
+;       evolution continues during the pulse, whereas a negative
+;       factor is necessary if the coupling is (partially) refocussed.
+
+
+
+;$Id: $

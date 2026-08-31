@@ -1,0 +1,35 @@
+;sysdrift
+;avance-version (03/01/13)
+;2D sequence
+;drift test
+;
+;$CLASS=HighRes HWT
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+
+
+#include <Avance.incl>
+
+
+"d1=d25-d12-p1-aq"
+
+
+1 ze
+2 d1
+3 d12
+  p1 ph1
+  go=2 ph31
+  d1 wr #0 if #0 zd
+  lo to 3 times td1
+exit
+
+
+ph1=0
+ph31=0
+
+
+
+;$Id:$

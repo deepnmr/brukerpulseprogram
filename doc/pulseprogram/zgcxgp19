@@ -1,0 +1,130 @@
+;zgcxgp19
+;avance-version (12/01/11)
+;1D CLEANEX-PM
+;water suppression using 3-9-19 pulse sequence with gradients
+;
+;T.L. Hwang, S. Mori, A.J. Shaka & P.C.M. van Zijl, 
+;   J.Am. Chem. Soc. 119, 6203-6204 (1997)
+;(M. Piotto, V. Saudek & V. Sklenar, J. Biomol. NMR 2, 661 - 666 (1992) )
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple2>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"DELTA=p15+4u"
+
+
+"l1=(d29/(p10*8.11))"
+"d31=p10*8.11*l1"
+
+
+1 ze
+2 30m
+3 d1
+  50u UNBLKGRAD
+  p1 ph1
+
+  6u
+  p16:gp1
+  d16 pl0:f1
+  p7:sp21:f1 ph2:r
+  p16:gp1
+  d16 pl27:f1
+  6u gron0
+                                                 ;begin CLEANEX_PM
+4 (p10*1.500 ph21)
+  (p10*1.333 ph23)
+  (p10*1.222 ph21)
+  (p10*1.222 ph23)
+  (p10*1.333 ph21)
+  (p10*1.500 ph23)
+  lo to 4 times l1
+                                                 ;end CLEANEX_PM
+  10u groff
+  4u pl0:f1
+  p15:sp22:f1 ph5:r
+
+  p16:gp2
+  d16 pl18:f1
+  p27*0.231 ph3
+  d19*2
+  p27*0.692 ph3
+  d19*2
+  p27*1.462 ph3
+  d19*2
+  p27*1.462 ph4
+  d19*2
+  p27*0.692 ph4
+  d19*2
+  p0*0.231 ph4
+  p16:gp2
+  d16
+  DELTA
+  10u BLKGRAD
+  go=2 ph31
+  30m pl1:f1 mc #0 to 2 F0(zd)
+  d31
+exit
+
+
+ph1=0
+ph2=0 1 2 3
+ph3=0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph4=2 2 2 2 3 3 3 3 0 0 0 0 1 1 1 1
+ph5=0 2
+ph21=0
+ph23=2
+ph31=0 2 0 2 2 0 2 0
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl18: f1 channel - power level for 3-9-19-pulse (watergate)
+;pl27: f1 channel - power level for CLEANEX spinlock
+;sp21: f1 channel - shaped pulse 180 degree (H2O on resonance)
+;sp22: f1 channel - shaped pulse  90 degree (H2O on resonance)
+;p0 : f1 channel -  90 degree pulse at pl18
+;                      use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;p7 : f1 channel - 180 degree shaped pulse (H2O on resonance)  [7.5 ms]
+;p10: f1 channel -  90 degree low power pulse (CLEANEX spinlock)
+;p15: f1 channel -  90 degree shaped pulse (H2O on resonance)  [5 ms]
+;p16: homospoil/gradient pulse
+;p27: f1 channel -  90 degree pulse at pl18
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;d29: mixing time for CLEANEX spinlock
+;d31: length of CLEANEX spinlock as used
+;l1: loop for CLEANEX spinlock: (p10 * 8.11 * l1) = mixing time
+;ns: 16 * n, total number of scans: NS * TD0
+;ds: 4
+
+
+;use gradient ratio:	gp 0 : gp 1 : gp 2
+;			 0.2 :   15 :   40
+
+;for z-only gradients:
+;gpz0: 0.2%
+;gpz1: 15%
+;gpz2: 40%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+
+;$Id:$

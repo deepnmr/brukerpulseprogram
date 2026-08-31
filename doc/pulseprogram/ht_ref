@@ -1,0 +1,72 @@
+;ht_ref
+;avance-version (17/08/18)
+;2D Hadamard sequence
+;Hadamard encoding test with selective refocussing pulses
+;MQ interference effects possible in coupled spin systems
+;
+;E. Kupce & R. Freeman, J. Magn. Reson. 162, 300-310 (2003)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;
+;Experiment Setup:
+;(1) use had_pl au-program to get the peak list
+;(2) execute the 'wvm -a' command
+;(3) start the experiment
+;(4) use proc_had au-program for processing
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+define list<shape> SPL=<$VALIST>
+
+
+1 ze
+2 30m
+  d1 pl1:f1
+  50u UNBLKGRAD 
+
+  (p1 ph1)
+  4u
+  p16:gp1
+  d16
+  4u
+  (p34:SPL ph2):f1
+  4u
+  p16:gp1
+  d16 
+  4u BLKGRAD
+  go=2 ph31
+  30m mc #0 to 2 F1QF(SPL.inc)
+exit
+
+
+ph1=0 2
+ph2=0 
+ph31=0 2
+
+
+;pl1: f1 channel - power level for pulse (default)
+;p1:  f1 channel - 90 degree hard pulse duration 
+;p34: f1 channel - 180 degree shaped pulse for Hadamard experiment
+;cnst22: bandwidth for Hadamard encoding pulses [25 Hz]
+;d1:  relaxation delay; 1-5 * T1
+;ns: 1 * n
+;ds: 4
+;FnMODE: QF
+;td1:  size of Hadamard matrix, power of 2 (> # of peaks);
+
+
+;WaveMaker shapes
+;use 'wvm -a' command to create the necessary shape files
+;SPL:wvm:HTref: sinc180r(cnst22 Hz, PL, had)  
+;gp1:wvm:wurst_g: wurst_g-10(37 %, 1 ms)
+
+
+
+;$Id:$

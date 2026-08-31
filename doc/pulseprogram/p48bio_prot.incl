@@ -1,0 +1,18 @@
+;p48bio_prot.incl
+
+; Test the rf on-time for the third CP in an hXhhC.cp 
+; 10ms is maximum
+
+;$COMMENT=Protection against long CP time
+;$CLASS=BioSolids PROT
+
+
+if "p48<10.1m" goto Passp48
+1u
+print "Third CP time p48 exceeds 10 msec limit!"
+goto HaltAcqu
+Passp48, 1m
+
+
+
+;$Id:$

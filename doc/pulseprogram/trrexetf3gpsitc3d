@@ -1,0 +1,483 @@
+;trrexetf3gpsitc3d
+;avance-version (22/11/22)
+;3D 1H/15N correlation via TROSY and inept transfer
+;   using sensitivity improvement
+;for measuring 15N R(exchange) using a CPMG train
+;phase sensitive using Echo/Antiecho-TPPI gradient selection
+;using flip-back pulse
+;as pseudo3D
+;with temperature compensation
+;(use parameterset TRREXETF3GPSITC3D)
+;
+;
+; This pulse sequence corresponds to the TROSY sequence described in 
+; Vallurupalli et al. with two modifications: 
+; 
+; (1) The CPMG pulses are phasecycled to compensate for off-resonance
+;     effects as described by Jiang et al. 
+; (2) The increased R1 contribution to the measured R2 rates (as the 
+;     magnetization passes through the Z axis during the CPMG pulse train) 
+;     at higher CPMG frequencies is compensated as described in Yuwen et 
+;     al. (Fig 3). Consequently the correction of the measured R2 rates as 
+;     described in Jiang et al. is not necessary.
+;
+; Total CPMG relaxation delay length is set in d20 (in seconds).
+; CPMG frequencies are given via a vdlist. List entries are interpreted as 
+; field strengths in Hz (e.g. an entry 100 in the vd list corresponds to 
+; 100 Hz CPMG frequency). CPMG frequencies in the vdlist must be multiples 
+; of 2/d20 (in Hz; displayed as cnst50 in the pulse program).
+;
+; For measuring I0 (signal intensity in the absence of the CPMG relaxation 
+; delay), set one entry in the vdlist to 0. 
+;
+; The zg option NCAL (see end of pulse program) allows for the optimization
+; of the 15N pulse underRF load, since under load higher power will be 
+; required than calculated from the 90 degree 15N hard pulse.
+;
+;
+;P. Vallurupalli, D.F. Hansen, E. Stollar, E. Meirovitch & L.E. Kay, 
+;   Proc. Natl. Acad. Sci. USA, 104, 18473-18477 (2007)
+;B. Jiang, B. Yu, X. Zhang, M. Liu & D. Yang,
+;   J. Magn. Reson. 257, 1-7 (2015)
+;T. Yuwen & L.E. Kay, J. Biomol. NMR, 73,
+;   641-650 (2019)
+
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+define list<delay> RF_field=<$VDLIST>
+
+define delay RF_max ;=max CPMG frequency in vd list
+
+
+define loopcounter COUNTER0 ;=total number of 360 degree rotations per CPMG element 
+define loopcounter COUNTER1 ;=COUNTER0-2
+define loopcounter COUNTER2 ;=total number of 360 degree rotations during heating compensation
+define loopcounter cpmg_max ;=max. number of 360 degree rotations during the CPMG delay
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d25=2.68m"
+"d26=2.25m"
+"d28=5m"
+"d21=d20/2"
+"d31=0"
+
+"cnst31=0"
+"cnst50=2/d20"
+
+"d10=3u"
+
+"in10=inf2/2"
+
+
+"DELTA1=d26-p16-d16"
+"DELTA4=d25-p16-d16-(p21*2)/PI"
+"DELTA5=d25-p11-p16-d16-8u"
+"DELTA7=d25-p11-p21-p16-d16-p1*2/PI-12u"
+"DELTA8=d25-p11-p21-p16-d16-de-12u"
+"DELTA9=d25-p16-d16-p2*2-(p21*2)/PI"
+"DELTA10=d28-p16-d16"
+
+#   ifdef LABEL_CN
+"spoffs13=bf2*((cnst21+cnst22)/2000000)-o2"
+#   endif /*LABEL_CN*/
+
+"TAU=d10*2"
+
+"l0=1"
+"l3=td1"
+"l11=0"
+
+# ifdef NCAL
+"td1=1"
+"td2=1"
+# endif /* NCAL */
+
+"spoffs1=0"
+
+"acqt0=0"
+baseopt_echo
+
+aqseq 312
+
+
+1 ze
+
+# ifndef NCAL
+  if "td1 != RF_field.len" 
+     {
+     2u
+     print "Warning: td1 is not equal to the number of CPMG frequencies in the vdlist"
+     }
+# endif /* NCAL */
+
+;determine maximum CPMG frequency from the vd list that is used in the experiment 
+  "RF_max=0"
+  "d31=RF_field[0]"
+
+3 20u
+  if "RF_field > RF_max"
+     {
+     20u
+     "RF_max=RF_field"
+     }
+   if "1 > ((RF_field/cnst50) - trunc(RF_field/cnst50))*cnst50 || (1-((RF_field/cnst50) - trunc(RF_field/cnst50)))*cnst50 < 1"
+     {
+     }
+  else
+     {
+     2u
+     print "CPMG frequencies are not multiples of 2/d20 and will be rounded to multiples of 2/d20"
+     }
+
+  3m RF_field.inc
+  lo to 3 times l3
+
+  3m RF_field.res
+  "cpmg_max=RF_max*d20"
+
+
+2 d11
+
+  "d31=RF_field[l11]"
+
+;use max. CPMG frequency for pulse calibration  
+# ifdef NCAL
+  20u
+  "d31=RF_max"
+# endif /*NCAL*/
+
+;calculate delays between CPMG pulses (DELTA3/6) and number of 180 pulses per CPMG element (COUNTER0)
+  20u
+  "if (d31 == 0) \
+     { \
+     DELTA3=1s; \
+     COUNTER0=0; \
+     } \
+  else \
+     { \
+     COUNTER0=d20*d31/2; \
+     DELTA3=(d20 / (COUNTER0*8) ) - (p30*3)/8; \
+     DELTA6=DELTA3-((p21*2)/PI);\
+     COUNTER1=COUNTER0*2-2;\
+     }"
+  "DELTA2=(cpmg_max-COUNTER0*2)*p30/4"
+
+  d1 pl1:f1 
+
+;calculate delays and number of pulses for heating compensation and do heating compensation
+  if "cpmg_max > COUNTER0*2"
+     {
+     20u
+     "cnst31=cpmg_max - COUNTER0*2"
+     20u
+     "TAU1=(d20 / (cnst31*4) ) - p30/2"
+     20u
+     "COUNTER2=cnst31*2"
+     }
+
+  4u pl23:f3
+
+  if "COUNTER0*2 == cpmg_max"
+     {
+     d20
+     }
+  else
+     {
+4    TAU1
+     (p30 ph2):f3
+     TAU1
+     lo to 4 times COUNTER2
+     }
+
+;purge 15N equilibrium magnetization
+  50u UNBLKGRAD pl1:f1 pl3:f3
+  (p21 ph1):f3
+  p16:gp1
+  d16 
+
+;H->N INEPT transfer
+  (p1 ph1)
+  p16:gp2
+  d16
+  DELTA1
+  (center (p2 ph2) (p22 ph1):f3 )
+  DELTA1
+  p16:gp2
+  d16
+  (p1 ph2)
+
+  4u
+  (p11:sp1 ph8:r):f1
+  4u rpp21 rpp22 rpp23 rpp24
+  p16:gp3
+  d16 pl1:f1 
+  DELTA10
+  DELTA2
+  (p21 ph9):f3
+
+;first CPMG-element
+  if "COUNTER0*2 >1"
+     { 
+    DELTA6 pl23:f3
+    if "trunc(nsdone*1.25) % 2 == 0" {
+      (p30 ph21):f3
+    }
+   else {
+      (p30 ph22):f3
+    }
+    DELTA3 ipp21 ipp22 ipp23 ipp24
+7   DELTA3
+    if "trunc(nsdone*1.25) % 2 == 0" {
+      (p30 ph21):f3
+    }
+   else {
+      (p30 ph22):f3
+    }
+    DELTA3 ipp21 ipp22 ipp23 ipp24
+    lo to 7 times COUNTER1
+    DELTA3
+    if "trunc(nsdone*1.25) % 2 == 0" {
+      (p30 ph21):f3
+    }
+   else {
+      (p30 ph22):f3
+    }
+    DELTA6  pl3:f3
+    }
+
+;modified P-element
+  (p21 ph11):f3
+  (p1 ph2)
+  (p2 ph1)
+  (p1 ph2)
+  p16:gp4
+  d16 
+  DELTA9 
+  (center (p1 ph2 p2 ph1 p1 ph2) (p21 ph13 p22 ph14 p21 ph13):f3 )
+  p16:gp4
+  d16 
+  DELTA4 
+  (p21 ph12):f3
+
+;second CPMG-element
+  if "COUNTER0*2 >1"
+     { 
+    DELTA6 pl23:f3
+    if "trunc(nsdone*1.25) % 2 == 0" {
+      (p30 ph23):f3
+    }
+   else {
+      (p30 ph24):f3
+    }
+    DELTA3 dpp21 dpp22 dpp23 dpp24
+9   DELTA3
+    if "trunc(nsdone*1.25) % 2 == 0" {
+      (p30 ph23):f3
+    }
+   else {
+      (p30 ph24):f3
+    }
+    DELTA3 dpp21 dpp22 dpp23 dpp24
+    lo to 9 times COUNTER1
+    DELTA3
+    if "trunc(nsdone*1.25) % 2 == 0" {
+      (p30 ph23):f3
+    }
+   else {
+      (p30 ph24):f3
+    }
+    DELTA6 pl3:f3
+    }
+
+  (p21 ph2):f3
+  DELTA2
+  DELTA10
+  p16:gp5
+  d16
+
+; calibrate 15N pulse under load
+# ifdef NCAL
+  4u pl45:f3
+  (p45 ph9):f3
+  p19:gp1
+  d16 pl3:f3
+# endif /*NCAL*/
+
+;15N chem. shift evolution
+  if "l0 %2 == 1"
+     {
+     (p21 ph3):f3
+     }
+  else
+     {
+     (p21 ph4):f3
+     }
+
+#   ifdef LABEL_CN
+  if "d10 > p8*0.5" {
+    (center(d10*2) (p8:sp13 ph1):f2)
+  }
+  else {
+    d10
+    d10
+  }
+#   else
+  d10
+  d10
+#   endif /*LABEL_CN*/
+
+;TROSY N-> backtransfer
+  (p1 ph6)
+  4u
+  (p11:sp1 ph6):f1
+  4u
+  p16:gp6
+  d16 pl1:f1
+  DELTA5
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA5
+  p16:gp6
+  d16
+  (p11:sp1 ph8:r):f1
+  4u
+  4u pl1:f1
+  (p1 ph1)
+
+  TAU
+  (p21 ph2):f3
+  4u
+  p16:gp7
+  d16
+  DELTA7
+  (p11:sp1 ph8:r):f1
+  4u
+  4u pl1:f1
+  (center (p2 ph1) (p22 ph1):f3 )
+  4u
+  (p11:sp1 ph8:r):f1
+  DELTA8
+  p16:gp7
+  d16 pl1:f1
+  4u
+  4u BLKGRAD
+  (p21 ph7):f3
+  TAU
+
+;detection
+  go=2 ph31
+  d11 mc #0 to 2
+     F1QF(calclc(l11, 1))
+     F2EA(calph(ph6, +180) & calph(ph7, +180) & calclc(l0, 1), caldel(d10, +in10) & calph(ph3, +180) & calph(ph4, +180) & calph(ph5, +180) & calph(ph31, +180))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=1 1 2 2 3 3 0 0 
+ph4=3 3 2 2 1 1 0 0
+ph5=0
+ph6=1
+ph7=0
+ph8=2
+ph9=0 2
+ph11=1 3 3 1
+ph12=0 2 2 0
+ph13=1 1 1 1 1 1 1 1 3 3 3 3 3 3 3 3
+ph14=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph20=0
+ph21=1 1 0 2 1 1 2 0 1 1 2 0 1 1 0 2
+ph22=0 2 3 3 2 0 3 3 2 0 3 3 0 2 3 3
+ph23=0 0 1 3 0 0 3 1 0 0 3 1 0 0 1 3
+ph24=1 3 2 2 3 1 2 2 3 1 2 2 1 3 2 2
+
+ph31=0 2 3 1 2 0 1 3
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl23: f3 channel - power level for CPMG pulses
+;pl45: f3 channel - power level for CPMG pulse calibration
+;sp1: f1 channel - shaped pulse  90 degree
+;sp13: f2 channel - shaped pulse 180 degree  (Ca and C=O, adiabatic)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p8 : f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;p11: f1 channel -  90 degree shaped pulse
+;p16: homospoil/gradient pulse                       [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p30: f3 channel - 180 degree pulse for CPMG train at pl23
+;p45: f3 channel -  90 degree pulse for CPMG pulse calibration
+;d1 : relaxation delay; 1-5 * T1
+;d10: incremented delay                              [3 usec]
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d28: Equilibration delay 5 ms  
+;d20: total length of CPMG relaxation delay
+;d21: length of each CPMG block
+;d25: 1/(4J(NH))
+;d26: <1/(4J(NH))
+;d31: used for internal calculations
+;vd : variable field strength, taken from vd-list
+;cnst4: = J(NH) in Hz [93]
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst22: Calpha chemical shift (offset, in ppm)
+;cnst31: used for internal calculations
+;cnst50: set CPMG frequencies to multiples of this value (2/d20)
+;
+;inf2: 1/SW(X) = 2 * DW(X)
+;in10: 1/(2 * SW(X)) = DW(X)
+;nd10: 2
+;ns: 8 * n
+;ds: >= 64
+;td1: number of delays in vd-list
+;td2: number of experiments in F2
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: echo-antiecho in F2
+
+
+;for z-only gradients:
+;gpz1: 30%
+;gpz2: 3%
+;gpz3: 30%
+;gpz4: -3%
+;gpz5: 21%
+;gpz6: 51%
+;gpz7: 43%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.50
+;gpnam7: SMSQ10.50
+
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with 
+;             option -DLABEL_CN (eda: ZGOPTNS)
+;NCAL: for optimization of 15N CPMG pulse power under RF load. Converts the pulse program to a 1D version. 
+;       Set p45 to half the duration of p30 (p45 is a 90 degree pulse) and optimize powerlevel pl45 for 
+;       zero signal (the power should be slightly higher than plw23). Then set plw23 to the optimized 
+;       value of plw45. Important: Set TD1 to the value that will be used in the final experiment. For 
+;       optimization with popt: Process first FID as 1D and phase correctly, set F1P/F2P to amide proton 
+;       region and start popt from this procno with the option "Run optimization in background".
+                                          ;preprocessor-flags-end
+
+
+;$Id: $

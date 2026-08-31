@@ -1,0 +1,142 @@
+;WeightedSampling.incl
+;avance-version (20/02/11)
+;
+;Include file containing apodization and additional functions
+;  for weighted sampling.
+;
+;  Usage:
+;
+;    Example 1 (QSIN, SSB = 2 for F1 and F2 in a 3D, ns = 4*n):
+;
+;      1 ze
+;      2 d1
+;        subr qsin_3d:aws(4, 2)           ; NS= 4 * n, SSB = 2
+;
+;
+;    Example 2 (different window functions):
+;
+;      1 ze
+;      2 d1
+;        "l31=td1/2"
+;        subr qsin:aws(2, t1loop, l31)    ; QSIN, SSB = 2 in F1
+;        "l31=td2/2"
+;        subr sine:aws(4, t2loop, l31)    ; SINE, SSB = 4 in F2
+;        subr scale_ns:aws(2)             ; NS = 2 * n
+;
+;
+;A. Kumar, S. C. Brown, M. E. Donlan, B. U. Meier & P. W. Jeffs,
+;    J. Magn. Reson. 95, 1-9 (1991)
+;C. A. Waudby & J. Christodoulou, J. Magn. Reson. 219, 46-52 (2012)
+;B. Simon & H. Koestler, J. Biomol. NMR 73, 155-165 (2019)
+;
+;
+;$CLASS=Common Incl
+;$COMMENT=
+
+
+require "TopSpin 4.0.9"
+
+
+define loopcounter ns_orig
+define delay ns_frac
+
+define loopcounter tdlmax
+define loopcounter tdl
+define loopcounter tdn
+define delay inf
+
+
+"ns_orig = ns"
+"ns_frac = 1"
+
+
+scaleByNs
+
+
+subroutine qsin:aws(any ssb, loopcounter tdloop, loopcounter td)
+{
+  "tdlmax = larger(td-1, 1)"
+  "tdl = tdloop" 
+  if "ssb >= 2"
+  {
+    "ns_frac = ns_frac * pow(sin(((PI-(PI/ssb))*(tdl/tdlmax))+(PI/ssb)), 2)"
+  }
+  else
+  {
+    "ns_frac = ns_frac * pow(sin(PI*(tdl/tdlmax)), 2)"
+  }
+}
+
+subroutine sine:aws(any ssb, loopcounter tdloop, loopcounter td)
+{
+  "tdlmax = larger(td-1, 1)"
+  "tdl = tdloop" 
+  if "ssb >= 2"
+  {
+    "ns_frac = ns_frac * sin(((PI-(PI/ssb))*(tdl/tdlmax))+(PI/ssb))"
+  }
+  else
+  {
+    "ns_frac = ns_frac * sin(PI*(tdl/tdlmax))"
+  }
+}
+
+subroutine em:aws(any lb, loopcounter tdloop, delay incr)
+{
+    "tdl = tdloop"
+    "inf = incr"
+    "ns_frac = exp(-1*tdl*PI*incr*lb)"
+}
+
+subroutine em_to_x:aws(any x, loopcounter tdloop, loopcounter td)
+{
+    "tdlmax = larger(td-1, 1)"
+    "tdl = tdloop"
+    "ns_frac = exp((tdl/tdlmax)*log(x/ns_orig))"
+}
+
+subroutine scale_ns:aws(loopcounter mod)
+{
+  "ns = larger((trunc((ns_frac*ns_orig/mod)+0.5)*mod), mod)"
+  "ns_frac = 1"
+}
+
+subroutine qsin_2d:aws(loopcounter mod, any ssb)
+{
+  "tdn = td1/2"
+  subr qsin:aws(ssb, t1loop, tdn)
+  subr scale_ns:aws(mod)
+}
+
+subroutine qsin_2d_qf:aws(loopcounter mod, any ssb)
+{
+  subr qsin:aws(ssb, t1loop, td1)
+  subr scale_ns:aws(mod)
+}
+
+subroutine em_2d:aws(loopcounter mod)
+{
+  "tdn = td1/2"
+  subr em_to_x:aws(mod, t1loop, tdn)
+  subr scale_ns:aws(mod)
+}
+
+subroutine qsin_3d:aws(loopcounter mod, any ssb)
+{
+  "tdn = td1/2"
+  subr qsin:aws(ssb, t1loop, tdn)
+  "tdn = td2/2"
+  subr qsin:aws(ssb, t2loop, tdn)
+  subr scale_ns:aws(mod)
+}
+
+subroutine qsin_4d:aws(loopcounter mod, any ssb)
+{
+  "tdn = td1/2"
+  subr qsin:aws(ssb, t1loop, tdn)
+  "tdn = td2/2"
+  subr qsin:aws(ssb, t2loop, tdn)
+  "tdn = td3/2"
+  subr qsin:aws(ssb, t3loop, tdn)
+  subr scale_ns:aws(mod)
+}

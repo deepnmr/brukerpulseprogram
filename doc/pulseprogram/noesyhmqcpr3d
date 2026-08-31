@@ -1,0 +1,125 @@
+;noesyhmqcpr3d
+;avance-version (12/01/11)
+;NOESY-HMQC
+;3D sequence with
+;   homonuclear correlation via dipolar coupling 
+;   dipolar coupling may be due to noe or chemical exchange.
+;   H-1/X correlation via heteronuclear zero and double quantum
+;      coherence 
+;phase sensitive (t1 and t2)
+;with decoupling during acquisition
+;with presaturation during relaxation delay and mixing time
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d2=1s/(cnst2*2)"
+"d11=30m"
+"d12=20u"
+"d13=4u"
+
+
+"d0=3u"
+"d10=3u"
+
+"in0=inf1/2"
+"in10=inf2/2"
+
+
+"DELTA=d0*2+p4"
+
+
+aqseq 312
+
+
+1 d11 ze
+2 d11 do:f2
+3 d12 pl9:f1 pl2:f2
+  d1 cw:f1 ph29
+  d13 do:f1
+  d12 pl1:f1
+  p1 ph1
+  DELTA
+  p2 ph8
+  d0
+  p4:f2 ph7
+  d0
+  p1 ph2
+  d12 pl9:f1
+  d8 cw:f1
+  d13 do:f1
+  d12 pl1:f1
+  p1 ph3
+  d2 
+  p3:f2 ph5
+  d10
+  p2 ph4
+  d10
+  p3:f2 ph6
+  d2 pl12:f2
+  go=2 ph31 cpd2:f2
+  d11 do:f2 mc #0 to 2 
+     F1PH(calph(ph1, +90) & calph(ph8, +90) & calph(ph29, +90), caldel(d0, +in0)) 
+     F2PH(calph(ph5, +90), caldel(d10, +in10))
+exit
+
+
+ph1=0 0 0 0 2 2 2 2
+ph2=0
+ph3=0
+ph4=0
+ph5=0 2
+ph6=0 0 2 2
+ph7=0
+ph8=1
+ph29=0
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl9 : f1 channel - power level for presaturation
+;pl12: f2 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;d0 : incremented delay (F1 in 3D)                     [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/((2J)XH)
+;d8 : mixing time
+;d10: incremented delay (F2 in 3D)                     [3 usec]
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d13: short delay                                      [4 usec]
+;cnst2: = J(XH)
+;inf1: 1/SW(H) = 2 * DW(H)
+;inf2: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(H)) = DW(H)
+;nd0: 2
+;in10: 1/(2 * SW(X)) = DW(X)
+;nd10: 2
+;ns: 4 * n
+;ds: 32
+;td1: number of experiments in F1
+;td2: number of experiments in F2
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+;for older datasets use AQORDER : 3 - 1 - 2
+
+
+
+;$Id:$

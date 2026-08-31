@@ -1,0 +1,22 @@
+;$Id:$
+;acquire only noise
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$HIDE=y
+
+#include <Avance.incl>
+
+1 ze
+2 30m
+  d1
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+ph1=0 2 2 0 1 3 3 1
+ph31=0 2 2 0 1 3 3 1
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1  : f1 channel -  high power pulse
+;d1  : relaxation delay; 1-5 * T1
+;NS  : 1

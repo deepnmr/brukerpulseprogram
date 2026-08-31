@@ -1,0 +1,227 @@
+;hXY.dcp
+;avance-version (21/06/23)
+
+;version: 1.0/ TS4.1.2 06/16/2021
+; JOS
+
+;###############################################################
+;#                                                             #
+;#  H-Y CP followed by Y - X CP Cross Polarization Experiment  #
+;#  with H and Y decoupling	and X decoupling during t1     #
+;#                                                             #
+;#  The Hartman-Hahn CP condidition is B1(F)=B1(H)+1           #
+;#  sp0: 1H  linear or tangenial amplitude modulated pulse     #
+;#  sp5: X    usually constant amplitude pulse	Y-X CP	       #
+;#	sp3: Y  usually constant amplitude pulse	H->Y CP#
+;#  sp4: Y  linear or tangenial amplitude modulated pulse      #
+;#  p15, p16: usually between 500-10000 us (sample-dependent)  #
+;#                                                             #
+;###############################################################
+
+;$CLASS=SolidsIcon
+;$DIM=2D 
+;$TYPE=CPMAS
+;$SUBTYPE= double CP HFX
+;$COMMENT=
+
+prosol relations=<solids_ICON>
+define loopcounter numrot
+define loopcounter numrotF
+"numrot=cnst50/cnst31"
+#ifdef NCa
+"numrotCa=cnst58/cnst31"
+#elif NCO
+"numrotCO=cnst59/cnst31"
+#endif
+
+define loopcounter fieldX_Hz
+define loopcounter fieldY_Hz
+define loopcounter fieldH_Hz
+
+
+#include <trigg.incl>
+        ; definition of external trigger output$
+
+#ifdef fastMASDQ
+"cnst54=abs(1-cnst53)"
+"cnst54=abs(cnst54)"
+"cnst60=abs(1-cnst62)
+"fieldX_Hz=(cnst62)*cnst31"
+"fieldY_Hz=cnst54*cnst31"
+"fieldH_Hz=(cnst53)*cnst31"
+"spw0=plw30*pow(10,(2*log10((cnst53)*cnst31/(10000*integfac0))))*(1+(cnst33/100))"
+"spw3=plw37*pow(10,(2*log10(cnst54*cnst31/(10000*integfac3))))"
+"spw4=plw37*pow(10,(2*log10(cnst60*cnst31/(10000*integfac4))))"
+"spw5=plw31*pow(10,(2*log10((cnst62)*cnst31/(10000*integfac5))))*(1+(cnst34/100))"
+
+#elif fastMASZQ
+"cnst54=1+cnst53"
+"cnst60=1+cnst62
+"fieldX_Hz=(cnst60)*cnst31"
+"fieldY_Hz=cnst54*cnst31"
+"fieldH_Hz=(cnst53)*cnst31"
+"spw0=plw30*pow(10,(2*log10((cnst54)*cnst31/(10000*integfac0))))*(1+(cnst33/100))"			;1H pulse
+"spw3=plw37*pow(10,(2*log10(cnst53*cnst31/(10000*integfac3))))"								;Y pulse
+#elif NCa
+"spw4=plw37*pow(10,(2*log10(cnst62*cnst31/(10000*integfac4))))*(1+(cnst34/100))"			;Y pulse
+"spw5=plw31*pow(10,(2*log10((cnst60)*cnst31/(10000*integfac5))))"							;X pulse
+#elif NCO
+"cnst62=1+cnst60"
+"fieldX_Hz=(cnst62)*cnst31"
+"spw4=plw37*pow(10,(2*log10(cnst62*cnst31/(10000*integfac4))))*(1+(cnst34/100))"			;Y pulse
+"spw5=plw31*pow(10,(2*log10((cnst62)*cnst31/(10000*integfac5))))"	
+#else
+;"fieldX_Hz=(numrot-0.5)*cnst31"
+;"fieldF_Hz=(numrotF-0.5)*cnst31"
+;"fieldH_Hz=(numrotF-1.5)*cnst31"
+
+
+"spw0=plw30*pow(10,(2*log10((numrotF-1.5)*cnst31/(10000*integfac0))))*(1+(cnst33/100))"   	;1H pulse
+"spw3=plw37*pow(10,(2*log10((numrotF-0.5)*cnst31/(10000*integfac3))))"						;19F pulse
+"spw4=plw37*pow(10,(2*log10((numrot+0.5)*cnst31/(10000*integfac4))))*(1+(cnst34/100))"		;19F pulse
+"spw1=plw31*pow(10,(2*log10((numrot-0.5)*cnst31/(10000*integfac1))))"						;X pulse
+
+
+#endif
+#ifdef lpdec
+"cnst62=0.25*cnst31"
+
+#elif diydec 
+						; set your own decoupling field
+#else
+"cnst62=cnst51"
+#endif
+
+"plw12=plw30*pow(10,(2*log10(cnst62/(10000))))*(1+(cnst32/100))"						;1H decoupling
+"plw13=plw37*pow(10,(2*log10(cnst61/(10000))))*(1+(cnst37/100))"						;19F Decoupling
+"plw15=plw31*pow(10,(2*log10(cnst56/(10000))))"
+
+#ifndef diydec
+"p31=1000000/(2*cnst62)"
+"pcpd2=p31"
+"pcpd3=1000000/(2*cnst61)"
+"pcpd1=1000000/(4*cnst56)"
+"p33=1000000/(2*cnst61)"
+#endif
+
+# ifdef pidec
+"p22=p33"
+"d30=1s/cnst31-p22"
+# endif /* pidec */
+
+"d0=0"
+"l0=0"
+"in0=1s/(l3*cnst31)"
+"inf1=in0"
+"acqt0=0"
+ 
+Prepare, ze
+
+
+#ifndef lacq
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#endif
+#ifndef longp15
+#include <p15_prot.incl>
+        ;p15 max. 10 ms
+#endif
+
+Start, 30m do:f2 
+  (p31 ph10 pl12):f2
+  d1
+  1u pl15:f1 pl13:f3
+if "l0>0"
+{
+  "d51=d0-1u"
+}
+  trigg
+ 
+
+  (p3 pl2 ph1):f2
+  (p15:sp3 ph2):f3  (p15:sp0 ph0):f2
+if "l0>0"
+{
+  0.5u cpds2:f2 cpds1:f1
+  
+	d51   
+	
+
+  0.5u do:f2 do:f1
+}
+  (p16:sp4 ph3):f3 (p16:sp1 ph4):f1 (p16 pl44 ph1):f2
+   
+  go=Start ph31 cpds2:f2 cpds3:f3 finally do:f2 do:f3
+
+  30m mc #0 to Start 
+  F1PH(calph(ph2, +90), caldel(d0, +in0) & calclc(l0,1))
+
+HaltAcqu, 1m
+Exit, exit
+
+ph0 = 0                ; H CP spin lock
+ph1 = 1 3              ; H hard pulse
+ph2 = 0   
+ph3 = 0 0 2 2
+ph4 = 0 0 1 1 2 2 3 3
+ph10 = 2 
+
+ph31= 3 1 2 0 1 3 0 2  ; receiver
+
+;#######################################################
+
+
+;basic HFX dcp experiment
+
+;Avance NEO / AVIII (?) version
+;parameters:
+;p1      : X 90 at pl1(acqt0-calculation & -DX90)
+;p3      : H 90 at pl2
+;p15     : HF CP at sp3 (f3,F) and sp0 (f2,H)
+;p16  	 : FC CP at sp4 (f3,F) and sp1 (f1,X)
+;pl1     : X 90 at pl1
+;pl2     : H pulse power
+;pl12    : H dec power
+;pl13	 : F dec power
+;pl15	 : X GARP decoupling during t1 evol
+;pl30	 : H  10 kHz spinlock field
+;pl31	 : X for 10kHz spinlock field
+;pl32	 : F decoupling 10 kHz reference power for decoupling
+;pl33	 : H decoupling 10 kHZ reference power for decoupling
+;sp0     : H CP power H-F CP
+;sp1     : X CP power
+;sp3	 : F CP power H->F CP
+;sp4	 : F CP power F->X CP
+;cnst31  : MAS rate in Hz
+;cnst32  : 1H decoupling power correction factor in %
+;cnst33  : 1H spinlock power correction factor in %
+;cnst34  : 19F-X CP 19F spinlock power correction factor in %
+;cnst37  : 19F decoupling power correction factor in %
+;cnst50	 : desired spinlock field in Hz for CP X (n-0.5)*MASR  
+;cnst51  : 1H decoupling field in Hz for pl12 decoupling 
+;cnst52  : 1H heteronuclear decoupling in Hz pl12 decoupling
+;cnst53  : fast MAS CP condition not equals n*cnst53*MASR condition for C and n*(cnst53+1) for H (ZQ) or n*(1-cnst53) for DQ
+;cnst54	 : calculated  cnst54=cnst53+1 or cnst54=1-cnst53
+;cnst55  : f3 (19F specified CP spinlock field) for H->F CP
+;cnst56  : f1 decoupling during t1 evol 5kHz
+;cnst61	 : f3 decoupling field in Hz for pl12 decoupling  
+;d1      : recycle delay; 1 to 5 times T1
+;pcpd1	 : GARP decoupling 90 50us
+;pcpd2   : pulse length in decoupling sequence cpdprg2
+;pcpd3	 : p33 pi pulse 19F 
+;cpdprg1 : X low power decoupling GARP or Waltz 50us 90 (5kHz)
+;cpdprg2 : swftppm_12 or similar  (1H decoupling)
+;cpdprg3 : pidec_13 (19F pi decoupling)
+;spnam0 : H amplitude modulated pulse variable amplitude CP
+;spnam1 : C ramp use e.g. square.100 for square pulse CP 
+;spnam3 : F amplitude modulated pulse variable amplitude CP
+;spnam4 : F amplitude modulated pulse variable amplitude CP
+;ZGOPTNS : -Dpidec (pi-decouping for 19F)-DCP for basic experiment
+;		   -DfastMASDQ  or -DfastmasZQ for double or zero quantum CP at fast MAS >60 kHz
+;          -Dlacq : aq is longer than 50 ms
+;          -Ddiy - set your own power levels
+;		   -Ddiydec - set your own decoupling power and pulses
+
+
+
+;$Id: $

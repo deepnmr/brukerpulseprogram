@@ -1,0 +1,309 @@
+;hsqcrexetf3gpsi3d
+;avance-version (21/09/15)
+;3D H-1/X correlation via double inept transfer
+;   using sensitivity improvement
+;for measuring N-15 R(exchange) using a CPMG train
+;phase sensitive using Echo/Antiecho-TPPI gradient selection
+;with decoupling during acquisition
+;using f3 - channel
+;using flip-back pulse
+;as pseudo3D
+;(use parameterset HSQCREXETF3GPSI3D)
+;
+;M. Tollinger, N.R. Skrynnikov, F.A.A. Mulder, J.D. Forman-Kay 
+;   & L.E. Kay, J. Am. Chem. Soc. 123, 11341-11352 (2001) 
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<delay> RF_field=<$VDLIST>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d24=1s/(cnst4*cnst11)"
+"d25=1s/(cnst4*cnst12)"
+"d26=1s/(cnst4*4)"
+
+"d31=0"
+
+
+"d10=6u"
+
+"in10=inf2/2"
+
+
+"DELTA2=p16+d16-p1*2/PI+de+8u"
+"DELTA4=d25-p16-d16-p11-8u"
+"DELTA5=d25-p16-d16"
+"DELTA6=d24-p19-d16"
+"DELTA7=d26-p16-d16"
+
+#   ifdef LABEL_CN
+"DELTA1=d25-p16-d16-larger(p8,p44)-d10*2-12u"
+#   else
+"DELTA1=d25-p16-d16-p44-d10*2-12u"
+#   endif /*LABEL_CN*/
+
+
+"spoffs1=0"
+"spoffs13=bf2*((cnst21+cnst22)/2000000)-o2"
+"spoffs30=0"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+aqseq 312
+
+
+1 ze
+  d11 pl16:f3 st0
+2 6m do:f3
+3 6m
+4 d1 pl1:f1
+
+  "if (RF_field == 0) \
+     { \
+     DELTA3=1s; \
+     COUNTER=0; \
+     } \
+  else \
+     { \
+     COUNTER=d21*RF_field*2; \
+     d31=COUNTER/(2*d21); \
+     DELTA3=(1 / (d31*4) ) - p30/2000000; \
+     }"
+
+
+  (p1 ph1)
+  d26 pl3:f3
+  (center (p2 ph1) (p22 ph1):f3 )
+  d26 UNBLKGRAD
+  (p1 ph2)
+
+  4u
+  (p11:sp1 ph1:r):f1
+  4u
+  p16:gp1
+  d16
+
+  (p21 ph3):f3
+  4u pl23:f3
+
+  if "RF_field == 0"
+     {
+     4u
+     }
+  else
+     {
+     4u
+6    DELTA3
+     (p30 ph2):f3
+     DELTA3
+     lo to 6 times COUNTER
+     }
+
+  DELTA4
+  p16:gp4
+  d16
+  (p11:sp1 ph9):f1
+  4u
+  4u pl1:f1 pl3:f3
+  (center (p1 ph2 2u p2 ph8 2u p1 ph2) (p22 ph6):f3 )
+  4u
+  4u pl23:f3
+  (p11:sp1 ph9):f1
+  p16:gp4
+  d16
+  DELTA4
+
+  if "RF_field == 0"
+     {
+     4u
+     }
+  else
+     {
+7    DELTA3
+     (p30 ph1):f3
+     DELTA3
+     lo to 7 times COUNTER
+     4u
+     }
+
+  4u pl3:f3
+  (p21 ph2):f3
+
+  p16:gp5
+  d16
+  (p44:sp30 ph12)
+
+  (p21 ph11):f3
+  p16:gp2*-1*EA
+  d16
+  DELTA5
+  (p22 ph6):f3
+  d10 gron0*-1
+  6u groff
+
+#   ifdef LABEL_CN
+  (center (p44:sp30 ph7) (p8:sp13 ph1):f2 )
+#   else
+  (p44:sp30 ph7)
+#   endif /*LABEL_CN*/
+
+  d10 gron0
+  6u groff
+  p16:gp2*EA
+  d16 pl1:f1
+  DELTA1
+
+  (center (p1 ph1) (p21 ph4):f3 )
+  p19:gp6
+  d16
+  DELTA6
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA6
+  p19:gp6
+  d16
+  (center (p1 ph2) (p21 ph5):f3 )
+  p16:gp7
+  d16
+  DELTA7
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA7
+  p16:gp7
+  d16
+  (p1 ph1)
+  DELTA2
+  (p2 ph1)
+  4u
+  p16:gp3
+  d16 pl16:f3
+  4u  BLKGRAD
+
+  goscnp ph31 cpd3:f3
+
+  3m do:f3
+  3m st RF_field.inc
+  lo to 3 times nbl
+
+  3m RF_field.res
+  3m ipp3 ipp4 ipp5 ipp6 ipp7 ipp8 ipp9 ipp11 ipp12 ipp31
+  lo to 4 times ns
+
+  d1 mc #0 to 4
+     F1QF()
+     F2EA(calgrad(EA) & calph(ph5, +180) & exec(rppall), caldel(d10, +in10) & calph(ph6, +180) & calph(ph11, +180) & calph(ph31, +180))
+
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 0 0 0 2 2 2 2 
+ph4=0 0 2 2
+ph5=3 3 1 1
+ph6=0 0 0 0 2 2 2 2
+ph7=0 0 2 2
+ph8=0 0 0 0 2 2 2 2
+ph9=2 2 2 2 0 0 0 0
+ph10=2
+ph11=1 3
+ph12=2 2 0 0
+ph31=0 2 2 0 2 0 0 2
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;pl23: f3 channel - power level for spinlock
+;sp1 : f1 channel - shaped pulse  90 degree
+;sp13: f2 channel - shaped pulse 180 degree  (Ca and C=O, adiabatic)
+;sp30: f1 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p8 : f2 channel - 180 degree shaped pulse
+;p11: f1 channel -  90 degree shaped pulse
+;p16: homospoil/gradient pulse
+;p19: gradient pulse 2                               [500 usec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p30: f3 channel - 180 degree pulse at pl23
+;p44: f1 channel - 180 degree shaped pulse
+;d1 : relaxation delay; 1-5 * T1
+;d10 : incremented delay                             [6 usec]
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d21: length of mixing time per CPMG block
+;d24: 1/(4J)YH for YH
+;     1/(8J)YH for all multiplicities
+;d25: 1/(4J)YH for YH
+;     1/(8J)YH for all multiplicities
+;d26: 1/(4J(YH))
+;vd : variable field strength, taken from vd-list
+;cnst4: = J(YH)
+;cnst11: for multiplicity selection = 4 for NH, 8 for all multiplicities
+;cnst12: for multiplicity selection = 4 for NH, 8 for all multiplicities
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst22: Calpha chemical shift (offset, in ppm)
+;inf2: 1/SW(X) = 2 * DW(X)
+;in10: 1/(2 * SW(X)) = DW(X)
+;nd10: 2
+;ns: 1 * n
+;ds: >= 16
+;td1: number of delays in vd-list
+;td2: number of experiments in F2
+;NBL: = td1
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: echo-antiecho in F2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz0: 1%
+;gpz1: 3%
+;gpz2: 80%
+;gpz3: 16.2%
+;gpz4: 5%
+;gpz5: -7%
+;gpz6: 2%
+;gpz7: -2%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with 
+;             option -DLABEL_CN (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;note: the values in the vd-list are interpreted as field-strength in Hz
+
+
+
+;$Id: $

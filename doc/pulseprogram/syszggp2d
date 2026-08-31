@@ -1,0 +1,40 @@
+;syszggp2d
+;avance-version (00/06/30)
+;2D sequence
+;stability test after gradient
+;
+;$CLASS=HighRes HWT
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+1 ze
+2 d11
+3 d1 BLKGRAD
+  50u UNBLKGRAD
+  p16:gp1
+  d16
+  p1 ph1
+  go=2 ph31
+  d11 wr #0 if #0 zd
+  lo to 3 times td1
+  d11 BLKGRAD
+exit
+
+
+ph1=0
+ph31=0
+
+
+;use gradient :         gp 1
+
+
+
+;$Id:$

@@ -1,0 +1,35 @@
+;syszg4
+;avance-version (00/06/30)
+;1D sequence
+;quadimage test
+;
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+
+
+#include <Avance.incl>
+
+
+1 ze
+2 d1
+  p1 ph1
+  go=2 ph31
+  wr #0
+exit
+
+
+ph1=0 2 1 3
+ph31=0 2 1 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  high power pulse
+;d1 : relaxation delay; 1-5 * T1
+
+
+
+;$Id:$

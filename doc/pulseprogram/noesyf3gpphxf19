@@ -1,0 +1,154 @@
+;noesyf3gpphxf19
+;avance-version (19/02/08)
+;2D homonuclear correlation via dipolar coupling with 
+;   X double half filter
+;dipolar coupling may be due to noe or chemical exchange.
+;phase sensitive
+;with decoupling during acquisition
+;using f3 - channel
+;water suppression using 3-9-19 pulse sequence with gradients
+;(use parameterset NOESYF3GPPHXF19)
+;
+;G. Otting & K. Wuethrich, J. Magn. Reson. 85, 586 - 594 (1989)
+;M. Piotto, V. Saudek & V. Sklenar, J. Biomol. NMR 2, 661 - 666 (1992)
+;V. Sklenar, M. Piotto, R. Leppik & V. Saudek, J. Magn. Reson., 
+;   Series A 102, 241 -245 (1993)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d21=1s/(cnst4*2)"
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+
+"DELTA=d19-p21-1.5u"
+"DELTA1=d21-p21*2-p22-d0*2-3u"
+"DELTA2=d21-p16-d16-p27*2.385-d19*5"
+"DELTA3=d21-p16-d16-p27*2.154-p0*0.231-d19*5-8u"
+
+
+1 ze
+  d11 pl16:f3
+2 d11 do:f3
+3 d1 pl1:f1 pl3:f3
+  p1 ph1
+  d21
+  p2 ph1
+  (p21 ph6):f3
+  3u
+  (p21 ph7):f3
+  DELTA1
+  d0
+  (p22 ph9):f3
+  d0
+  p1 ph2
+  d8
+  p1 ph3
+  DELTA2 pl18:f1 UNBLKGRAD
+  p16:gp1
+  d16
+  p27*0.231 ph4
+  d19*2
+  p27*0.692 ph4
+  d19*2
+  p27*1.462 ph4
+  DELTA
+  (p21 ph6):f3
+  3u
+  (p21 ph8):f3
+  DELTA
+  p27*1.462 ph5
+  d19*2
+  p27*0.692 ph5
+  d19*2
+  p0*0.231 ph5
+  4u
+  p16:gp2
+  d16
+  DELTA3 pl16:f3
+  4u BLKGRAD
+  go=2 ph31 cpd3:f3
+  d11 do:f3 mc #0 to 2
+     F1I(ip7*2, 2, ip8*2, 2)
+     F1PH(calph(ph1, +90), caldel(d0, +in0))
+exit
+
+
+ph1=0 2 
+ph2=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph3=0 0 2 2 3 3 1 1
+ph4=0
+ph5=2
+ph6=0
+ph7=0
+ph8=0
+ph9=0 0 2 2
+ph31=0 2 2 0 1 3 3 1 2 0 0 2 3 1 1 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;pl18: f1 channel - power level for 3-9-19-pulse (watergate)
+;p0 : f1 channel -  90 degree pulse at pl18
+;                      use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p27: f1 channel -  90 degree pulse at pl18
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d8 : mixing time
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;d21 : 1/(2J)YH
+;cnst4: = J(YH)
+;inf1: 1/SW(H) = 2 * DW(H)
+;in0: 1/(2 * SW(H)) = DW(H)
+;nd0: 2
+;ns: 8 * n
+;ds: 16
+;td1: total number of experiments 
+;        = number of experiments for each 2D * 4
+;FnMODE: States-TPPI (or TPPI)
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:	gp 1 : gp 2
+;			  20 :   20
+
+;for z-only gradients:
+;gpz1: 20%
+;gpz2: 20%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+;use AU-program split [ipap 4] to create separate datasets
+
+
+
+;$Id:$

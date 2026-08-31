@@ -1,0 +1,131 @@
+;crineptgpph
+;avance-version (12/01/11)
+;CRINEPT
+;2D H-1/N-15 correlation using cross relaxation
+;   enhanced INEPT transfer
+;using f3 - channel
+;using flip-back pulse
+;
+;R. Riek, G. Wider, K. Pervushin & K. Wuethrich, 
+;   Proc. Natl. Acad. Sci. USA 96, 4918-4923 (1999)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p22=p21*2"
+"d11=30m"
+"d21=1s/(cnst4*2)"
+
+
+"d0=3u"
+
+"in0=inf1"
+
+
+"DELTA1=d21-p16-p11-8u"
+"DELTA2=d21-p16-d16"
+"DELTA3=d21-p11-p16-p21-4u"
+
+"CEN_HN2=(p22-p1)/2"
+
+
+1 ze
+2 d11
+3 d1 pl1:f1
+  50u UNBLKGRAD
+  (p21 ph1):f3
+  p16:gp1
+  d16 pl0:f1
+
+  (p11:sp1 ph3:r):f1
+  4u
+  4u pl1:f1
+  (p1 ph1)
+  p16:gp2
+  DELTA1 pl0:f1
+  (p11:sp1 ph4:r):f1
+  4u
+  4u pl1:f1
+  (p1 ph2) 
+
+  (p21 ph5):f3
+  d0 
+  (p21 ph1):f3
+  DELTA2
+  p16:gp2
+  d16
+  (CEN_HN2 p1 ph1 4u pl0):f1 (p22 ph1):f3
+  (p11:sp1 ph3:r):f1
+  p16:gp2
+  DELTA3
+  (p21 ph6):f3
+  4u BLKGRAD
+  go=2 ph31
+  d11 mc #0 to 2 
+     F1I(ip6*2, 2)
+     F1PH(calph(ph5, +90), caldel(d0, +in0))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=2
+ph4=3
+ph5=0 2
+ph6=0
+ph31=0 2
+  
+
+;pl0 : 0W 
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;sp1: f1 channel - shaped pulse  90 degree
+;p1 : f1 channel -  90 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse
+;p16: homospoil/gradient pulse
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d21: 1/(2J(YH))
+;cnst4: = J(YH)
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(1 * SW(X)) = 2 * DW(X)
+;nd0: 1
+;ns: 2 * n
+;ds: >= 16
+;td1: number of experiments
+;FnMODE: States-TPPI (or TPPI)
+
+
+;use gradient ratio:	gp 1 : gp 2
+;		          65 :   37   for N-15
+
+;for z-only gradients:
+;gpz1: 65%
+;gpz2: 37%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+;use AU-program splitcrinept to process data
+
+
+
+;$Id:$

@@ -1,0 +1,168 @@
+;stebpesgp1s
+;avance-version (19/03/07)
+;2D sequence for diffusion measurement using stimulated echo
+;using bipolar gradient pulses for diffusion
+;using 1 spoil gradient
+;water suppression using excitation sculpting with gradients
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<gradient> diff=<Difframp>
+
+
+"p2=p1*2"
+"d12=20u"
+
+
+"DELTA1=d20-p1*2-p2-p30*2-d16*3-p19-20u"
+"TAU=de+p1*2/3.1416-6u"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+2 30m
+
+#   ifdef FLAG_BLK
+  4u LOCKH_OFF
+#   else
+  4u
+#   endif /*FLAG_BLK*/
+
+  d1
+  50u pl1:f1 UNBLKGRAD
+  p1 ph1
+  p30:gp6*diff
+  d16
+  p2 ph2
+  p30:gp6*-1*diff
+  d16
+  p1 ph3
+  p19:gp7
+  d16
+ 
+#   ifdef FLAG_BLK
+  DELTA1 BLKGRAMP
+  20u UNBLKGRAMP
+#   else
+  DELTA1
+  20u
+#   endif /*FLAG_BLK*/
+
+  p1 ph4
+  p30:gp6*diff
+  d16
+  p2 ph2
+  p30:gp6*-1*diff
+  d16
+  
+  p16:gp1
+  d16
+  (p12:sp1 ph12:r):f1
+  4u
+  d12 pl1:f1
+
+  p2 ph13
+
+  4u
+  p16:gp1
+  d16 
+  TAU
+  p16:gp2
+  d16
+  (p12:sp1 ph14:r):f1
+  4u
+  d12 pl1:f1
+
+  p2 ph15
+
+  4u
+  p16:gp2
+  d16
+
+#   ifdef FLAG_BLK
+  4u BLKGRAMP
+#   else
+  4u BLKGRAD
+#   endif /*FLAG_BLK*/
+
+  go=2 ph31 
+  30m mc #0 to 2 F1QF(calgrad(diff))
+  4u BLKGRAD
+exit
+
+
+ph1= 0
+ph2= 0 0 0 0  2 2 2 2
+ph3= 0 0 0 0  0 0 0 0  2 2 2 2  2 2 2 2
+ph4= 0 1 2 3
+ph12={{0}*16}^1
+ph13={{2}*16}^1
+ph14={{0}*32}^1
+ph15={{2}*32}^1
+ph31={0 3 2 1  0 3 2 1  2 1 0 3  2 1 0 3}^2^2^0
+
+
+;pl1: f1 channel - power level for pulse (default)
+;sp1: f1 channel - shaped pulse 180 degree
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p12: f1 channel - 180 degree shaped pulse (Sinc1.1000)     [2 msec]
+;p16: gradient pulse (Excitation Sculpting)
+;p19: gradient pulse 2 (spoil gradient)
+;p30: gradient pulse (little DELTA * 0.5)
+;d1 : relaxation delay; 1-5 * T1
+;d12: delay for power switching                             [20 usec]
+;d16: delay for gradient recovery
+;d20: diffusion time (big DELTA)
+;NS : 16 * n
+;DS : 4 * m
+;td1: number of experiments
+;FnMODE: QF(no-frequency)
+;        use xf2 and DOSY processing
+
+
+;for z-only gradients:
+;gpz1: -31%
+;gpz2: -11%
+;gpz6: 100%
+;gpz7: -17.13%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100 (Excitation Sculpting)
+;gpnam2: SMSQ10.100 (Excitation Sculpting)
+;gpnam6: SMSQ10.100 (diffusion)
+;gpnam7: SMSQ10.100 (spoil)
+
+
+
+                                          ;preprocessor-flags-start
+;FLAG_BLK: always blank gradient amplifier and lock only active during D1
+;             option -DFLAG_BLK (eda: ZGOPTNS)
+;             for alternative gradient amplifier blanking and LOCK_HOLD handling
+                                          ;preprocessor-flags-end
+
+
+
+
+;use AU-program dosy to calculate gradient-file Difframp
+
+
+
+
+;$Id:$

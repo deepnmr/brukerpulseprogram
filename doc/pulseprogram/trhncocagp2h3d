@@ -1,0 +1,289 @@
+;trhncocagp2h3d
+;avance-version (21/09/15)
+;TROSY-HNCOCA
+;3D sequence with
+;   inverse correlation for triple resonance
+;      via TROSY and inept transfer steps
+;
+;      F1(H) -> F3(N) -> F2(C=O) -> F2(Ca,t1)
+;            -> F2(C=O) -> F3(N,t2) -> F1(H,t3)
+;
+;on/off resonance Ca and C=O pulses using shaped pulse
+;phase sensitive (t1)
+;phase sensitive using Echo/Antiecho (t2)
+;using constant time in t2
+;with H-2 decoupling - requires lockswitch unit or BSMS 2H-TX board
+;with H-1 180degree pulses in t1
+;(use parameterset TRHNCOCAGP2H3D)
+;
+;M. Salzmann, G. Wider, K. Pervushin, H. Senn & K. Wuethrich,
+;   J. Am. Chem. Soc. 121, 844-848 (1999)
+;(A. Eletsky, A. Kienhoefer & K. Pervushin,
+;   J. Biomol. NMR 20, 188-180 (2001))
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+
+"d22=4m"
+"d23=12m"
+"d26=2.3m"
+
+
+"d0=3u"
+"d10=3u"
+"d30=d23-p11-8u-p1"
+
+"in0=inf1/4"
+"in10=inf2/2"
+
+"in30=in10"
+
+"td2=tdmax(td2,d30*2,in30)"
+
+
+"DELTA=d0*4+larger(p14,p22)-p14+p2*2-4u"
+"DELTA1=d26-p11-p16-d16-8u"
+"DELTA2=d22-p14-4u"
+"DELTA3=d23-d10-p14-p21*4/3.1416"
+"DELTA4=d26-p16-d16"
+
+
+"l0=1"
+
+
+"spoffs2=0"
+"spoffs3=0"
+"spoffs5=bf2*((cnst22-cnst21)/1000000)"
+"spoffs7=bf2*((cnst21-cnst22)/1000000)"
+"spoffs8=0"
+
+
+"o1_F1=bf2*cnst22/1000000"
+
+
+aqseq 321
+
+
+1 d11 ze
+  d11 LOCKDEC_ON
+  50u LOCKH_ON
+  d11 H2_PULSE
+  d11 pl17:f4
+
+2 d11
+3 d11 H2_LOCK
+  9m LOCKH_OFF
+  d1 pl1:f1 fq=cnst21(bf ppm):f2
+  50u UNBLKGRAD
+  d12 H2_PULSE
+
+  p1 ph1
+  4u pl0:f1
+  (p11:sp1 ph3:r):f1
+  4u
+  p16:gp1
+  d16 pl1:f1
+  DELTA1
+  (center (p2 ph2) (p22 ph1):f3 )
+  DELTA1
+  p16:gp1
+  d16 pl0:f1
+  (p11:sp1 ph4:r):f1
+  4u
+  4u pl1:f1
+  (p1 ph4):f1 
+
+  (p21 ph1):f3
+  d23
+  (center (p14:sp3 ph1):f2 (p22 ph1):f3 )
+  d23
+  (p21 ph2):f3
+
+  (p13:sp2 ph5):f2
+  4u
+  (p14:sp5 ph1):f2
+  DELTA2
+  (p14:sp3 ph1):f2
+  4u
+  (p14:sp5 ph1):f2
+  DELTA2
+  (p13:sp8 ph2):f2
+
+  4u
+  30u fq=cnst22(bf ppm):f2
+  20u cpd4:f4
+
+  (p13:sp2 ph6):f2
+  d0
+  (p2 ph1):f1
+  d0
+  (center (p14:sp7 ph1):f2 (p22 ph1):f3 )
+  d0
+  (p2 ph1):f1
+  d0
+  (p14:sp3 ph1):f2
+  DELTA
+  (p14:sp7 ph1):f2
+  4u
+  (p13:sp8 ph1):f2
+
+  4u do:f4
+  30u fq=cnst21(bf ppm):f2
+
+  (p13:sp2 ph2):f2
+  4u
+  (p14:sp5 ph1):f2
+  DELTA2
+  (p14:sp3 ph1):f2
+  4u
+  (p14:sp5 ph1):f2
+  DELTA2
+  (p13:sp8 ph1):f2
+
+  if "l0 %2 == 1"
+     {
+     (p21 ph7):f3
+     }
+  else
+     {
+     (p21 ph8):f3
+     }
+
+  d10
+  (p14:sp5 ph1):f2
+  DELTA3
+  (center (p14:sp3 ph1):f2 (p22 ph1):f3 )
+  d30 pl0:f1
+  (p11:sp1 ph1:r):f1
+  4u
+  4u pl1:f1
+
+  (p1 ph9)
+  p16:gp2
+  d16
+  DELTA4
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA4
+  p16:gp2
+  d16
+  (center (p1 ph1) (p21 ph9):f3 )
+  p16:gp3
+  d16
+  DELTA1 pl0:f1
+  (p11:sp1 ph3:r):f1
+  4u
+  4u pl1:f1
+  (center (p2 ph1) (p22 ph1):f3 )
+  4u pl0:f1
+  (p11:sp1 ph3:r):f1
+  DELTA1
+  p16:gp3
+  d16 pl1:f1
+  4u BLKGRAMP
+  (p21 ph1):f3
+  go=2 ph31
+  d11 mc #0 to 2 
+     F1PH(calph(ph6, +90), caldel(d0, +in0)) 
+     F2EA(calph(ph9, +180) & calclc(l0, 1), caldel(d10, +in10) & caldel(d30, -in30))
+
+  d11 H2_LOCK
+  d11 LOCKH_OFF
+  d11 LOCKDEC_OFF
+
+exit
+
+
+ph1=0
+ph2=1 
+ph3=2
+ph4=3
+ph5=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph6=0 0 0 0 2 2 2 2
+ph7=2 0 1 3
+ph8=2 0 3 1
+ph9=3
+ph31=1 3 2 0 3 1 0 2 3 1 0 2 1 3 2 0
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl17: f4 channel - power level for CPD/BB decoupling
+;sp1: f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;sp2: f2 channel - shaped pulse  90 degree  (on resonance)
+;sp3: f2 channel - shaped pulse 180 degree  (on resonance)
+;sp5: f2 channel - shaped pulse 180 degree  (Ca off resonance)
+;sp7: f2 channel - shaped pulse 180 degree  (C=O off resonance)
+;sp8: f2 channel - shaped pulse  90 degree  (on resonance)
+;                  for time reversed pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse             [1 msec]
+;p13: f2 channel -  90 degree shaped pulse
+;p14: f2 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;d0 : incremented delay (F1 in 3D)                     [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d10: incremented delay (F2 in 3D)                     [3 usec]
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d22: 1/(4J(COCa)                                      [4 msec]
+;d23: 1/(4J(NCO)                                       [12 msec]
+;d26: 1/(4J'(NH)                                       [2.3 msec]
+;d30: decremented delay (F2 in 3D) = d23-p11-8u-p1
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst22: Calpha chemical shift (offset, in ppm)
+;o2p: Calpha chemical shift (cnst22)
+;inf1: 1/SW(Ca) = 2 * DW(Ca)
+;inf2: 1/SW(N) = 2 * DW(N)
+;in0: 1/(4 * SW(Ca)) =  (1/2) DW(Ca)
+;nd0: 4
+;in10: 1/(2 * SW(N)) = DW(N)
+;nd10: 2
+;in30: = in10
+;ns: 8 * n
+;ds: >= 16
+;td1: number of experiments in F1
+;td2: number of experiments in F2       td2 max = 2 * d30 / in30
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: echo-antiecho in F2
+;cpd4: decoupling according to sequence defined by cpdprg4
+;pcpd4: f4 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:    gp 1 : gp 2 : gp 3
+;                         30 :   18 :   44
+
+;for z-only gradients:
+;gpz1: 30%
+;gpz2: 18%
+;gpz3: 44%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+;$Id: trhncocagp2h3d,v 1.22 2015/03/03 11:10:39 ber Exp $

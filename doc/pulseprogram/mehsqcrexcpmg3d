@@ -1,0 +1,346 @@
+;mehsqcrexcpmg
+;avance-version (22/06/09)
+;3D H-1/C-13 correlation using inept transfer
+; 
+; for measuring methyl C-13 R(exchange) (single quantum) using a CPMG train
+; use for proteins with selectively C-13 labeled methylgroups
+; heating compensation after aquisition time
+; water suppression using watergate sequence and/or presaturation
+; as pseudo3D
+;
+; CPMG frequencies are given via a vd list, list entries are in Hz 
+; (e.g. the entry 100 in the vd list corresponds to 100 Hz CPMG frequency).
+; To ensure an even number of 180 degree pulses per CPMG block the CPMG 
+; frequencies should be set to multiples of 2/d20 (displayed as cnst50
+; in the pulse program). 
+;
+; For measuring I0 (signal intensity in the absence of the CPMG relaxation 
+; delay), set the first entry in the vd list to 0. 
+;
+; P. Lundström & L.E. Kay, J. Biomol. NMR 38, 79-88 (2007)
+;
+; (use parameterset MEHSQCREXCPMG3D)
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+define list<delay> RF_field=<$VDLIST>
+define delay RF_max
+define loopcounter COUNTER2
+
+"d11=30m"
+"d21=d20/2"
+"d31=0"
+"d32=0"
+"TAU=1s"
+"TAU1=1s"
+
+"cnst50=2/d20"
+"d50=1u*cnst50"
+
+"l0 = 0"
+"l2 = 0" 
+"l3 = td1"
+"l11 = 0"
+
+"d10=0"
+"in10=inf2/2"
+
+"DELTA1 = d2 - p16 - d16"
+"DELTA2 = d3 - p9 - p16 - d16" 
+"DELTA3 = d3 - p1*4 - p16 - d16"
+"DELTA4 = d3 - p16 - d16"
+"DELTA5 = d2 - 4u - p19 - d16 - p11 - p1*2/PI"
+"DELTA6 = d2 - 8u - p19 - d16 - p11 - de"
+
+"p4=p3*2"
+"p2=p1*2"
+
+"acqt0=0"
+
+baseopt_echo
+
+
+aqseq 312
+1 ze
+  d11
+  "RF_max=0"
+  "d31=0"
+
+9 20u
+  if "RF_field > RF_max"
+    {
+    20u
+    "RF_max=RF_field"
+    }
+  3m RF_field.inc
+  lo to 9 times l3
+  3m RF_field.res
+  "d31=RF_max"
+  "COUNTER=2*d21*d31"
+  "RF_max=COUNTER/(2*d21)"
+  "d31=0"
+  "COUNTER=0"
+
+2 d11 do:f2   
+
+; heating compensation start
+  if "RF_max>d31"
+    { 
+    20u
+    "d32=RF_max-d31"
+    20u
+    "COUNTER2=2*d21*d32"
+    20u
+    "d32=COUNTER2/(2*d21)"
+    20u
+    "TAU=(1 / (d32*4) ) - p9/1000000"
+    } 
+
+  if "abs(RF_max-d31) < 0.1"
+    {
+    d21*2
+    80u
+    }
+  else
+    {
+    2u pl15:f2   
+10  TAU
+    (p9*2 ph4):f2
+    TAU
+    TAU
+    (p9*2 ph4):f2
+    TAU
+    lo to 10 times COUNTER2
+    }
+; heating compensation end
+
+  "d31=RF_field[l11]"
+  "if (d31 == 0) \
+     { \
+     COUNTER=0; \
+     TAU=1s;\
+     TAU1=1s;\
+     } \
+  else \
+     { \
+     COUNTER=2*d21*d31; \
+     d31=COUNTER/(2*d21); \
+     TAU=(1 / (d31*4) ) - p9/1000000; \
+     TAU1=TAU - p9*2.0/PI; \
+     }"
+  
+  4u fq=0:f1 pl9:f1 pl2:f2                  
+  d1 cw:f1 ph1         
+  4u do:f1  
+
+
+  (p3 ph1):f2             
+  20u UNBLKGRAD           
+  p16:gp0             
+  d16 fq=cnst49 (bf ppm):f1 pl1:f1                 
+
+  (p1 ph1):f1                      
+  p16:gp1                   
+  d16  
+  DELTA1                   
+  (center (p2 ph1):f1 (p4 ph1):f2)        
+  DELTA1                 
+  p16:gp1           
+  d16  
+  (p1 ph6):f1        
+   
+  p16:gp2     
+  d16 pl15:f2      
+
+  (p9 ph8):f2   
+    
+  if "COUNTER == 1"
+  {
+   TAU1 
+   (p9*2 ph2):f2  
+   TAU
+  }
+
+  if "COUNTER > 1"
+  {
+   "l0=COUNTER-1"
+   TAU1 
+   (p9*2 ph2):f2
+   TAU
+7  TAU
+   (p9*2 ph2):f2
+   TAU
+   lo to 7 times l0
+  }
+                            
+  p16:gp3                                  
+  d16                                      
+  DELTA2 pl2:f2 
+  (center (p2 ph1):f1 (p4 ph7):f2) 
+  DELTA2 pl15:f2                           
+  p16:gp3                                  
+  d16                                      
+
+  if "COUNTER == 1"
+  {
+   TAU
+   (p9*2 ph4):f2  
+   TAU1
+  }
+
+  if "COUNTER > 1"
+  {
+   "l0=COUNTER-1"
+8  TAU
+   (p9*2 ph4):f2
+   TAU
+   lo to 8 times l0
+   TAU
+   (p9*2 ph4):f2
+   TAU1
+  }
+
+  (p9 ph6):f2                                  
+                                     
+  p16:gp4                                   
+  d16 pl2:f2  
+                          
+  (p3 ph5):f2                             
+  d10                                        
+  DELTA3                                 
+  p16:gp5                                 
+  d16                                    
+  (p1 ph6):f1                           
+  (p2 ph1):f1                        
+  (p1 ph6):f1                           
+  d10                                       
+  (p4 ph1):f2                          
+  DELTA4                                     
+  p16:gp5                                  
+  d16                                      
+  (p3 ph6):f2                             
+  
+  p16:gp6                                  
+  d16  fq=0:f1 
+
+  (p1 ph1):f1                              
+  p19:gp7                                  
+  d16 
+  DELTA5   
+  (p11:sp1 ph9):f1  
+  4u pl1:f1       
+  (center (p2 ph1):f1 (p4 ph1):f2) 
+  4u
+  (p11:sp1 ph9):f1   
+  p19:gp7                               
+  d16 
+  DELTA6 pl12:f2
+  4u BLKGRAD
+      
+  go=2 ph31 cpd2:f2   
+  d11 do:f2 mc #0 to 2
+  F1QF(calclc(l11,1))
+  F2PH(calph(ph5,+90),caldel(d10,+in10))
+  d50
+
+exit
+
+
+ph1=0
+ph2=1 
+ph4=0
+ph5=0 0 2 2
+ph6=1
+ph7=0 0 0 0 1 1 1 1 
+ph8=0 2
+ph9=2
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)              
+;pl2 : f2 channel - power level for pulse (default)   
+;pl9 : f1 channel - power level for presaturation               
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl15: f2 channel - power level for CPMG pulse train 
+
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p9 : f2 channel -  90 degree low power pulse for CPMG train   
+;p11: f1 channel - 90 degree shaped pulse (water flipback/watergate)
+
+;p16: homospoil/gradient pulse   [1 ms]
+;p19: homospoil/gradient pulse 2 [600 us]
+
+;sp1 : f1 channel - shaped pulse for water flipback 
+
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(4J)CH [2ms]
+;d3 : 1/(4J)CH [2ms]
+;d11: delay for disk I/O                             [30 msec]
+;d20: total CPMG relaxation period
+;d21: d20/2
+;d31: used for internal calculations
+;d32: used for internal calculations
+;TAU: variable CPMG pulse spacing
+;TAU1: variable CPMG pulse spacing
+
+;d16: delay for homospoil/gradient recovery [200 us]
+;cpd2 : 13C decoupling according to program defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+;d10: incremented delay   
+;inf2 : 1/SW = DW(X)
+;in10: 1/(2*SW(x))=DW(X)/2
+;l0 : internal counter  
+;l11 : internal counter   
+
+;cnst2: = J(CH) in Hz [130]
+;cnst49: Center Hmethyl region (in ppm)  [~1]
+;cnst50: 2/d20, set CPMG frequencies to multiples of this value
+
+;ns: 4 * n
+;ds: >=64
+
+;FnMODE: QF in F1
+;FnMODE: States-TPPI in F2
+
+;for z-only gradients:
+;gpz0: 12%
+;gpz1: 15%
+;gpz2: 75%
+;gpz3: 36%
+;gpz4: 24%
+;gpz5: -30%
+;gpz6: -20%
+;gpz7: 40%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.50
+
+;Processing
+
+;PHC0(F2): 90
+;PHC1(F2): -180
+;FCOR(F2): 1
+
+;$Id:$

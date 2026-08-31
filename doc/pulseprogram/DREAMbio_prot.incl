@@ -1,0 +1,15 @@
+;DREAMbio_prot.incl
+
+; Test the rf on-time for DREAM mixing (w/ H dec)
+; 10ms is maximum
+
+;$COMMENT=Protection against long DREAM mixing time
+;$CLASS=BioSolids PROT
+
+if "p37<10.1m" goto Passp37
+  1m 
+  print "DREAM mixing time p37 exceeds 10msec limit!"
+  goto HaltAcqu
+Passp37, 1m
+
+;$Id:$

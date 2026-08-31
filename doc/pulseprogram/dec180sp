@@ -1,0 +1,63 @@
+;dec180sp
+;avance-version (12/01/11)
+;calibration of 180 degree shaped pulse on f2 channel
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+
+
+"d20=p14/2"
+"d21=d2-p14/2"
+
+
+1 ze 
+2 30m
+  d1
+  p1 ph1
+  d2 pl2:f2
+  p3:f2 ph3
+  4u
+  d20 pl0:f2
+  p2 ph2
+  4u
+  p14:sp3:f2 ph4
+  d21
+  go=2 ph31 
+  30m mc #0 to 2 F0(zd)
+exit 
+  
+
+ph1=0
+ph2=0
+ph3=0 2
+ph4=0 
+ph31=0 2
+
+ 
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;sp3: f2 channel - shaped pulse 180 degree  (on resonance)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J(XH))
+;cnst2: = J(XH)
+;ns: 2 * n, total number of scans: NS * TD0
+;ds: 2
+
+
+
+;$Id:$

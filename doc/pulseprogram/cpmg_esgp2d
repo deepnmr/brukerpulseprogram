@@ -1,0 +1,176 @@
+;cpmg_esgp2d
+;avance-version (19/02/11)
+;pseudo 2D sequence
+;T2 measurement with CPMG and water suppression using excitation sculpting with gradients
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<loopcounter> cpmglist=<$VCLIST>
+
+define loopcounter COUNTER1
+
+#   ifdef TEMPCOMP
+define loopcounter vc_max
+define loopcounter COUNTER2
+#   endif /*TEMPCOMP*/
+
+
+"p2=p1*2"
+"d12=20u"
+
+
+"TAU=de+p1*2/3.1416"
+
+
+"l3=td1"
+"l11=0"
+"l31=0"
+
+"d31=d20*4+p2*2"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+
+#   ifdef TEMPCOMP
+  "vc_max = 0"
+
+9 20u
+  if "cpmglist > vc_max"
+     {
+     20u
+     "vc_max=cpmglist"
+     }
+  
+  3m cpmglist.inc
+  lo to 9 times l3
+
+  3m cpmglist.res
+#   endif /*TEMPCOMP*/
+
+2 30m
+  d12 pl1:f1 BLKGRAD
+
+  20u
+  "l31=cpmglist[l11]"
+  20u
+  "COUNTER1=l31"
+
+#   ifdef TEMPCOMP
+  20u
+  "COUNTER2=vc_max-l31"
+
+8 d20
+  p2 ph6
+  d20*2
+  p2 ph6
+  d20
+lo to 8 times COUNTER2
+#   endif /*TEMPCOMP*/
+
+  d1
+  50u UNBLKGRAD
+
+  p1 ph1
+
+6 d20
+  p2 ph6
+  d20*2
+  p2 ph6
+  d20
+  lo to 6 times COUNTER1
+
+  p16:gp1
+  d16 pl0:f1
+  (p12:sp1 ph2:r):f1
+  4u
+  d12 pl1:f1
+
+  p2 ph3
+
+  4u
+  p16:gp1
+  d16 
+  TAU
+  p16:gp2
+  d16 pl0:f1
+  (p12:sp1 ph4:r):f1
+  4u
+  d12 pl1:f1
+
+  p2 ph5
+
+  4u
+  p16:gp2
+  d16
+
+  go=2 ph31
+  30m mc #0 to 2
+     F1QF(calclc(l11, 1))
+
+  d31 BLKGRAD
+exit
+
+
+ph1=0
+ph2=0 1
+ph3=2 3
+ph4=0 0 1 1
+ph5=2 2 3 3
+ph6=1 1 1 1 3 3 3 3
+ph31=0 2 2 0 
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;sp1 : f1 channel - shaped pulse 180 degree
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p12: f1 channel - 180 degree shaped pulse (Squa100.1000)   [2 msec]
+;p16: homospoil/gradient pulse
+;d1 : relaxation delay; 1-5 * T1
+;d12: delay for power switching                             [20 usec]
+;d16: delay for homospoil/gradient recovery
+;ns: 8 * n, total number of scans: NS * TD0
+;ds: 4
+;d20: d20 should be << 1/J ,but > (50 * P2)
+;d31: length of single cpmg loop
+;td1: number of experiments
+;FnMODE: QF(no-frequency)
+;zgoptns: -DTEMPCOMP
+
+
+;for z-only gradients:
+;gpz1: 31%
+;gpz2: 11%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;TEMPCOMP: for temperature compensation (cpmg loop)
+;             option -DTEMPCOMP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+
+;$Id:$

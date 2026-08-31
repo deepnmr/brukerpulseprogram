@@ -1,0 +1,191 @@
+;hsqcetgpiajclrnd
+;avance-version (12/08/07)
+;IPAP-HSQMBC
+;2D H-1/X correlation via double inept transfer
+;for determination of XH long range coupling constants
+;   via splitting in F2
+;phase sensitive using Echo/Antiecho-TPPI gradient selection
+;no decoupling during acquisition
+;
+;S. Gil, J.F. Espinosa & T. Parella, 
+;   J. Magn. Reson. 207, 312-321 (2010)
+;(B.L. Marquez, W.H. Gerwick & R.T. Williamson, Magn. Reson. 
+;   Chem. 39, 499-530 (2001) )
+;(R.T. Williamson, B.L. Marquez, W.H. Gerwick & K.E. Kover,
+;   Magn. Reson. Chem. 38, 265-273 (2000) )
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+"d6=1s/(cnst13*2)"
+"d11=30m"
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+
+"DELTA=p16+d16+p2+d0*2-4u"
+"DELTA1=d6/4-larger(p2,p14)/2"
+"DELTA2=d6/4-larger(p2,p14)/2-d2-p16-d16-p1"
+"DELTA3=d2-larger(p2,p14)/2"
+"DELTA4=d6/2-p16-d16"
+"DELTA5=p16+d16+de-p1*2/PI+4u"
+
+"TAU=p14"
+
+
+"l0=0"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+2 d11
+3 d1 pl1:f1
+  50u UNBLKGRAD
+
+  (p1 ph1)
+  DELTA1
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  DELTA2
+  p16:gp3
+  d16
+
+  (p1 ph1)
+  DELTA3
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  DELTA3
+  (p1 ph6)
+
+  p16:gp3
+  d16
+  DELTA2
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  DELTA1
+  (p1 ph2) 
+
+  p16:gp4
+  d16 pl2:f2
+  
+  (p3 ph3):f2
+  d0 
+  p2 ph5
+  d0
+  p16:gp1*EA
+  d16
+  (p24:sp7 ph4):f2
+  4u
+  DELTA pl2:f2
+  (p3 ph4):f2
+
+  p16:gp5
+  d16
+
+  if "l0 %2 == 0"
+     {
+     (p1 ph2) 
+     p16:gp6
+     d16
+     DELTA4
+     (center (p2 ph1) (p14:sp3 ph1):f2 )
+     }
+  else
+     {
+     (p1 ph1) 
+     p16:gp6
+     d16
+     DELTA4
+     (center (p2 ph1) (TAU):f2 )
+     }
+
+  DELTA4
+  p16:gp6
+  d16
+  (p1 ph2) 
+
+  DELTA5
+  (p2 ph1)
+  p16:gp2
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  d11 mc #0 to 2 
+     F1I(iu0, 2)
+     F1EA(calgrad(EA), caldel(d0, +in0) & calph(ph3, +180) & calph(ph31, +180))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=0 0 2 2
+ph6=2
+ph31=0 2 0 2 2 0 2 0
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;sp3: f2 channel - shaped pulse (180degree inversion)
+;spnam3: Crp60,0.5,20.1 (Crp80,0.5,20.1)
+;sp7: f2 channel - shaped pulse (180degree refocussing)
+;spnam7: Crp60comp.4 (Crp80comp.4)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion
+;     = 500us for Crp60,0.5,20.1 (Crp80,0.5,20.1)
+;p16: homospoil/gradient pulse
+;p24: f2 channel - 180 degree shaped pulse for refocussing
+;     = 2msec for Crp60comp.4 (Crp80comp.4)
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)XH
+;d6 : delay for evolution of long range couplings (1/2Jlr)
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(XH)
+;cnst13: = J(XH) long range
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;nd0: 2
+;ns: 8 * n
+;ds: >= 16
+;td1: number of experiments
+;FnMODE: echo-antiecho
+
+
+;for z-only gradients:
+;gpz1: 80%
+;gpz2: 20.1% for C-13
+;gpz3: 11%
+;gpz4: 31%
+;gpz5: 17%
+;gpz6: 5%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+
+
+
+;$Id:$

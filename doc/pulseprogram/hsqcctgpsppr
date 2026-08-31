@@ -1,0 +1,222 @@
+;hsqcctgpsppr
+;avance-version (24/01/30)
+;  HSQC for 13C labeled molecules
+;1H/13C correlation via double INEPT transfer
+;optimized for large 13C bandwidth (broadband shaped pulses for all purposes on 13C)
+;CO decoupling 
+;optional presaturation and trim pulse for water suppression. Trim pulse leads to weak COSY
+;   artifacts, e.g. crosspeaks between HN/Ca due to HN/Ha coupling, omit for samples in D2O.
+;for adiabatic decoupling set CDPRG2 to bi_p5m4sp_4sp.2 and execute getprosol (ns should be 
+;   at least 4 to suppress decoupling sidebands) 
+;
+; S. Asami, W. Kallies, J.C. Günther, M. Stavropoulou, S.J. Glaser & M. Sattler,
+;   Angew. Chem. Int. Ed. Engl. 57(44), 14498-14502 (2018)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+prosol relations=<triple>
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+require "TopSpin 4.1.0"
+
+"p2=p1*2"
+"p13=30u"
+"spnam2='Ram-COOP1_100.300'"
+"if ( (p3*totrot2)/(p13*90.0*integfac2) > 1 ) { spw2 = plw2; p13 = (p3*totrot2)/(90*integfac2); } else { spw2=plw2*pow((p3*totrot2)/(p13*90.0*integfac2),2);}"
+"spoffs2=0"
+"spoal2=1"
+"spnam8='Ram-COOP2_100.300'"
+"spw8=spw2"
+"spoffs8=0"
+"spoal8=0"
+
+"d0=1u"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+"d12=20u"
+"d20=d23/2-p14/2"
+
+"in0=inf1/4"
+"in20=in0"
+
+"td1=tdmax(td1,d20*2,in20)"
+
+"DELTA1=d4-p16-d16-p35/2-4u"
+"DELTA2=p44/2-p13*0.471+2*d0"
+"DELTA3=d23/2-p14/2-d0-p13*0.529"
+"DELTA4=d23/2-p14/2-d0-p13*0.529"
+"DELTA5=d4-p16-d16-p35/2-p1*2/PI-4u"
+
+
+"spoal41=0.5"
+"spoffs5=bf2*(cnst21/1000000)-o2"
+"spoffs30=0"
+"spoffs39=0"
+"spoffs41=0"
+
+#ifdef TRIMP
+"p28=1m"
+"DELTA6=d4-p16-d16-p35/2-4u"
+#else
+"DELTA6=d4-p16-d16-p35/2-4u-de"
+baseopt_echo
+#endif /*TRIMP*/
+
+"acqt0=0"
+
+1 ze
+  d11 pl12:f2
+2 d11 do:f2
+ 4u BLKGRAD
+#ifdef presat
+3 d12 pl32:f1
+  d1 cw:f1 ph1
+  4u do:f1
+#else
+3 d12
+  d1 
+#endif
+  
+  d12 pl1:f1 
+  50u UNBLKGRAD
+ 
+  (p13:sp2 ph1):f2
+  
+  p16:gp1
+  d16
+
+  (p1 ph1)
+  4u
+  p16:gp2
+  d16
+  DELTA1
+  (center (p2 ph1):f1 (p35:sp41 ph1):f2)
+  DELTA1
+  4u
+  p16:gp2
+  d16
+  (p1 ph2)
+
+  4u 
+  p16:gp3
+  d16 
+
+#ifdef LABEL_CN
+  (lalign (d0 d0 p44:sp30 ph1):f1 (DELTA2 p13:sp2 ph4 d0 DELTA3 p14:sp5 ph1 d0 DELTA4 p35:sp41 ph1 d20 p14:sp5 ph6 d20 p35:sp41 ph3 p13:sp8 ph5):f2 (d0 d0 p56:sp39 ph1):f3)
+#else
+  (lalign (d0 d0 p44:sp30 ph1):f1 (DELTA2 p13:sp2 ph4 d0 DELTA3 p14:sp5 ph1 d0 DELTA4 p35:sp41 ph1 d20 p14:sp5 ph6 d20 p35:sp41 ph3 p13:sp8 ph5):f2)
+#endif /*LABEL_CN*/
+ 
+  p16:gp4
+  d16  pl1:f1
+
+  (p1 ph2)
+  4u 
+  p16:gp5
+  d16 
+  DELTA5
+  (center (p2 ph1):f1 (p35:sp41 ph1):f2 )
+  DELTA6
+  4u
+  p16:gp5
+  d16 pl12:f2
+#ifdef TRIMP
+  (p28 ph2)
+#endif
+
+  go=2 ph31 cpd2:f2
+  d11 do:f2 mc #0 to 2 
+     F1PH(calph(ph4, +90), caldel(d0, +in0) & caldel(d20, -in20))
+
+exit
+   
+ph1=0 
+ph2=1
+ph3=2
+ph4=0 2
+ph5=0 0 0 0 2 2 2 2
+ph6=0 0 2 2
+ph31=2 0 2 0 
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl32: f1 channel - power level for weak presaturation
+;sp2 : f2 channel - shaped pulse 90 degree (Ram-COOP1)
+;sp8 : f2 channel - shaped pulse 90 degree (Ram-COOP2)
+;sp14: f2 channel - short pulse for bi-level adiabatic decoupling 
+;sp30: f1 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;sp31: f2 channel - long pulse for bi-level adiabatic decoupling 
+;sp39: f3 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;sp41: f2 channel - shaped pulse 180 degree (Bip720,100,10.1)
+;spnam41: Bip720,100,10.1
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p13 : f2 channel -  90 degree shape pulse
+;p14: f2 channel - 180 degree shaped pulse for CO decoupling
+;p16: homospoil/gradient pulse                       [1 msec]
+;p28: f1 channel - trim pulse                        [1 msec]
+;p35: f2 channel - 180 degree shaped pulse (adiab. inv.)
+;p44: f1 channel - 180 degree shaped pulse (adiab. inv.)
+;p56: f3 channel - 180 degree shaped pulse (adiab. inv.)
+;p63: f2 channel - pulse for bi-level adiabatic decoupling 
+;d0 : incremented delay (F1 in 2D) 
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(CH))
+;d11: delay for disk I/O                             [30 msec]
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d20: decremented delay (F1 in 2D) 
+;d23: constant chem. shift evolution delay/2 (set to 13.3 ms for 1/(2*J(CC)) or 26.6 ms for  1/J(CC))
+;cnst2: = J(CH) (~145 for aliphatic carbons)
+;cnst21: CO offset (ppm) for decoupling [175] 
+;inf1: 1/SW(C) = 2 * DW(C)
+;in0: 1/(4*SW(C)) = DW(C)/2
+;in20: 1/(4*SW(C)) = DW(C)/2
+;ns: 4 * n
+;ds: >= 32
+;td1: number of experiments
+;FnMODE: States-TPPI
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 40%
+;gpz2: 15%
+;gpz3: -25%
+;gpz4: 70%
+;gpz5: 5%
+
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+                                          ;preprocessor-flags-start
+;the following options are available (eda: ZGOPTNS)
+;presat: to use presaturation for water suppression use option -Dpresat
+;LABEL_CN: to enable 15N decoupling for 15N/13C labeled molecules use option -DLABEL_CN
+;TRIMP: to use trim pulse for water suppression use option -DTRIMP
+                                          ;preprocessor-flags-end
+
+;Processing
+
+;PHC0(F1): 0
+;PHC1(F1): 0
+;FCOR(F1): 0.5
+
+;$Id: $

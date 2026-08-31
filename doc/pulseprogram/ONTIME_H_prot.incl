@@ -1,0 +1,19 @@
+;ONTIME_H_prot.incl
+
+; Check the total RF on-time
+; 1 s is maximum
+
+;$COMMENT=Protection against long decoupling time
+;$CLASS=BioSolids PROT
+;$TYPE=H detection
+
+
+if "ONTIME<1s" goto PassONTIMEH
+ 1m 
+ print "The total RF ON-time exceeds 1 s! Reduce AQ, delays and/ or pulses."
+ goto HaltAcqu
+PassONTIMEH, 1m
+
+
+
+;$Id:$

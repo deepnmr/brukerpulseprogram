@@ -1,0 +1,210 @@
+;noah2_MB
+;avance-version (19/02/18)
+;NOAH-2 (MB): HMQC and HMBC
+;WaveMaker supported
+;
+;E. Kupce & T. Claridge, Angew. Chem. Int. Ed. Eng. 56, 11779-11783 (2017)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+"d4=1s/(cnst2*4)"
+"d6=1s/(cnst13*2)"
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+"l3=td1/4"
+
+
+"DELTA=p16+d16+p2/2+d0-p3*2/PI+4u"
+"DELTA1=d4-p14/2"
+"DELTA2=d4+p14/2"
+"DELTA3=DELTA2-p16-d16-p3-de-p2/PI-12u"  
+
+
+"acqt0=0"
+baseopt_echo
+
+1 ze
+  30m pl12:f2
+2 30m 
+3 3m do:f2 
+4 50u UNBLKGRAD
+
+  4u pl1:f1
+  p16:gp0
+  d16
+  (p1 ph1)
+  4u
+  p16:gp0*1.37
+  d16
+  4u BLKGRAD
+  d1 st0
+
+; HMQC
+
+  (p1 ph1)
+  DELTA1
+  (p14:sp3 ph6):f2 
+  (p2 ph1):f1 
+  DELTA2 pl2:f2
+  (p1 ph1):f1 
+  (p3 ph5):f2
+  DELTA UNBLKGRAD
+  (p14:sp3 ph6):f2 
+  4u
+  p16:gp1*EA
+  d16
+  d0 
+  (p2 ph4) 
+  d0
+  4u
+  p16:gp1*EA
+  d16
+  (p14:sp3 ph6):f2 
+  DELTA pl2:f2
+  (p3 ph3):f2
+  DELTA1
+  (p14:sp3 ph6):f2 
+  (p2 ph1):f1 
+  4u
+  p16:gp2
+  d16
+  DELTA3 pl2:f2
+  4u BLKGRAD
+  (p3 ph1):f2
+  4u pl12:f2
+  goscnp ph31 cpd2:f2
+
+; HMBC
+
+  4u do:f2
+  4u pl2:f2  
+  50u UNBLKGRAD
+  (p3 ph1):f2
+  4u
+  p16:gp0*0.77
+  d16
+  2m st
+
+  (p1 ph1) 
+  d2
+  (p3 ph7):f2 
+  d6              
+  (p3 ph5):f2
+  DELTA
+  (p14:sp3 ph6):f2 
+  4u
+  p16:gp1*EA
+  d16
+  d0 
+  (p2 ph4)
+  d0
+  4u
+  p16:gp1*EA
+  d16
+  (p14:sp3 ph6):f2 
+  DELTA pl2:f2
+  (p3 ph3):f2
+  4u
+  p16:gp2
+  d16
+  4u BLKGRAD
+
+  go=2 ph31
+
+  30m wr #0 if #0 zd igrad EA
+
+  lo to 3 times 2 
+ 
+  1m id0
+  1m ip3*2 
+  1m ip31*2
+
+  lo to 4 times l3  
+
+exit
+
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=0 0 2 2
+ph6=0
+ph7=0 2
+ph31=0 2 2 0 
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp3: f2 channel - shaped pulse 180 degree
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion
+;p16: homospoil/gradient pulse
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay
+;d2 : 1/(2J)XH
+;d4 : 1/(4J)XH
+;d6 : delay for evolution of long range couplings (1/2Jlr)
+;d16: delay for homospoil/gradient recovery
+;cnst2: = 1J(XH)
+;cnst13: = nJ(XH) (long range)
+;l3 : loop for 2D experiment = td1/4
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;nd0: 2
+;nbl: 2
+;ns: 1 * n
+;ds: >= 16
+;td1: number of experiments - multiple of NBL
+;FnMODE: echo-antiecho
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz0: 17.13%
+;gpz1: 80%
+;gpz2: 40.2% for C-13, 16.2% for N-15
+
+;use gradient files:
+;gpnam0: SMSQ10.100   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+
+;WaveMaker shapes (optional)
+;use 'wvm -a' command to create the necessary shape files
+;sp3:wvm:wu180C13: cawurst-20(60 kHz, 0.5 ms; L2H)
+;cpd2:wvm:wudec: cawurst_d-20(220 ppm, 1.4 ms; L2H)
+
+
+;Processing
+;use splitx_au au-program to split the data
+;define user processing au programs (USERP1...P2) for automatic processing
+;   of all data sets 
+;   userP1: noah_hmqc
+;   userP2: noah_hmbc
+
+
+
+;$Id:$

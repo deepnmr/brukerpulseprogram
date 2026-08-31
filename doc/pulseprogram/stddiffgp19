@@ -1,0 +1,145 @@
+;stddiffgp19
+;avance-version (20/01/09)
+;pseudo 2D sequence
+;   for saturation transfer difference
+;with shaped pulse train for saturation on f2 channel
+;alternating between on and off resonance
+;   to be defined by fq2list
+;water suppression using 3-9-19 pulse sequence with gradients
+;(use parameterset STDDIFFGP19)
+;
+;M. Mayer & B. Meyer, Angew. Chem. Int. Ed. 38, 1784-1788 (1999)
+;M. Mayer & B. Meyer, Angew. Chem. 111, 1902-1906 (1999)
+;M. Piotto, V. Saudek & V. Sklenar, J. Biomol. NMR 2, 661 - 666 (1992)
+;V. Sklenar, M. Piotto, R. Leppik & V. Saudek, J. Magn. Reson.,
+;   Series A 102, 241 -245 (1993)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<frequency> stdlist=<$FQ2LIST>
+
+
+"d11=30m"
+
+
+"l5=d20/p42"
+"d31=p42*l5"
+
+"DELTA1=d1-d31"
+
+"TAU=p1*2/3.1416-(p0-p27)*0.231-de+46u"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+  3m stdlist:f2 st0
+2 6m
+3 6m
+4 d11
+  6m
+5 d11 pl1:f1
+  DELTA1
+
+6 (p42:sp9 ph2):f2
+  4u
+  lo to 6 times l5
+
+  p1 ph1
+
+  50u UNBLKGRAD
+  p16:gp1
+  d16 pl18:f1
+  p27*0.231 ph3
+  d19*2
+  p27*0.692 ph3
+  d19*2
+  p27*1.462 ph3
+  d19*2
+  p27*1.462 ph4
+  d19*2
+  p27*0.692 ph4
+  d19*2
+  p0*0.231 ph4
+  TAU
+  p16:gp1
+  d16
+  4u BLKGRAD
+
+  goscnp ph31
+
+  3m stdlist.inc
+  3m stdlist:f2 st
+  lo to 3 times nbl
+  3m ipp1 ipp3 ipp4 ipp31
+  3m stdlist.res
+  lo to 4 times ns
+  d11 wr #0 
+  3m rppall
+  3m zd
+  lo to 5 times l4
+exit
+
+
+ph1=0 2
+ph2=0
+ph3=0 0 1 1 2 2 3 3
+ph4=2 2 3 3 0 0 1 1
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)       [120 dB]
+;pl18: f1 channel - power level for 3-9-19-pulse (watergate)
+;sp9 : f2 channel - shaped pulse  for saturation          [40 - 60 dB]
+;p0 : f1 channel -  90 degree pulse at pl18
+;                      use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;p27: f1 channel -  90 degree pulse at pl18
+;p42: f2 channel -  shaped pulse for saturation           [50 msec]
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                                  [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;d20: saturation time
+;d31: saturation time as executed
+;l4: l4 = number of averages = (total number of scans) / NS
+;l5: loop for saturation: p42 * l5 = saturation time
+;ns: 8 * n
+;ds: 4
+;td1: number of experiments
+;NBL: NBL = number of irradiation frequencies
+
+;define FQ2LIST (irradiation frequencies)
+;               (list has to be stored in "/u/exp/stan/nmr/lists/f1")
+
+
+;use gradient ratio:	gp 1
+;			  30
+
+;for z-only gradients:
+;gpz1: 30%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+
+
+;this pulse program produces a ser-file (PARMOD = 2D)
+
+
+
+;$Id:$

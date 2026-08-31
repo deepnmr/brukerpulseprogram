@@ -1,0 +1,287 @@
+;topshim3d
+;avance-version (20/05/08)
+;
+;field mapping sequence for 3D TopShim
+;
+;- zg options:
+;  * observe nucleus: TOPSHIM_NUC1H for 1H (default) and TOPSHIM_NUC19F for 19F
+;  * pulse: TOPSHIM_SEL for selective excitation, else hard pulse
+;  * preparation: TOPSHIM_SKIP_NOISE to avoid collection of noise data
+;  * gradient ramp: TOPSHIM_SKIP_RCB to avoid application of RCB ramp
+;- requires:
+;  * AV spectrometer
+;  * probehead Z or XYZ gradient
+;  * RCB
+;- 2 x 3D for two echoes written to two data sets
+;- the second data set is defined by the ds-list
+;- autosuspend to use zg only once
+;- data is overwritten after each loop
+;
+;wem.ch
+;
+;$CLASS=HighRes HWT
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+;$OWNER=wem
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <De.incl>
+
+
+; *** DEFINITIONS ***
+
+
+define delay d1_1
+define delay d1_2
+define delay d1_3
+
+"d28 = d29+d31"
+"d1_1 = 2*d19+d12"
+"d1_2 = d11"
+"d1_3 = d1-d1_1-d1_2"
+
+; workaround for GCU/GAB error (Bug 5470)
+define delay daq
+define delay dgc28
+define delay dgc29
+define delay dgc30
+"daq = d21+de+aq"
+"dgc28 = d28-d20*3"
+"dgc29 = d29-d20*3"
+"dgc30 = d30+d20"
+
+
+
+
+; define variable parts
+
+
+; default nucleus
+#ifndef TOPSHIM_NUC1H
+#ifndef TOPSHIM_NUC19F
+#define TOPSHIM_NUC1H
+#endif
+#endif
+
+
+#ifdef TOPSHIM_NUC1H
+
+; channel
+#define TOPSHIM_CHANNEL f1
+
+; empty definitions
+#define TOPSHIM_LOCKCHAN_PULSE 
+#define TOPSHIM_LOCKCHAN_LOCK  
+
+#define TOPSHIM_LOCKDEC_ON  
+#define TOPSHIM_LOCKDEC_OFF 
+
+#endif
+
+
+#ifdef TOPSHIM_NUC19F
+
+; channel
+#define TOPSHIM_CHANNEL F
+
+; lockswitch
+; - the 2H-TX must be set back to the LOCK mode after the excitation pulse to switch off the amplifier and avoid overheating
+; - TOPSHIM_H2_PULSE must be placed between ACQ_START and DWELL_GEN to avoid a spike appearing at the begin of the FID
+; - H2_PULSE/LOCK are not used to avoid interleave_incr that does not work with RCU
+; - LOCKDEC_ON/OFF is only needed for the lockswitch board but does not disturb 2H-TX
+#define TOPSHIM_LOCKCHAN_PULSE F19_PULSE
+#define TOPSHIM_LOCKCHAN_LOCK  F19_LOCK
+
+#define TOPSHIM_LOCKDEC_ON  FLOCKDEC_ON
+#define TOPSHIM_LOCKDEC_OFF FLOCKDEC_OFF
+
+#endif
+
+
+
+; RCB
+#ifndef TOPSHIM_SKIP_RCB
+#define TOPSHIM_RCB_STEP d19 SHIM_XY_RAMP_ON \n\
+                         d19 SHIM_XY_RAMP_OFF
+#endif
+#ifndef TOPSHIM_RCB_STEP
+#define TOPSHIM_RCB_STEP d19*2
+#endif
+
+; pulse
+#ifndef TOPSHIM_SEL
+3u pl0:f1
+#define TOPSHIM_PULSE (p0 ph1):f1
+#endif
+#ifdef TOPSHIM_SEL
+#define TOPSHIM_PULSE (p0:sp0 ph1):f1
+#endif
+
+
+; *** START OF PULSE PROGRAM ***
+
+
+aqseq 321
+
+
+  wrmode replace
+
+; spoil residual magnetisation
+  d20 UNBLKGRAMP
+  d9  gron3
+  d20 groff
+  d20 BLKGRAMP
+
+; *** preparation: noise ***
+
+#ifndef TOPSHIM_SKIP_NOISE
+
+  d12 zd
+
+9 d14
+  ACQ_START(ph30,ph31)
+  aq DWELL_GEN:f1
+  d12 rcyc=9
+
+  d12 st
+  lo to 9 times td2
+  d11 wr #0 if #0 zd st0
+  lo to 9 times td1
+
+  rf #0
+  d13
+  print "file: status ready"
+  autosuspend ; wait until first RCB ramp is loaded
+
+#endif
+
+
+; *** actual scan ***
+
+d22 TOPSHIM_LOCKDEC_ON
+
+; first echo
+
+1 d12 ze UNBLKGRAMP
+
+2 d1_1
+3 d1_2 TOPSHIM_LOCKCHAN_PULSE
+4 d1_3
+  TOPSHIM_PULSE
+  d27 gc_control
+  {
+    d27 gron1
+    d28 groff
+    daq gron2
+    d30 gron3
+    d20 groff
+  }
+  d20
+  d20 BLKGRAMP
+  dgc28
+  d20 UNBLKGRAMP
+  d21
+  ACQ_START(ph30,ph31)
+  d19 TOPSHIM_LOCKCHAN_LOCK
+  aq DWELL_GEN:f1
+  dgc30
+  d12 rcyc=2
+
+  TOPSHIM_RCB_STEP
+
+  d12 rpp1 rpp30 rpp31 st
+  lo to 3 times td2
+  d11 wr #0 if #0 zd st0
+  lo to 4 times td1
+
+  d20 BLKGRAMP
+  rf #0
+  d13
+  print "file: status ready"
+  autosuspend ; wait until second RCB ramp is loaded
+
+; second echo
+
+  d12 ze UNBLKGRAMP
+
+5 d1_1
+6 d1_2 TOPSHIM_LOCKCHAN_PULSE
+7 d1_3
+  TOPSHIM_PULSE
+  d27 gc_control
+  {
+    d27 gron1
+    d29 groff
+    daq gron2
+    d30 gron3
+    d20 groff
+  }
+  d20
+  d20 BLKGRAMP
+  dgc29
+  d20 UNBLKGRAMP
+  d21
+  ACQ_START(ph30,ph31)
+  d19 TOPSHIM_LOCKCHAN_LOCK
+  aq DWELL_GEN:f1
+  dgc30
+  d31
+  d12 rcyc=5
+
+  TOPSHIM_RCB_STEP
+
+  d12 rpp1 rpp30 rpp31 st
+  lo to 6 times td2
+  d11 wr #1 if #1 zd st0
+  lo to 7 times td1
+
+  d20 BLKGRAMP
+  rf #1
+  d13
+  print "file: status ready"
+  autosuspend
+
+  lo to 1 times l0
+	
+d22 TOPSHIM_LOCKDEC_OFF
+
+exit
+
+
+ph1=0 2
+ph30=0
+ph31=0 2
+
+
+;pl0:    power level of hard pulse
+;pl1:    power level of 90 deg hard pulse
+;sp0:    power level of shaped pulse
+;p0 :    pulse duration
+;p1 :    duration of 90 deg hard pulse
+;d1 :    relaxation
+;d9 :    spoiling gradient for residual magnetisation   [20 msec]
+;d10:    buffer I/O                                     [10 usec]
+;d11:    disk I/O                                       [10 msec]
+;d12:    rcyc/eosc/ze/zd                                [1 msec]
+;d13:    safe disk I/O                                  [100 msec]
+;d14:    receiver delay during noise acquisition        [50ms]
+;d19:    duration of RCB trigger signal                 [10 usec]
+;d20:    gradient switching & blanking                  [50 usec]
+;d21:    gradient stabilisation delay                   [1 ms]
+;d22:    lockswitch                                     [1 ms]
+;d27:    dephasing gradient
+;d29:    short 'echo time'
+;d30:    spoiling gradient
+;d31:    echo time difference
+;l0 :    large number = 'infinite' scan
+;DS:     0
+;NBL:    TD2
+
+
+
+;$Id:$

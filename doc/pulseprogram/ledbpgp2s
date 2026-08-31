@@ -1,0 +1,140 @@
+;ledbpgp2s
+;avance-version (21/09/21)
+;2D sequence for diffusion measurement using stimulated 
+;   echo and LED
+;using bipolar gradient pulses for diffusion
+;using 2 spoil gradients
+;
+;D. Wu, A. Chen & C.S. Johnson Jr., 
+;   J. Magn. Reson. A 115, 260-264 (1995).
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<gradient> diff=<Difframp>
+
+
+"p2=p1*2"
+
+"DELTA=d1-30m-4u"
+"DELTA1=d20-p1*2-p2-p30*2-d16*2-p19-d16-20u"
+"DELTA2=d21-p19-d16-4u"
+
+
+"acqt0=-p1*2/3.1416"
+
+
+1 ze
+2 30m
+
+#   ifdef FLAG_BLK
+  4u LOCKH_OFF
+#   else
+  4u
+#   endif /*FLAG_BLK*/
+
+  DELTA
+  50u UNBLKGRAD
+  p1 ph1
+  p30:gp6*diff
+  d16
+  p2 ph1
+  p30:gp6*-1*diff
+  d16
+  p1 ph2
+  p19:gp7
+  d16
+
+#   ifdef FLAG_BLK
+  DELTA1 BLKGRAMP
+  20u UNBLKGRAMP
+#   else
+  DELTA1
+  20u
+#   endif /*FLAG_BLK*/
+
+  p1 ph3
+  p30:gp6*diff
+  d16
+  p2 ph1
+  p30:gp6*-1*diff
+  d16
+  p1 ph4
+  p19:gp8
+  d16
+
+#   ifdef FLAG_BLK
+  DELTA2 BLKGRAMP
+  4u
+#   else
+  DELTA2
+  4u BLKGRAD
+#   endif /*FLAG_BLK*/
+
+  p1 ph5
+  go=2 ph31
+  30m mc #0 to 2 F1QF(calgrad(diff))
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u
+#   endif /*FLAG_BLK*/
+exit
+
+
+ph1= 0 0 0 0  0  0  0  0    0  0  0  0  0  0  0  0
+ph2= 0 0 0 0  2  2  2  2    0  0  2  2  0  0  2  2
+ph3= 0 1 2 3  0  1  2  3    2  3  2  3  0  1  0  1
+ph4= 0 1 2 3  0  1  2  3    0  1  0  1  2  3  2  3
+ph5= 0 1 2 3  0  1  2  3    2  3  2  3  0  1  0  1
+ph31=0 3 2 1  2  1  0  3    0  3  2  1  2  1  0  3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1  : f1 channel -  90 degree high power pulse
+;p2  : f1 channel - 180 degree high power pulse
+;p19: gradient pulse 2 (spoil gradient)
+;p30: gradient pulse (little DELTA * 0.5)
+;d1  : relaxation delay; 1-5 * T1
+;d16: delay for gradient recovery
+;d20: diffusion time (big DELTA)
+;d21: eddy current delay (Te)   [5 ms]
+;ns: 8 * n
+;ds: 4 * m
+;td1: number of experiments
+;FnMODE: QF
+;        use xf2 and DOSY processing
+
+
+;use gradient ratio:    gp 6 : gp 7   : gp 8
+;                       100  : -17.13 : -13.17
+
+;for z-only gradients:
+;gpz6: 100%
+;gpz7: -17.13% (spoil)
+;gpz8: -13.17% (spoil)
+
+;use gradient files:   
+;gpnam6: SMSQ10.100 or Difftrap
+;gpnam7: SMSQ10.100
+;gpnam8: SMSQ10.100
+
+;preprocessor-flags-start
+;zgoptns:   option -DFLAG_BLK for alternative gradient amplifier blanking and LOCK_HOLD handling
+;           FLAG_BLK: always blank gradient amplifier and lock only active during D1
+;preprocessor-flags-end
+
+
+;use AU-program dosy to calculate gradient ramp-file Difframp
+
+
+;$Id: ledbpgp2s,v 1.7.8.1 2012/01/31 17:56:33 ber Exp $

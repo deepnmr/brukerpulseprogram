@@ -1,0 +1,19 @@
+;p1_prot.incl
+;avance-version (13/01/29)
+;Test the rf on-time and duty cycle
+;protect against too long contact time
+;Test the rf on-time and duty cycle 
+;
+;$CLASS=Solids INCL
+;$COMMENT=protect against too long contact time
+
+1m
+if "p1 < 101u" goto Passp1
+2u
+print "excitation pulse exceeds 100usec limit!"
+goto HaltAcqu
+Passp1, 1m
+
+
+
+;$Id:$

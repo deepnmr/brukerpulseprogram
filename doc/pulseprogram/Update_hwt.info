@@ -1,0 +1,132 @@
+;Update_hwt.info
+;avance-version (17/07/31)
+;
+;difference to previous versions 
+;
+;$CLASS=HighRes HWT Info
+;$COMMENT=
+;$HIDE=y
+
+
+********************************************************************
+differences to (17/01/04)
+
+added           pulsecal_cw       pulsecal with f2 cw decoupling using
+                                     pl17 for solids
+
+********************************************************************
+differences to (17/01/04)
+
+added           zgpr2d_o1         o1 calibration
+
+********************************************************************
+differences to (16/11/11)
+________________________
+
+changed         pulsecal          timing changed
+
+********************************************************************
+differences to (16/06/16)
+________________________
+
+changed         pulsecal          timing changed
+
+********************************************************************
+differences to (15/02/10)
+________________________
+
+changed         pulsecal          modified for AV4
+
+********************************************************************
+differences to (14/10/24)
+________________________
+
+added           zg_rga            no mc, for rga
+
+********************************************************************
+differences to (13/12/06)
+________________________
+
+added           o1calib_prep      preparation experiment
+
+********************************************************************
+differences to (13/08/09)
+________________________
+
+added           zg2d_random
+
+********************************************************************
+differences to (11/08/08)
+________________________
+
+added           pulsecal.2        cnst31 set from au program
+
+********************************************************************
+differences to (11/01/24)
+________________________
+
+changed         pulsecal          timing changed (longer delay before 
+                                      DWL_CLK_ON) (KB 10339)
+
+********************************************************************
+differences to (09/11/20)
+________________________
+
+changed         pulsecal          timing changed (de included)
+
+********************************************************************
+differences to (09/11/20)
+________________________
+
+changed         pulsecal          timing changed (KB 9977)
+
+********************************************************************
+differences to (09/11/16)
+________________________
+
+changed         topshim3d         position of aqseq
+
+********************************************************************
+differences to (09/05/15)
+________________________
+
+changed         topshim3d         aqseq added
+
+********************************************************************
+differences to (09/05/15)
+________________________
+
+changed         topshim1d         unused definitions removed
+
+
+********************************************************************
+differences to (08/06/03)
+________________________
+
+
+changed         topshim1d         convection compensation 
+                                     added (KB #8698) 
+
+********************************************************************
+differences to (07/12/14)
+________________________
+
+changed         sysselzg5         fq2 removed
+
+********************************************************************
+differences to (06/11/13)
+________________________
+
+changed         pulsecal          timing changed
+
+********************************************************************
+differences to
+________________________
+
+corrected       pulsecal          comment pl29
+
+********************************************************************
+
+
+
+;$Id:$

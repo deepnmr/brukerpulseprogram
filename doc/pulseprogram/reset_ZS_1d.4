@@ -1,0 +1,146 @@
+;reset_ZS_1d.4 for 13C nulceus
+;pseudo 2D sequence
+;broadband homodecoupling using a Zangger-Sterk element
+;Shaped pulse for 13C refocussing
+;with 1H decoupling during acquisition and 180 degree pulses during t1 evolution
+
+;K. Zangger & H. Sterk, J. Magn. Reson. 124, 486-489 (1997)
+;J.A. Aguilar, S. Faulkner, M. Nilsson & G.A. Morris, Angew. Chem. Int. Ed. 49, 3901-3903 (2010)
+;C. Mycroft, M. Nilsson, G. A. Morris & L. Castanar, ChemPhysChem 2022, 23, e202200495
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE= Homodecoupling
+;$SUBTYPE= Reset
+;$COMMENT= Zangger-Sterk homodecoupling experiment with 1H decoupling, use AU-program proc_reset or xaua to process data
+
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+define delay tauJ
+define delay tau
+
+create_shape(sp34,Q3, name= 13C_sel, stepSize= 10.0 us, bandwidth= $cnst50 Hz)  
+
+"d11=30m"
+"d11=30m+1s/(1+cnst50)"
+"d11=30m"
+
+"l31=d24/(2*dw)" 
+"in0=dw*l31"
+"d0=0.0"
+"p2=p1*2"
+"p4=p3*2"
+"tauJ=dw*l31/2-p16-d16"
+"tau=(dw*2*l30)+d16"
+"DELTA=d24*td1"
+
+1 ze
+  30m pl12:f2
+2 30m do:f2
+  50u BLKGRAMP
+  50u LOCKH_OFF
+  d1
+  50u LOCKH_ON
+  50u UNBLKGRAMP pl1:f1 pl2:f2
+
+3  
+
+if "d0==0.0" 
+{
+p1 ph1
+}
+else 
+{
+ "d2=d0/2-(p4/2)"
+  p1 ph1
+  d2 pl2:f2
+  (p4 ph4):f2
+  d2
+}
+
+  tauJ 
+  p16:gp1 
+  d16
+  (p13:sp5 ph2):f1
+  p16:gp1 
+  d16
+  tauJ
+
+  p16:gp2 
+  d16
+  tau
+   (p47:sp34 ph3):f1 (p47:gp0)
+  d16
+  p16:gp2 
+  d16 BLKGRAMP pl12:f2
+
+if "d0==0.0"
+{
+}
+else 
+{
+  d2 pl2:f2
+  (p4 ph5):f2
+  d2 pl12:f2
+}
+
+  go=2 ph31 cpd2:f2
+  30m do:f2 mc #0 to 2 F1QF(id0)
+  50u LOCKH_OFF
+  DELTA
+exit
+
+ph1= 0 2 0 2 0 2 0 2		
+ph2= 0 0 0 0 1 1 1 1		
+ph3= 0 0 1 1 0 0 1 1 
+ph4= 0
+ph5= 0
+ph31=0 2 2 0 2 0 0 2	
+
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp5: f1 channel - shaped pulse (180degree)
+;sp34: f1 channel - shaped pulse 180 degree for Zangger-Sterk element
+;p1 : f1 channel -  90 degree high power pulse
+;p13: f1 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse [1 msec]
+;p47: f1 channel - 180 degree shaped pulse for Zangger-Sterk element
+;d0 : incremented delay (2D)                                [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : real time delay
+;d16: delay for homospoil/gradient recovery
+;d24: chunk duration [< 20 ms]
+;DELTA: total duration of reconstructed FID
+;cnst50 bandwidth of selective pulse in Hz
+;l30: number of complex points at the beginning not to be included 
+;        in reconstruction
+;l31: number of complex points along the acquisition dimension per block
+;        block length about 8 to 10ms
+;in0: = dw*l31
+;ns: 1 * n, total number of scans: NS * TD0
+;ds: 4
+;FnMODE: QF
+
+
+;for z-only gradients:
+;gpz0: 10%  (2-10%)
+;gpz1: 27%
+;gpz2: 43%
+
+;use gradient files:
+;gpnam0: RECT.1
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+
+;use AU-program proc_reset to process data
+
+
+
+;$Id:$

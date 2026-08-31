@@ -1,0 +1,217 @@
+;noesygpphzs_zshd
+;avance-version (16/11/30)
+;2D homonuclear correlation via dipolar coupling 
+;dipolar coupling may be due to noe or chemical exchange.
+;phase sensitive
+;with gradient/rf spoil pulse in mixing time
+;uses instant 1H broadband homodecoupling during acquisition
+;   with a Zangger-Sterk element
+;
+;N.H. Meyer & K. Zangger, Angew. Chem. Int. Ed. 52, 7143-7146 (2013)
+;M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+;(J. Jeener, B.H. Meier, P. Bachmann & R.R. Ernst, J. Chem. Phys. 71,
+;   4546-4553 (1979) )
+;(R. Wagner & S. Berger, J. Magn. Reson. 123 A, 119-121 (1996) )
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+#include <De.incl>
+
+
+"p2=p1*2"
+"p31=5m"
+
+
+"d62=aq/l0"
+"d63=d62/2"
+
+
+"in0=inf1"
+
+"d0=in0/2-p1*4/PI"
+
+
+"DELTA1=p16+d16-p1*2/PI+de+5u"
+
+"TAU=d8-p32-p31-d16-84u"
+
+
+"l1=l0-1"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+2 d1
+3 20u pl1:f1
+  p1 ph1
+  d0
+  p1 ph2
+  50u UNBLKGRAD
+  10u gron0
+  (p32:sp29 ph4):f1
+  20u groff
+  p31:gp1
+  d16 pl1:f1
+  4u BLKGRAD
+  TAU
+  p1 ph3
+
+  4u
+  (p44:sp30 ph4):f1
+
+  4u
+  p16:gp3*0.5
+  d16
+
+  (p44:sp30 ph4):f1
+
+  p16:gp3*-0.5
+  d16
+  DELTA1
+  (p48:sp36 ph7):f1 (p48:gp2)
+  5u
+  p16:gp3*-1.0
+  d16
+
+  ACQ_START(ph30,ph31)
+  0.1u START_NEXT_SCAN
+
+  0.1u REC_UNBLK
+  0.05u DWELL_RELEASE
+  d63
+  0.05u DWELL_HOLD
+  0.1u REC_BLK
+
+  p16:gp4
+  d16 pl1:f1
+  p2 ph5
+  p16:gp4 
+  d16 
+   
+  p16:gp5
+  d16
+  5u
+  (p48:sp36 ph6):f1 (p48:gp2)
+  5u
+  p16:gp5
+  d16 
+
+4 0.1u REC_UNBLK
+  0.05u DWELL_RELEASE
+  d62
+  0.05u DWELL_HOLD
+  0.1u REC_BLK
+  
+  p16:gp4
+  d16 pl1:f1
+  p2 ph5
+  p16:gp4 
+  d16 
+ 
+  p16:gp5
+  d16
+  5u
+  (p48:sp36 ph6):f1 (p48:gp2)
+  5u
+  p16:gp5
+  d16 
+
+  lo to 4 times l1
+
+  0.1u REC_UNBLK
+  0.05u DWELL_RELEASE
+  d62*2
+  0.05u DWELL_HOLD
+  0.1u REC_BLK
+
+  rcyc=2
+
+  d1 mc #0 to 2 F1PH(calph(ph1, +90), caldel(d0, +in0))
+exit
+
+
+ph1=0 2 
+ph2=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph3=0 0 2 2
+ph4=0
+ph5=0 0 2 2
+ph6=2 2 0 0
+ph7=0 0 0 0 1 1 1 1
+ph30=0
+ph31=0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp29: f1 channel - shaped pulse (adiabatic)
+;sp30: f1 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;sp36: f1 channel - shaped pulse 180 degree for Zangger-Sterk element
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse                              [1 msec]
+;p31: gradient pulse 5                                      [5 msec]
+;p32: f1 channel - 180 degree shaped pulse (adiabatic)      [20 msec]
+;     smoothed chirp (sweepwidth, 20% smoothing, 10000 points)
+;p44: f1 channel - 180 degree shaped pulse for refocussing
+;p48: f1 channel - 180 degree shaped pulse for Zangger-Sterk element
+;d0 : incremented delay (2D) = in0/2-p1*4/PI
+;d1 : relaxation delay; 1-5 * T1
+;d8 : mixing time
+;d16: delay for homospoil/gradient recovery
+;d62: length of block between decoupling pulses : = aq/l0   [< 20-25 msec]
+;d63: = d62/2
+;l0 : number of blocks during acquisition time
+;        adjust to get d62 as required
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns: 2 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+
+
+;for z-only gradients:
+;gpz0: ca. 10%
+;gpz1: 40%
+;gpz2: ca. 2%
+;gpz3: 19%
+;gpz4: 7%
+;gpz5: 5%
+
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: RECT.1
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+
+;Processing
+
+;PHC0(F1): 90
+;PHC1(F1): -180
+;FCOR(F1): 1
+
+
+
+;for sweepwidth of adiabatic shape and adjusting gpz0
+;   see supplementary material of M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+
+
+
+;$Id:$

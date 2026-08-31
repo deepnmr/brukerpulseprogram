@@ -1,0 +1,114 @@
+;selgpse
+;avance-version (21/09/15)
+;1D spin echo with gradients
+;   using selective refocussing with a shaped pulse
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+
+
+"TAU1=de"
+"TAU2=p1*2/PI"
+
+
+#   ifdef CALC_SPOFFS
+"spoffs2=bf1*(cnst21/1000000)-o1"
+#   else
+#   endif /*CALC_SPOFFS*/
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+2 30m
+  
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u  
+#   endif /*FLAG_BLK*/
+
+  d1 pl1:f1
+  50u UNBLKGRAD
+
+  p1 ph1
+  TAU1
+  p16:gp1
+  d16
+  p12:sp2:f1 ph2:r
+  p16:gp1
+  d16
+
+#   ifdef FLAG_BLK
+  TAU2  
+#   else
+  TAU2 BLKGRAD
+#   endif /*FLAG_BLK*/
+
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u  
+#   endif /*FLAG_BLK*/
+
+exit
+
+
+ph1=0 0 3 3 2 2 1 1
+ph2=1 3
+ph31=0 0 1 1 2 2 3 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp2: f1 channel - shaped pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p12: f1 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                            [1 msec]
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;cnst21: chemical shift for selective pulse (offset, in ppm)
+;ns: 2 * n, total number of scans: NS * TD0
+;ds: 4
+
+
+;phcor 2 : phasedifference between power levels sp1 and pl1
+
+;choose p12 according to desired selectivity
+;the flip-angle is determined by the amplitude
+;set O1 on resonance on the multiplet to be excited or use spoffs
+
+
+;use gradient ratio:    gp 1
+;                         15
+
+;for z-only gradients:
+;gpz1: 15%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;CALC_SPOFFS: automatically calcuate spoffs for selective pulses
+;             start experiment with option -DCALC_SPOFFS (eda: ZGOPTNS)
+;FLAG_BLK: for BLKGRAD before d1 rather than go
+;             option -DFLAG_BLK: (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: $

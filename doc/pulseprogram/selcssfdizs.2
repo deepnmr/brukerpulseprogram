@@ -1,0 +1,202 @@
+;selcssfdizs.2
+;avance-version (21/09/15)
+;CSSF TOCSY
+;1D TOCSY using selective refocussing with a shaped pulse
+;using DIPSI2 sequence for mixing
+;with chemical shift selective filter (CSSF)
+;double echo
+;with zero quantum suppression
+;
+;P.T.Robinson, T.N. Pham & D. Uhrin, J. Magn. Reson. 170, 97-103 (2004)
+;M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+;(S.J. Duncan, R. Lewis, M.A. Bernstein & P. Sandor,
+;   Magn. Reson. Chem. 45, 283-288 (2007))
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d20=3u"
+
+
+"in20=1s/(cnst20*td0*2)"
+
+
+"FACTOR1=(d9/(p6*115.112))/2"
+"l1=FACTOR1*2"
+
+
+"spoffs2=0"
+"spoffs29=0"
+
+
+"acqt0=-p1*2/PI"
+
+
+1 ze
+2 30m
+
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u  
+#   endif /*FLAG_BLK*/
+
+  d1 pl1:f1
+  50u UNBLKGRAD
+  p1 ph1
+
+  d20
+  (p2 ph1)
+  p16:gp1
+  d16
+  (p12:sp2 ph2):f1
+  p16:gp1
+  d16
+  d20
+  p16:gp2
+  d16
+  (p12:sp2 ph3):f1
+  p16:gp2
+  d16 pl1:f1
+
+  (p1 ph1)
+
+  10u gron0
+  (p32:sp29 ph1):f1
+  20u groff
+  d16 pl10:f1
+
+
+                                                ;begin DIPSI2
+4 p6*3.556 ph23
+  p6*4.556 ph25
+  p6*3.222 ph23
+  p6*3.167 ph25
+  p6*0.333 ph23
+  p6*2.722 ph25
+  p6*4.167 ph23
+  p6*2.944 ph25
+  p6*4.111 ph23
+
+  p6*3.556 ph25
+  p6*4.556 ph23
+  p6*3.222 ph25
+  p6*3.167 ph23
+  p6*0.333 ph25
+  p6*2.722 ph23
+  p6*4.167 ph25
+  p6*2.944 ph23
+  p6*4.111 ph25
+
+  p6*3.556 ph25
+  p6*4.556 ph23
+  p6*3.222 ph25
+  p6*3.167 ph23
+  p6*0.333 ph25
+  p6*2.722 ph23
+  p6*4.167 ph25
+  p6*2.944 ph23
+  p6*4.111 ph25
+
+  p6*3.556 ph23
+  p6*4.556 ph25
+  p6*3.222 ph23
+  p6*3.167 ph25
+  p6*0.333 ph23
+  p6*2.722 ph25
+  p6*4.167 ph23
+  p6*2.944 ph25
+  p6*4.111 ph23
+  lo to 4 times l1
+                                                ;end DIPSI2
+
+  p16:gp3
+  d16
+  10u gron0*1.333
+  (p32*0.75:sp29 ph1):f1
+  20u groff
+  d16 pl1:f1
+
+#   ifdef FLAG_BLK
+  4u  
+#   else
+  4u BLKGRAD
+#   endif /*FLAG_BLK*/
+
+  (p1 ph1)
+  go=2 ph31
+  30m mc #0 to 2 
+     F0(id20 & zd)
+
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u  
+#   endif /*FLAG_BLK*/
+
+exit
+
+
+ph1=0
+ph2=0 1
+ph3=0 0 1 1
+ph23=3
+ph25=1
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;sp2: f1 channel - shaped pulse
+;sp29: f1 channel - shaped pulse (adiabatic)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p6 : f1 channel -  90 degree low power pulse
+;p12: f1 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                            [1 msec]
+;p32: f1 channel - 180 degree shaped pulse (adiabatic)    [20 msec]
+;     smoothed chirp (sweepwidth, 20% smoothing, 10000 points)
+;d1 : relaxation delay; 1-5 * T1
+;d9 : TOCSY mixing time
+;d16: delay for homospoil/gradient recovery
+;d20: incremented delay                                   [3 usec]
+;cnst20: distance (in Hz) to next multiplet (to be suppressed)
+;l1: loop for DIPSI cycle: ((p6*115.112) * l1) = mixing time
+;in20: 1s/(cnst20*td0*2)
+;ns: 2 * n, total number of scans: NS * TD0
+;ds: 4
+;td0: TD0 = number of steps for suppression of undesired signals [8-16]
+
+
+;for z-only gradients:
+;gpz0: ca. 10%
+;gpz1: 31%
+;gpz2: 11%
+;gpz3: 7%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;FLAG_BLK: for BLKGRAD before d1 rather than go
+;             option -DFLAG_BLK: (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: $

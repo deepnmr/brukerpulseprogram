@@ -1,0 +1,126 @@
+;cpSPINDIFF  
+;avance-version (20/11/23)
+;
+;version: 1.0/ TS3 / 6/24/2011 
+;
+;basic 2D homonuclear exchange experiment
+;written by HF and JOS 
+;updated JOS 6/24/2011
+;checked by JOS 24/6/2011
+;
+;General Comment
+;2D exchange NMR in rotating solids using PDSD mixing (PL14=120db) 
+;or DARR/RAD mixing with pl14 set such that the RF field is n*spin rate, n=1-3
+;rotor synchronized, set cnst31=spin rate in Hz
+;rotor synchronize in F1 choose n*spin rate for SWH in F1
+;DARR Dipolar assisted rotational resonance (K. Takegoshi et al Chem. Phys. Lett. 2001, 344, 631.
+;RAD (RF assisted diffusion) C.R. Morcombe et al., JACS 2004, 126, 7196.
+;
+;requires modification to run under TS2.1 inquire with applications
+;
+;Avance III version
+;parameters:
+;d1 : recycle delay
+;p1 : X 90 degree pulse
+;p3 : H 90 degree pulse
+;p15 : contact time at plw1 (rf-channel f1) and spw0 (rf-channel f2)
+;pl11 : rf-power on X for 90 degree pulses
+;pl12 : rf-power for 1H pi/2 pulse p3 and standard proton decoupling
+;pl13 : e.g. used in tppm13
+;pl14 : rf-power for RAD-DARR mixing pulse, calculate or measure B1 field = 1 * rotation rate
+;cnst31 : spinning rate in Hz
+;d8 : mixing time,recalculated for multiple rotor period, max. 500 msec
+;sp0 : rf-power for contact pulse of 1H channel (rf-channel f2)
+;spnam0 : file name for shaped CP pulse
+;cpdprg2 : 1H decoupling sequence (spinal64, tppm15, cw, etc.)
+;FnMODE: TPPI, States-TPPI or STATES
+;ns : 16*n
+;SWH[F1]: integer multiple of rotor frequency
+;zgoptns: -Dlacq, -Dlcp15, or blank
+;
+;
+;$CLASS=BioSolids
+;$DIM=2D
+;$TYPE=cross polarisation
+;$SUBTYPE=homonuclear correlation
+;$COMMENT=exchange NMR in rotating solids using RAD/DARR for improved spin exchange, rotor synchronised
+
+
+prosol relations=<solids_cp>
+
+
+#include <Avance.incl>
+#include <trigg.incl>
+
+
+"cnst59=plw14"
+"d31=1s/cnst31"
+
+define pulse mixing 
+define delay darrmix
+define loopcounter count
+define loopcounter darr
+"darr=d8/d31"							/*setup for rotor synchronized mixing time */
+"mixing=(darr*d31)"
+"l0=0"										/* house keeping for detection in t1, start at t1=0 for flat baseline */
+"in0=inf1"
+"d0=1u"
+"acqt0=-p1/2"
+"darrmix=mixing"
+
+1 ze
+#include <rot_prot.incl>
+#ifndef lcp15
+#include <p15_prot.incl>
+			;make sure p15 does not exceed 10 msec 
+			;let supervisor change this pulseprogram if 
+			;more is needed
+#endif
+#ifndef lacq		
+			;disable protection file for long acquisition change decoupling power !!! or you risk probe damage
+			;if you set the label lacq (ZGOPTNS -Dlacq), the protection is disabled
+
+#include <aq_prot.incl>	
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#endif
+#include <darrmix2_prot.incl>    /*allows max. 500 msec mixing time for PDSD, 100m for DARR*/
+  darrmix
+  d31
+2 10m do:f2
+  d1
+  1u fq=cnst21:f2
+  10u pl12:f2 pl1:f1    ;preselect pl2 drive power for F2
+  trigg
+  p3:f2 ph1             ;proton 90 pulse
+  (p15 ph2):f1 (p15:sp0 ph10):f2        ;contact pulse
+ if "l0==1"{
+   "d0=in0"
+   }
+if "l0>0"
+  {  		;use cpdprg2=tppm15, SPINAL64 or XiX
+  d0 cpds2:f2
+}
+  (p1 pl11 ph3):f1 (1u do):f2
+  (mixing pl14 ph11):f2
+  (p1 ph5):f1 (1u cpds2):f2
+  go=2 ph31
+  1m do:f2
+  10m mc #0 to 2 F1PH(ip2,id0 & iu0)
+ 
+HaltAcqu, 1m
+6 exit
+
+ph1=1 3
+ph2=1
+ph3={0}*8 {2}*8
+ph5=0 0 2 2 1 1 3 3
+ph10=0
+ph11=0
+ph31=0 2 2 0 1 3 3 1
+     2 0 0 2 3 1 1 3
+
+
+
+;$Id:$

@@ -1,0 +1,209 @@
+;na_hcpqetgpsi.2
+;avance-version (20/03/03)
+;quantitative HCP: cross peak experiment
+;   use hcpqetgpsi.1 as reference experiment
+;for determination of J(CP) coupling constants
+;2D sequence with
+;   inverse correlation for triple resonance using multiple
+;      inept transfer steps
+;
+;      F1(H) -> F2(C) -> F3(P) -> F2(C,t1) -> F1(H,t2)
+;
+;phase sensitive using Echo/Antiecho gradient selection
+;using constant time
+;with decoupling during acquisition
+;(use parameterset NA_HCPQETGPSI.2)
+;
+;C. Richter, B. Reif, K. Woerner, S. Quant, J.P. Marino, J.W. Engels,
+;   C.Griesinger & H.Schwalbe, J. Biomol. NMR 12, 223-230 (1998)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple_na>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"p22=p21*2"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+"d12=20u"
+"d22=1s/(cnst5*8)"
+"d24=1s/(cnst2*cnst11)"
+
+
+"d0=3u"
+"d20=d22-p16-d16-p22"
+
+"in0=inf1/2"
+
+"in20=in0"
+
+"td1=tdmax(td1,d20*2,in20)"
+
+
+"DELTA1=d22-p16-d16"
+"DELTA2=d22-d0-larger(p2,p22)-d16-p16"
+"DELTA3=p16+d16+8u"
+"DELTA4=d22-p16-d16-p22"
+
+
+1 ze 
+  d11 pl12:f2 pl16:f3
+2 d1 do:f2 do:f3
+3 d12
+  (p1 ph1)
+  d4 pl2:f2 pl3:f3
+  (center (p2 ph1) (p4 ph1):f2 )
+  d4 UNBLKGRAD             
+
+#   ifdef TRIMP
+  (p28 ph1)
+#   endif /* TRIMP */
+
+  (p1 ph2)
+
+  4u
+  p16:gp1
+  d16
+  
+  (p3 ph3):f2
+  DELTA1
+  p16:gp2
+  d16
+  (p4 ph1):f2
+  (p22 ph1):f3
+  p16:gp2
+  d16
+  DELTA4
+  (p3 ph2):f2
+ 
+  (p21 ph5):f3
+  4u
+  (center (p2 ph1) (p4 ph1):f2 )
+  4u
+  (p21 ph1):f3
+
+  (p3 ph2):f2
+  d0
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA2
+  p16:gp3*EA*-1
+  d16
+  (p4 ph1):f2
+  (p22 ph1):f3
+  p16:gp3*EA
+  d16
+  d20
+ 
+  (center (p1 ph1) (p3 ph6):f2 )
+  d24
+  (center (p2 ph1) (p4 ph7):f2 )
+  d24
+  (center (p1 ph2) (p3 ph8):f2 )
+  d4
+  (center (p2 ph1) (p4 ph7):f2 )
+  d4
+  (p1 ph1)
+  DELTA3 pl12:f2 pl16:f3
+  (p2 ph1)
+  4u
+  p16:gp4
+  d16
+  4u  BLKGRAD                 
+  go=2 ph31 cpd2:f2 cpd3:f3
+  d1 do:f2 do:f3 mc #0 to 2
+     F1EA(calgrad(EA) & calph(ph8, +180), caldel(d0, +in0) & caldel(d20, -in20) & calph(ph6, +180) & calph(ph7, +180) & calph(ph8, +180) & calph(ph31, +180))
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=0 0 0 0 2 2 2 2
+ph5=0 2
+ph6=0 0 2 2 
+ph7=0
+ph8=3 3 1 1 
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl16: f3 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse				[1 ms]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p28: f1 channel - trim pulse                           [1 ms]
+;d0 : incremented delay (2D)				[3 us]
+;d1 : relaxation delay; 1-5 * T1		
+;d4 : 1/(4J(HC))					[1.6 ms]
+;d11: delay for disk I/O                               	[30 ms]
+;d12: delay for power switching                         [20 us]
+;d16: delay for homospoil/gradient recovery
+;d20: decremented delay (2D) = d22-p16-d16-p22
+;d22: 1/(4J(CP)) :  C4'-P                               [12.5 ms]
+;                   C5'-P                               [25 ms]
+;     and constant time delay T(C) = 1/(J(CC)) with J(CC)=40 Hz
+;d24: 1/(4J)HC for CH
+;     1/(8J)HC for all multiplicities
+;cnst2: = J(HC)
+;cnst5: = J(CP)
+;cnst11: for multiplicity selection = 4 for CH, 8 for all multiplicities
+;o2p: 77 ppm
+;o3p: 0 ppm
+;inf1: 1/SW(C) = 2 * DW(C)
+;in0: 1/(2 * SW(C)) = DW(C)
+;nd0: 2
+;in20: = in0
+;ns: 8 * n
+;ds: >= 32
+;td1: number of experiments in F1       td1 max = 2 * d20 / in20
+;FnMODE: echo-antiecho
+;cpd2: decoupling according to sequence defined by cpdprg2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 40%
+;gpz2: 25%
+;gpz3: 40%
+;gpz4: 20.1%  
+
+;use gradient files:
+;gpname1: SMSQ10.100
+;gpname2: SMSQ10.100
+;gpname3: SMSQ10.100
+;gpname4: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;TRIMP: to use trimpulse p28@pl1 start experiment with
+;          option -DTRIMP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+;Processing
+
+;F1 reverse: true
+
+
+
+;$Id:$

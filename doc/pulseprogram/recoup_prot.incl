@@ -1,0 +1,21 @@
+;recoup_prot.incl
+;;avance-version (14/08/06)
+;Test the rf on-time and duty cycle
+;protect against misset cnst31, rotation speed below 1000 Hz
+;and too long recoupling sequences
+;
+;$COMMENT=protect against misset cnst31 and recoupling loop
+;$CLASS=BioSolids INCL
+;$OWNER=Bruker
+
+
+1m
+if "recoup<10.1m" goto Passspc5	     ;protect against too long SPC5 pulse train
+1u
+print "error: Recoupling mixing time exceeds 10 msec"
+goto HaltAcqu
+Passspc5, 1m
+
+
+
+;$Id:$

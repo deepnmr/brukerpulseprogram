@@ -1,0 +1,260 @@
+;hsqcnoesygpsmwg3d
+;avance-version (15/02/19)
+;HSQC-NOESY
+;3D sequence with
+;   homonuclear correlation via dipolar coupling
+;   dipolar coupling may be due to noe or chemical exchange
+;   H-1/X correlation via double inept transfer
+;   simultaneous evolution of C-13 and N-15 chemical shift in t2
+;phase sensitive (t1)
+;phase sensitive (t2)
+;with decoupling during acquisition - using f2 and f3
+;using shaped pulses for inversion on f2 - channel
+;water suppression using watergate sequence
+;(use parameterset )
+;
+;D.P. Frueh, A. Leed, H. Arthanari, A. Koglin, 
+;   C.T. Walsh & G. Wagner, J. Biomol. NMR. 45, 311-318 (2009)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"p22=p21*2"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+"d12=20u"
+"d26=1s/(cnst4*4)"
+
+
+"d0=3u"
+"d10=3u"
+"d28=3u"
+
+"in0=inf1/2"
+"in10=inf2/2"
+
+"in28=in30/2-in0"
+
+
+"DELTA1=d4-p8/2-p16-d16"
+"DELTA2=d26-d4-p8/2"
+"DELTA3=d26-p16-d16"
+"DELTA4=d0*4+d28*2+p2*2+p3*2+p4"
+"DELTA5=d0*2+p2"
+"DELTA6=d4-p8/2+larger(p8,p22)/2-p16-d16"
+"DELTA7=d26-d4-p8/2+larger(p8,p22)/2+d10*2"
+
+"TAU=d8-d26*2-p21-p16-d16-p29-4u"
+"TAU1=d26*2-d4*2-p3"
+
+
+aqseq 321
+
+
+1 ze
+  d11 pl1:f1 pl12:f2 pl16:f3
+2 d11 do:f2 do:f3
+
+  d12 pl10:f1
+  (p17 ph17):f1
+  (p17*2 ph18):f1
+  4u BLKGRAD
+  d1 
+  d12 pl1:f1 pl2:f2 pl3:f3
+  50u UNBLKGRAD
+
+  (p1 ph1)
+  p16:gp1
+  d16
+  DELTA1
+  (p8:sp13 ph1):f2
+  DELTA2
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA3
+  p16:gp1
+  d16 pl2:f2
+  (p1 ph2)
+
+  p16:gp2
+  d16
+
+  (p21 ph3):f3
+  DELTA4
+  (p22 ph9):f3
+  d28 
+  (p3 ph4):f2
+  DELTA5
+  (p4 ph9):f2
+  d0 
+  (p2 ph1)
+  d0 
+  (p3 ph5):f2
+  d28 
+  (p21 ph5):f3
+
+  p16:gp3
+  d16
+
+  (p1 ph6)
+  p16:gp4
+  d16
+  DELTA6
+  (p8:sp13 ph1):f2
+  DELTA7
+  (center (p2 ph1) (p22 ph1):f3 )
+  DELTA3
+  p16:gp4
+  d16
+
+  d10
+  (center (p8:sp13 ph1):f2 (p22 ph1):f3 )
+  d10
+  (p1 ph7)
+
+  d4*2 pl2:f2
+  (p3 ph1):f2
+  TAU1
+  (p21 ph1):f3
+  TAU
+  p16:gp5
+  d16
+  (p29:sp11 ph8):f1
+  2u
+  2u pl1:f1
+
+  (p1 ph1) 
+
+  4u
+  p16:gp6
+  d16
+  (p11:sp1 ph15:r):f1
+  2u
+  2u pl1:f1
+  (p2 ph1)
+  2u
+  (p11:sp1 ph16:r):f1
+  2u
+  p16:gp6
+  d16 pl12:f2 pl16:f3
+ 
+  go=2 ph31 cpd2:f2 cpd3:f3
+  d11 do:f2 do:f3 mc #0 to 2 
+
+
+#   ifdef LABEL_F1
+     F1I (ip4*2, 2) 
+#   else
+     F2I (ip4*2, 2)
+#   endif /*LABEL_F1*/
+
+
+     F1PH(calph(ph3, -90) & calph(ph4, +90) & calph(ph9, +90), caldel(d0, +in0) & caldel(d28, +in28))
+     F2PH(calph(ph7, -90), caldel(d10, +in10))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=2 0
+ph4=0 2
+ph5=0 0 2 2
+ph6=0 0 0 0 2 2 2 2
+ph7=(8) 1
+ph8=2
+ph9=1
+ph15=2
+ph16=2
+ph17=0
+ph18=1
+ph31=0 2 2 0 2 0 0 2 
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl16: f3 channel - power level for CPD/BB decoupling
+;sp1: f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;sp11: f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;sp13: f2 channel - shaped pulse 180 degree
+;p0 : f1 channel -  90 degree pulse at pl18
+;                      use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p8 : f2 channel - 180 degree shaped pulse for inversion
+;p11: f1 channel -  90 degree shaped pulse           [1 msec]
+;p16: homospoil/gradient pulse
+;p17: f1 channel - trim pulse                        [2.5 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p29: f1 channel -  90 degree shaped pulse (flipback pulse)
+;d0 : incremented delay (F1 in 3D)                   [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J)CH
+;d8 : mixing time
+;d10: incremented delay (F2 in 3D)                   [3 usec]
+;d11: delay for disk I/O                             [30 msec]
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;d26: 1/(4J(NH)
+;d28: incremented delay (F1 in 3D)                   [3 usec]
+;cnst2: = J(CH)
+;cnst4: = J(NH)
+;inf1: 1/SW(C) = 2 * DW(C)
+;inf2: 1/SW(H) = 2 * DW(H)
+;in0: 1/(2 * SW(C)) = DW(C)
+;nd0: 2
+;in10: 1/(2 * SW(H)) = DW(H)
+;nd10: 2
+;in28: = in30/2-in0
+;in30: 1/SW(N) = 2 * DW(N)
+;ns: 1 * n
+;ds: >= 16
+;td1: number of experiments in F1
+;td2: number of experiments in F2
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 2%
+;gpz2: 7%
+;gpz3: -5%
+;gpz4: 4%
+;gpz5: 11%
+;gpz6: 30%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+
+
+
+;$Id:$

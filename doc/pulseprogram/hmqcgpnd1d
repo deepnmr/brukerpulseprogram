@@ -1,0 +1,90 @@
+;hmqcgpnd1d
+;avance-version (12/01/11)
+;HMQC
+;1D H-1/X correlation via heteronuclear zero and double quantum
+;   coherence
+;using gradient pulses for selection
+;use as setup for pulseprogram 'hmqcgpqf'
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+  
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+"d13=4u"
+
+
+"DELTA1=d2-p16-d13-4u"
+
+
+1 ze 
+2 30m
+  d1
+  p1 ph1
+  d2 UNBLKGRAD
+  p3:f2 ph3
+  d13
+  p16:gp1
+  d16
+  p2 ph2
+  d13
+  p16:gp2
+  d16
+  p3:f2 ph4
+  d13
+  p16:gp3
+  DELTA1
+  4u BLKGRAD
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit 
+  
+
+ph1=0 
+ph2=0 
+ph3=0 2
+ph4=0 0 2 2
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)XH
+;d13: short delay                                    [4 usec]
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(XH)
+;ns: 1 * n, total number of scans: NS * TD0
+;ds: 16
+
+
+;use gradient ratio:	gp 1 : gp 2 : gp 3
+;			  50 :   30 : 40.1   for C-13
+;			  70 :   30 : 50.1   for N-15
+
+;for z-only gradients:
+;gpz1: 50% for C-13, 70% for N-15
+;gpz2: 30%
+;gpz3: 40.1% for C-13, 50.1% for N-15
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+;$Id:$

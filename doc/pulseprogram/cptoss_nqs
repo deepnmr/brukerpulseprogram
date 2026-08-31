@@ -1,0 +1,164 @@
+;cptoss_nqs
+;
+;TS 3 / 26.08.2011
+;
+;checked by sewe 26.08.2011
+;
+; basic CP experiment with TOtal Suppresson of Sidebands 
+; TOSS sequence (i.e. TOSS A or TOSS B with 2 or 2.2412 rotor revolutions, resp.)
+; Non Quaternary Suppression incorporated by switching 
+; the decoupler off during part of TOSS delay 3 
+; (between 3rd and 4th pi pulse)
+;
+;IMPORTANT NOTES:
+; The last TOSS delay "de29" is corrrected for 
+; the preacquisition delay "de" executed by the "go" command.
+; Take this into account while modifying the pulse program.
+;
+; Decoupler is switched off during the period d20 following de28.
+; de28 is corrected accordingly. Therefore, d20 must not exceed
+; 0.9588 rotor cycles - pi.
+;
+;REFERENCES:
+; Basic TOSS technique:
+; W. T. Dixon, J. Schaefer, M. D. Sefcik, E. O. Stejskal, and R. A. McKay:
+; "Total Suppression of Sidebands in CPMAS C-13 NMR", 
+; J. Magn. Reson. 49, 341-345 (1982)
+;
+; Phase cycling according to: 
+; K. Schmidt-Rohr and H.W. Spiess:
+; "Multidimensional Solid State NMR and Polymers", 
+; Academic Press, London 1994, page 110
+;
+; Incorporation of NQS (dipolar dephasing) into TOSS according to:
+; D. P. Raleigh, E. T. Olejniczak, S. Vega, and R. G. Griffin:
+; "An Analysis of Sideband Suppression Techniques in Magic-Angle
+; Sample Spinning NMR", J. Magn. Reson. 72, 238-250 (1987)
+;
+;
+;Avance III version
+;parameters:
+;pl1 : X power for contact
+;pl2 : 1H power for contact
+;pl11 : X power for 180 deg
+;pl12 : 1H power for 90 deg and decoupling
+;pl13 : special decoupling power (e.g. spinal64_13)
+;p2 : X 180 deg pulse at pl11
+;p3 : 1H 90 deg pulse at pl12
+;pcpd2 : pulse length in decoupling sequence
+;p15 : contact pulse at pl1(X) and pl2(1H)
+;d1 : recycle delay
+;cnst31 : MAS spin rate
+;cpdprg2 : decoupling, e.g. cw or tppm15
+;spnam0 : 1H shape for contact, e.g. ramp.100
+;d20 : dipolar dephasing delay, decoupler off
+;zgoptns : -Dtossa, -Dlacq, -Dlcp15
+;
+;
+; calculate TOSS A or B delays from the MAS spin rate cnst31
+; corrected for finite pulse width and additional delays
+; depends on setting of ZGOPTNS:
+; use -Dtossa for TOSS A sequence, default is TOSS B
+;
+;
+;$CLASS=Solids
+;$DIM=1D
+;$TYPE=cross polarisation
+;$SUBTYPE=side band suppression
+;$COMMENT=basic CP experiment with TOtal Suppresson of Sidebands and NQS
+
+prosol relations=<solids_cp>
+
+
+"d31=1s/cnst31"
+
+"acqt0=0"
+
+#ifndef tossa
+define delay de25
+"de25=0.1885s/cnst31-(p2/2.0)-1u"
+define delay de26
+"de26=0.0412s/cnst31-p2"
+define delay de27
+"de27=0.5818s/cnst31-p2"
+define delay de28
+"de28=0.9588s/cnst31-p2-d20-1u"
+define delay de29
+"de29=0.2297s/cnst31-(p2/2.0)-de"
+#else
+define delay de25
+"de25=0.1226s/cnst31-(p2/2.0)-1u"
+define delay de26
+"de26=0.0773s/cnst31-p2"
+define delay de27
+"de27=0.2236s/cnst31-p2"
+define delay de28
+"de28=1.0433s/cnst31-d20-p2-1u"
+define delay de29
+"de29=0.7744s/cnst31-(p2/2.0)-de"
+#endif
+
+1 ze
+  d31
+2 d1 do:f2
+#ifndef lcp15
+#include <p15_prot.incl>
+			;make sure p15 does not exceed 10 msec 
+			;let supervisor change this pulseprogram if 
+			;more is needed
+#endif
+#ifndef lacq		
+			;disable protection file for long acquisition change decoupling power !!! or you risk probe damage
+			;if you set the label lacq (ZGOPTNS -Dlacq), the protection is disabled
+
+#include <aq_prot.incl>	
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#endif
+#include <rot_prot.incl>	
+			;protect against misset cnst31, must be more than 1000
+
+  (p3 pl12 ph1):f2
+  (p15 pl1 ph2):f1 (p15:sp0 ph10):f2
+  (de25 cpds2):f2
+  (p2 pl11 ph5):f1
+  de26 
+  (p2 ph6):f1	
+  de27
+  (p2 ph7):f1
+  de28
+  d20 do:f2
+  (p2 ph8):f1 (1u cpds2):f2	
+  de29
+  go=2 ph31
+  1m do:f2
+  wr #0
+HaltAcqu, 1m
+exit
+
+#ifndef tossa
+ph0= 0
+ph1= 2 0
+ph2= 1 1 2 2 3 3 0 0
+ph5= 1 1 2 2 3 3 0 0
+ph6= 3 3 0 0 1 1 2 2
+ph7= 1 1 2 2 3 3 0 0
+ph8= 2 2 1 1 0 0 3 3
+ph10= 3
+ph31= 0 2 1 3 2 0 3 1
+#else
+ph0= 0
+ph1= 2 0
+ph2= 1 1 2 2 3 3 0 0
+ph5= 1 1 2 2 3 3 0 0
+ph6= 3 3 0 0 1 1 2 2
+ph7= 3 3 0 0 1 1 2 2
+ph8= 0 0 3 3 2 2 1 1
+ph10= 3
+ph31= 0 2 1 3 2 0 3 1
+#endif /* tossb */
+
+
+
+;$Id:$

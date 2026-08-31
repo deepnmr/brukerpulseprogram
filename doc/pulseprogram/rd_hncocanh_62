@@ -1,0 +1,415 @@
+;rd_hncocanh_62
+;avance-version (21/09/15)
+;6,2 RD-seq.-HNCOCANH (APSY)
+;6D sequence with
+;   inverse correlation for triple resonance using multiple
+;      inept transfer steps
+;
+;      F1(H, t1) -> F3(N,t2) -> F2(C=O,t3) 
+;                -> F2(Ca,t4) -> F3(N,t5) -> F1(H,t6)
+;
+;on/off resonance Ca and C=O pulses using shaped pulse
+;phase sensitive (t1, States)
+;using constant time in t5
+;water suppression using watergate sequence
+;
+;F. Fiorito, S. Hiller, G. Wider & K. Wuethrich, 
+;   J. Biomol. NMR 35, 27-37 (2006)
+;
+;$CLASS=HighRes
+;$DIM=6D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define delay PI
+"PI=3.141592653589793"
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+
+"d21=5.5m"
+"d22=4.5m"
+"d23=14m"
+"d26=2.7m"
+"d27=25m"
+
+"d31=d26"
+"d34=d22"
+"d45=d23"
+"d51=3u"
+"d52=3u"
+"d53=3u"
+"d55=3u"
+
+"d32=d23-d21-p26-p14-d52"
+"d33=d22-p14-d53"
+"d35=d23-d55-p14-p26-d21-4u"
+"d41=d26+p22+d51"
+"d42=d23/2-p14/2"
+"d43=d22-p14-4u"
+"d44=d27-p14-4u"
+"d54=d27-d34-p14"
+
+"in31=abs(in1*sin(2*PI*cnst54/360)/2)"
+"in32=abs(in1*sin(2*PI*cnst53/360)*cos(2*PI*cnst54/360)/2)"
+"in33=abs(in1*sin(2*PI*cnst52/360)*cos(2*PI*cnst53/360)*cos(2*PI*cnst54/360)/2)"
+"in34=abs(in1*sin(2*PI*cnst51/360)*cos(2*PI*cnst52/360)*cos(2*PI*cnst53/360)*cos(2*PI*cnst54/360)/2)"
+"in35=abs(in1*cos(2*PI*cnst51/360)*cos(2*PI*cnst52/360)*cos(2*PI*cnst53/360)*cos(2*PI*cnst54/360)/2)"
+
+"FACTOR1=d41*10000000*2/td1"
+"INCR1=FACTOR1/10000000"
+
+"if ( INCR1 > in31 ) { in41 = in31; } else { in41 = INCR1; }"
+"if ( INCR1 > in31 ) { in51 = 0; } else { in51=in31-INCR1; }"
+
+"FACTOR2=d42*10000000*2/td1"
+"INCR2=FACTOR2/(10000000*2)"
+
+"if ( INCR2*2 > in32 ) { in42 = in32/2; } else { in42 = INCR2; }"
+"if ( INCR2*2 > in32 ) { in52 = 0; } else { in52=in32-INCR2*2; }"
+
+"FACTOR3=d43*10000000*2/td1"
+"INCR3=FACTOR3/10000000"
+
+"if ( INCR3 > in33 ) { in43 = in33; } else { in43 = INCR3; }"
+"if ( INCR3 > in33 ) { in53 = 0; } else { in53=in33-INCR3; }"
+
+"FACTOR4=d44*10000000*2/td1"
+"INCR4=FACTOR4/10000000"
+
+"if ( INCR4 > in34 ) { in44 = in34; } else { in44 = INCR4; }"
+"if ( INCR4 > in34 ) { in54 = 0; } else { in54=in34-INCR4; }"
+
+"FACTOR5=d45*10000000*2/td1"
+"INCR5=FACTOR5/10000000"
+
+"if ( INCR5 > in35 ) { in45 = in35; } else { in45 = INCR5; }"
+"if ( INCR5 > in35 ) { in55 = 0; } else { in55=in35-INCR5; }"
+
+
+"DELTA1=d23-d22-p14"
+"DELTA3=d26-p16-d16-p11-12u"
+
+
+"spoffs2=0"
+"spoffs3=0"
+"spoffs5=bf2*((cnst22-cnst21)/1000000)"
+"spoffs7=bf2*((cnst21-cnst22)/1000000)"
+"spoffs8=0"
+
+
+"l3=td1/32"
+
+
+1 d11 ze
+  d11 pl16:f3 
+2 d11 do:f3
+  3m
+3 6m
+4 6m
+5 6m
+6 6m
+7 48m
+8 d1 pl1:f1 fq=cnst21(bf ppm):f2
+  d12 pl3:f3 fq=cnst19(bf ppm):f1
+
+  20u
+  "TAU=(d21+p26+d32+d52)/2"
+  20u
+  "TAU2=d33/2+d53/2"
+  20u
+  "TAU3=d43/2+2u"
+  20u
+  "TAU4=(d21+p26+d35+p14+d55-d45+4u)/2+4u"
+
+  (p1 ph9)
+  d31
+  (p22 ph1):f3
+  d51
+  (p2 ph1)
+  d41 UNBLKGRAD
+  (p1 ph2):f1 
+
+  30u fq=cnst18(bf ppm):f1
+  4u pl0:f1
+  (p11:sp1 ph1:r):f1
+  4u
+  p16:gp1
+  d16
+
+  (p21 ph10):f3
+  (d21 pl19 p26 ph2 d32 cpds1 ph1):f1 (TAU p14:sp5 ph1):f2
+  (p14:sp3 ph1):f2
+  d52
+  (p22 ph1):f3
+  d42
+  (p14:sp5 ph1):f2
+  d42
+  (p21 ph1):f3
+
+  p16:gp5
+  d16
+
+  (p13:sp2 ph3):f2
+  (d33 p14:sp5 ph1):f2 (TAU2 p22 ph1):f3
+  d53
+  (p14:sp3 ph1):f2
+  (d43 p14:sp5 ph1):f2 (TAU3 p22 ph1):f3
+  4u
+  (p13:sp8 ph2):f2
+
+  4u
+  30u fq=cnst22(bf ppm):f2
+
+  (p13:sp2 ph4):f2
+  d34
+  (p14:sp7 ph1):f2
+  d54
+  (center (p14:sp3 ph1):f2 (p22 ph8):f3 )
+  d44
+  (p14:sp7 ph1):f2
+  4u
+  (p13:sp8 ph2):f2
+
+  p16:gp2
+  d16
+
+  (p21 ph5):f3
+  d45
+  (p22 ph8):f3
+  d55
+  (p14:sp3 ph1):f2
+  (ralign (d35 4u do p26 ph7 d21):f1 (p14:sp7 ph1 TAU4):f2 )
+  (p21 ph1):f3
+
+  p16:gp3
+  d16 pl0:f1
+  (p11:sp1 ph6):f1
+  4u
+  4u pl1:f1
+
+  (p1 ph1) 
+  4u
+  p16:gp4
+  d16
+  DELTA3 pl0:f1
+  (p11:sp1 ph6):f1
+  4u
+  4u pl1:f1
+  (center (p2 ph1) (p22 ph1):f3 )
+  4u pl0:f1
+  (p11:sp1 ph6):f1
+  4u
+  DELTA3
+  p16:gp4
+  d16 pl16:f3
+  4u BLKGRAD
+  go=2 ph31 cpd3:f3 
+
+  d11 do:f3 wr #0 if #0 zd
+
+  if "{ cnst54 == 0 }"
+     {
+     3m
+     }
+  else
+     {
+     3m ip9
+     lo to 3 times 2
+     }
+
+  if "{ cnst54 == 90 } || { cnst53 == 0 }"
+     {
+     3m rp9
+     3m
+     }
+  else
+     {
+     3m rp9
+     3m ip10
+     lo to 4 times 2
+     }
+
+  if "{ cnst54 == 90 } || { cnst53 == 90 } || { cnst52 == 0 }"
+     {
+     3m rp10
+     3m
+     }
+  else
+     {
+     3m rp10
+     3m ip3
+     lo to 5 times 2
+     }
+
+  if "{ cnst54 == 90 } || { cnst53 == 90 } || { cnst52 == 90 } || { cnst51 == 0 }"
+     {
+     3m rp3
+     3m
+     }
+  else
+     {
+     3m rp3
+     3m ip4
+     lo to 6 times 2
+     }
+    
+  if "{ cnst54 == 90 } || { cnst53 == 90 } || { cnst52 == 90 } || { cnst51 == 90 }"
+     {
+     3m rp4
+     3m
+     3m
+     }
+ 
+  else
+     {
+     3m rp4
+     3m dp5
+     lo to 7 times 2
+     3m rp5
+     }
+
+  3m id31
+  3m dd41
+  3m id51
+
+  3m id32
+  3m dd42
+  3m id52
+
+  3m id33
+  3m dd43
+  3m id53
+
+  3m id34
+  3m dd44
+  3m id54
+
+  3m id35
+  3m dd45
+  3m id55 
+
+  lo to 8 times l3 
+
+exit
+
+ph1=0
+ph2=1
+ph3=2 2 2 2 2 2 2 2 0 0 0 0 0 0 0 0
+ph4=0 2
+ph5=0 0 2 2
+ph6=2
+ph7=3
+ph8=0 0 0 0 2 2 2 2
+ph9=0
+ph10=0
+ph31=0 2 2 0 0 2 2 0 2 0 0 2 2 0 0 2
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;pl19: f1 channel - power level for CPD/BB decoupling
+;sp1: f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;sp2: f2 channel - shaped pulse  90 degree  (on resonance)
+;sp3: f2 channel - shaped pulse 180 degree  (on resonance)
+;sp5: f2 channel - shaped pulse 180 degree  (Ca off resonance)
+;sp7: f2 channel - shaped pulse 180 degree  (C=O off resonance)
+;sp8: f2 channel - shaped pulse  90 degree  (on resonance)
+;                  for time reversed pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse             [1 msec]
+;p13: f2 channel -  90 degree shaped pulse
+;p14: f2 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p26: f1 channel -  90 degree pulse at pl19
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d21: 1/(2J(NH)                                        [5.5 msec]
+;d22: 1/(4J(COCa)                                      [4.5 msec]
+;d23: 1/(4J(NCO) or 1/(4J'(NCa)                        [14 msec]
+;d26: 1/(4J'(NH)                                       [2.7 msec]
+;d27: 1/(4J(NCa)                                       [25 msec]
+;d31: incremented delay (F1 in 6D) = d26
+;d32: incremented delay (F2 in 6D) = d23-d21-p26-p14-d52
+;d33: incremented delay (F3 in 6D) = d22-p14-d53
+;d34: incremented delay (F4 in 6D) = d22
+;d35: incremented delay (F5 in 6D) = d23-d55-p14-p26-d21-4u
+;d41: decremented delay (F1 in 6D) = d26+p22+d51
+;d42: decremented delay (F2 in 6D) = d23/2-p14/2
+;d43: decremented delay (F3 in 6D) = d22-p14-4u
+;d44: decremented delay (F4 in 6D) = d27-p14-4u
+;d45: decremented delay (F5 in 6D) = d23
+;d51: incremented delay (F1 in 6D)                     [3 usec]
+;d52: incremented delay (F2 in 6D)                     [3 usec]
+;d53: incremented delay (F3 in 6D)                     [3 usec]
+;d54: incremented delay (F4 in 6D) = d27-d34-p14
+;d55: incremented delay (F5 in 6D)                     [3 usec]
+;cnst18: H2O chemical shift (offset, in ppm)
+;cnst19: H(N) chemical shift, 1H-offset during t1(offset, in ppm)
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst22: Calpha chemical shift (offset, in ppm)
+;cnst29: N(H) chemical shift (offset, in ppm)
+;cnst51:  projection angle alpha
+;cnst52:  projection angle beta
+;cnst53:  projection angle gamma
+;cnst54:  projection angle delta
+;o1p: H2O chemical shift (cnst18)
+;o2p: Calpha chemical shift (cnst22)
+;o3p: N(H) chemical shift (cnst29)
+;inf1: 1/SW(H) = 2 * DW(H)
+;inf2: 1/SW(N) = 2 * DW(N)
+;inf3: 1/SW(CO) = 2 * DW(CO)
+;inf4: 1/SW(Ca) = 2 * DW(Ca)
+;inf5: 1/SW(N) = 2 * DW(N)
+;ns: 16 * n
+;ds: >= 16
+;td1: number of experiments in F1
+;        (16 times the number of points in final 2D projection)
+;FnMODE: States in F1
+;USERA4: aqapsy
+;USERA5: 6D JNOANH st
+;cpds1: decoupling according to sequence defined by cpdprg1
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd1: f1 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:    gp 1 : gp 2 : gp 3 : gp 4 : gp 5
+;                         50 :   40 :   60 :   30 :  -67
+
+;for z-only gradients:
+;gpz1: 50%
+;gpz2: 40%
+;gpz3: 60%
+;gpz4: 30%
+;gpz5: -67%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+
+;$Id: $

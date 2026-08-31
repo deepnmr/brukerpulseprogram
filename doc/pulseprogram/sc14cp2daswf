@@ -1,0 +1,193 @@
+;sc14cp2daswf
+;avance-version (21/02/18)
+;
+;2D SQ-DQ correlation experiment (INADEQUATE type) with SC14 sequence and cross polarization
+;allows arbitrary t1 increments
+;
+;corresponding 1D sequence sc14cp1df for setup
+;modified by HF 09.05.2008 for floating point phases
+;revised by GALT August 15, 2011
+;
+;references:
+;A. Brinkmann, M. Eden, and M. H. Levitt: 
+; Sychronous helical pulse squences in magic-angle spinning NMR.
+; Double-Quantum recoupling of multiple-spin systems.
+; J. Chem. Phys. 112, 8539-8554 (2000)
+;
+;phase cycling: 	4 (double quantum filter + read pulse phase cycling) 
+;								* 4 (read pulse 90 degree phase shift) 
+;								* 2 (1H (f2) spin temperature inversion)
+; full phase cycle: ns=32
+; ns=16 should give resonably clean spectra
+; for ns=4 or ns=8 some artefacts may occur 
+; (most of these are suppressed by the read pulse cycling)
+;
+;Avance III version
+;parameters:
+;d1 : recycle delay
+;pl11 : power level for SC14 recouping sequence B1=3.5*cnst31 in Hz
+;pl1 : power level for HH match f1
+;pl2 : = 0 W (not used)
+;pl12 : power level for standard 1H excitation and decoupling
+;pl13 : power level for special decoupling, e. g. cwlg
+;sp0 : power level for HH match f2
+;p1 : excitation pulse f1 at plw1
+;p3 : excitation pulse f2 at plw12
+;p15 : contact time
+;pcpd1 : pulse width in decoupling sequence
+;pcpd2 : pulse width in decoupling sequence
+;spnam0 : for CP on 1H e.g. ramp.64 
+;cpdprg1: decoupling f2 during SC14, e.g. cwlg
+;cpdprg2: decoupling f2, e.g. spinal64, tppm15, or cw
+;cnst10 : =-180*cnst31*d0, recalculated during acquisition
+;cnst20 : proton RF field to calculate LG parameters
+;cnst21 : =0, proton offset
+;cnst22 : +ve Lee-Goldburg offset
+;cnst23 : -ve Lee-Goldburg offset
+;cnst24 : additional Lee-Goldburg offset
+;cnst27: calculated in pulse program, t1 dependent reconversion pulse phase shift
+;cnst31 : spinning frequency
+;l0 : number of composite SC14 cycles for excitation and reconversion (usually a multiple of 7)
+;zgoptns : blank 
+;
+;in0   : IN_F1
+;mc2   : STATES-TPPI
+;ns    : 16*n (full cycle is ns=32, ns=4 or ns=8 may result in artefacts)
+;FnMODE: undefined
+;WDW : f1 QSINE 3,  F2 QSINE 2 or EM
+;
+;
+;$CLASS=Solids
+;$DIM=2D
+;$TYPE=cross polarisation
+;$SUBTYPE=homonuclear correlation
+;$COMMENT=SQ-DQ experiment with SC14 sequence, cp for excitation
+
+prosol relations=<solids_cp>
+
+
+#include <lgcalc.incl>
+
+define loopcounter count
+"count=td1/2"
+
+define pulse pul180
+"pul180=((1.0s/cnst31)/7)"
+"d31=1s/cnst31"
+
+;for protection against excessively long recoupling pulses
+define delay excite
+"excite=2.0*l0*pul180"
+define delay reconv
+"reconv=2.0*l0*pul180"
+define delay recoup
+"recoup=excite+reconv"
+
+;for digmod=baseopt
+"acqt0=(-2.0*p1)/3.14159"
+
+"d0=1u"
+;set t1 increment
+"in0=inf1"
+
+#include <rot_prot.incl>
+			;requires cnst31 to be set to 1000 Hz or larger
+  ze
+  d31				
+1 10m
+;calculate t1 dependent overall reconversion pulse phase
+"cnst27=-180*(d0+0.1u)/d31"	
+  1m ip13+cnst27
+  1m ip14+cnst27
+2 d1 do:f2
+#include <p15_prot.incl>	
+			;make sure p15 does not exceed 10 msec	
+			;let supervisor change this pulseprogram if 
+			;more is needed
+#include <aq_prot.incl>
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#include <recoup_prot.incl>
+			;allows max. 10 ms of total (excitation and reconversion) recoupling time
+  1m rpp11
+  1m rpp12
+  1m rpp13
+  1m rpp14
+  1u fq=cnst22:f2
+  1u fq=cnst23:f2
+  1u fq=cnst21:f2
+  (p3 pl12 ph1):f2
+  (p15 pl1 ph2):f1 (p15:sp0 ph10):f2
+  (p1 ph3):f1 (1u cpds1):f2
+3 pul180:f1 ph11 pl11:f1 ipp11 ipp13 ipp14	;SC14 pulse at pl11
+  pul180:f1 ph12  ipp12
+  lo to 3 times l0
+  d0 cpds2:f2
+  0.1u cpds1:f2
+4 pul180:f1 ph13	ipp13				;SC14 pulse at pl11
+  pul180:f1 ph14 ipp14
+  lo to 4 times l0
+  (p1 pl1 ph5):f1 (1u cpds2):f2
+  gosc ph31 		;start ADC with ph31 signal routing
+  1m do:f2
+  1m ip13
+  1m ip14
+  lo to 2 times ns
+  100m wr #0 if #0 zd
+  1m ip11
+  1m ip12
+  lo to 1 times 2
+  id0
+  lo to 1 times count
+HaltAcqu, 1m
+exit
+
+ph0= 0 
+ph1= {1}*16 {3}*16
+ph2= 0
+ph3= {3}*16 {1}*16
+ph5= 1 2 3 0 2 3 0 1
+     3 0 1 2 0 1 2 3
+ph10=0
+
+ph11=(degree, 45.00) 0 128.57 257.14 25.71 154.29 282.86 51.43
+		180 308.57 77.14 205.71 334.29 102.86 231.43
+		25.71  257.14 128.57 0 231.43 102.86 334.29	
+	205.71 77.14 308.57 180  51.43 282.86 154.29
+		180 308.57 77.14 205.71 334.29 102.86 231.43
+		0 128.57 257.14 25.71 154.29 282.86 51.43
+		205.71  77.14 308.57 180 51.43 282.86 154.29	
+	25.71 257.14 128.57 0  231.43 102.86 334.29
+   
+ph12=(degree, 45.00) 0 128.57 257.14 25.71 154.29 282.86 51.43
+		180 308.57 77.14 205.71 334.29 102.86 231.43
+		257.14 128.57 0 231.43 102.86 334.29 	205.71 
+		77.14 308.57 180  51.43 282.86 154.29 25.71  
+		180 308.57 77.14 205.71 334.29 102.86 231.43
+		0 128.57 257.14 25.71 154.29 282.86 51.43
+		77.14 308.57 180 51.43 282.86 154.29 25.71 
+		257.14 128.57 0  231.43 102.86 334.29 205.71  
+
+ph13=(degree, 90.00) 90 218.57 347.14 115.71 244.29 12.86 141.43
+                  270 38.57 167.14 295.71 64.29 192.86 321.43
+		115.71 347.14 218.57 90 321.43 192.86 64.29
+		295.71 167.14 38.57 270 141.43 12.86 244.29
+	  270 38.57 167.14 295.71 64.29 192.86 321.43
+		90 218.57 327.24 115.71 244.29 12.86 141.43
+		295.71 167.14 38.57 270 241.43 12.86 244.29
+		115.71 347.14 218.57 90 321.43 192.86 64.29	
+								   
+ph14=(degree, 90.00) 90 218.57 347.14 115.71 244.29 12.86 141.43
+                  270 38.57 167.14 295.71 64.29 192.86 321.43
+		347.14 218.57 90 321.43 192.86 64.29 295.71 
+		167.14 38.57 270 141.43 12.86 244.29 115.71 
+	  270 38.57 167.14 295.71 64.29 192.86 321.43
+		90 218.57 327.24 115.71 244.29 12.86 141.43
+		167.14 38.57 270 241.43 12.86 244.29 115.71 
+		347.14 218.57 90 321.43 192.86 64.29 295.71 
+    
+ph31= 2 1 0 3 3 2 1 0 		;DQ selection phase cycling
+ 	0 3 2 1 1 0 3 2
+
+;$Id:$

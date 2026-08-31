@@ -1,0 +1,241 @@
+;noesygpphwgxf.2
+;avance-version (19/02/08)
+;2D homonuclear correlation via dipolar coupling 
+;   with C-13 and N-15 filter in F1 and F2
+;
+;   H[C12,N14] (t1) -> H[C12,N14] (t2)
+;
+;dipolar coupling may be due to noe or chemical exchange.
+;phase sensitive
+;with gradient pulses in mixing time
+;water suppression using watergate sequence
+;(use parameterset NOESYGPPHWGXF.2)
+;
+;A.L. Breeze, Prog. NMR Spectrosc. 36, 323-372 (2000)
+;C. Zwahlen, P. Legault, S.J.F. Vincent, J. Greenblatt, R. Konrat &
+;   L.E. Kay, J. Am. Chem. Soc. 119 6711-6721 (1997)
+;K. Ogura, H. Terasawa & F. Inagaki, J. Biomol. NMR 8, 492-498 (1996)
+;J. Iwahara, J.M. Wojciak & R.T. Clubb, J. Biomol. NMR 19, 231-241 (2001)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d26=1s/(cnst4*4)"
+"d28=1s/(cnst6*4)"
+"d29=1s/(cnst7*4)"
+
+
+"in0=inf1"
+
+"d0=in0/2-p1*4/3.1416"
+
+
+"DELTA1=d28-p19-d16-p15/2"
+"DELTA2=d26-d28-p15/2"
+"DELTA3=d26-p19-d16"
+"DELTA4=d29-p19-d16-p15/2"
+"DELTA5=d26-d29-p15/2"
+
+"TAU=d8-p16-d16"
+
+
+1 ze
+2 d11
+3 d1 pl1:f1
+
+  (p1 ph1)
+  p19:gp2
+  d16
+  DELTA1
+  (p15:sp18 ph1):f2
+  DELTA2
+  (center (p2 ph2) (p22 ph1):f3 )
+  DELTA3
+  p19:gp2
+  d16 pl2:f2
+  (p1 ph3)
+
+  (p3 ph8):f2
+  (p21 ph8):f3
+  p16:gp7
+  d16
+
+  (p1 ph1)
+  p19:gp4
+  d16
+  DELTA4
+  (p15:sp18 ph1):f2
+  DELTA5
+  (center (p2 ph2) (p22 ph1):f3 )
+  DELTA3
+  p19:gp4
+  d16 pl2:f2
+  (p1 ph3)
+
+  (p3 ph8):f2
+  (p21 ph8):f3
+  p16:gp5
+  d16
+
+  (p1 ph4)
+  d0
+  (p1 ph6)
+  TAU UNBLKGRAD
+  p16:gp1
+  d16 pl2:f2
+
+  (p1 ph1)
+  p19:gp2
+  d16
+  DELTA1
+  (p15:sp18 ph1):f2
+  DELTA2
+  (center (p2 ph2) (p22 ph1):f3 )
+  DELTA3
+  p19:gp2
+  d16 pl2:f2
+  (p1 ph3)
+
+  (p3 ph8):f2
+  (p21 ph8):f3
+  p16:gp3
+  d16
+
+  (p1 ph1)
+  p19:gp4
+  d16
+  DELTA4
+  (p15:sp18 ph1):f2
+  DELTA5
+  (center (p2 ph2) (p22 ph1):f3 )
+  DELTA3
+  p19:gp4
+  d16 pl2:f2
+  (p1 ph3)
+
+  (p3 ph8):f2
+  (p21 ph8):f3
+  p16:gp5
+  d16
+
+  (p1 ph7)
+  4u
+  p16:gp6
+  d16 pl0:f1
+  (p11:sp1 ph9:r):f1
+  4u
+  4u pl1:f1
+  (p2 ph10)
+  4u pl0:f1
+  (p11:sp1 ph9:r):f1
+  4u
+  p16:gp6
+  d16
+  4u BLKGRAD
+
+  go=2 ph31
+  d11 mc #0 to 2 F1PH(calph(ph4, +90), caldel(d0, +in0))
+exit
+
+
+ph1=0
+ph2=1
+ph3=2
+ph4=0 0 0 0 2 2 2 2 
+ph6=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph7=0 1 2 3
+ph8=0 1 2 3
+ph9=2 2 2 2 3 3 3 3 0 0 0 0 1 1 1 1
+ph10=0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph31=0 3 2 1 0 3 2 1 2 1 0 3 2 1 0 3
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;sp1: f1 channel - shaped pulse  90 degree
+;sp18: f2 channel - shaped pulse 180 degree (adiabatic)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse
+;p15: f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;p16: homospoil/gradient pulse                       [1 msec]
+;p19: gradient pulse 2                               [500 usec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;d0 : incremented delay (2D)
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                             [30 msec]
+;d8 : mixing time
+;d16: delay for homospoil/gradient recovery
+;d26: 1/(4*J(NH))
+;d28: 1/(4*J(CH)min)
+;d29: 1/(4*J(CH)max)
+;cnst4: = J(NH)
+;cnst6: = 1J(CH)min
+;cnst7: = 1J(CH)max
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns: 8 * n
+;ds: 32
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+
+
+;use gradient ratio:    gp 1 : gp 2 : gp 3 : gp 4 : gp 5 : gp 6 : gp 7
+;                         80 :    3 :    7 :    2 :    5 :   30 :   11
+
+;for z-only gradients:
+;gpz1: 80%
+;gpz2: 3%
+;gpz3: 7%
+;gpz4: 2%
+;gpz5: 5%
+;gpz6: 30%
+;gpz7: 11%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+
+
+;for p15:sp18 use either "Crp60,0.5,20.1" or adiabatic pulse 
+;   with matched sweep 
+;for matched sweep use 
+;   low to high field sweep, 
+;   carrier shifted to center of spectrum (75 ppm) via spoffs18
+;   d28 = d29 = 1/(4*J(CH) center of spectrum [1.696 ms])
+
+
+;Processing
+
+;PHC0(F1): 90
+;PHC1(F1): -180
+;FCOR(F1): 1
+
+
+
+;$Id:$

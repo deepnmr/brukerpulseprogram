@@ -1,0 +1,37 @@
+;sysdante
+;avance-version (00/06/30)
+;1D sequence
+;rise time test using dante
+;
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+
+
+#include <Avance.incl>
+
+
+1 ze
+2 d1
+3 d20
+  p1 ph1
+  lo to 3 times l4
+  go=2 ph31
+  wr #0
+exit
+
+
+ph1=0 2 2 0 1 3 3 1
+ph31=0 2 2 0 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  high power pulse
+;d1 : relaxation delay; 1-5 * T1
+
+
+
+;$Id:$

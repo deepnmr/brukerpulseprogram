@@ -1,0 +1,343 @@
+;hNCaCX_var3D.dcp
+;
+;version: 1.0/ TS3.5 /2015/06/25
+;
+;written by: veda 2015/06/25
+;checked by: Veda 2015/July
+;
+;1D, 2D and 3D for N-Ca-CX correlation
+;Ca-CX mixing default: DARR or PDSD (see pl14 and d8)
+;ZGOPTNS '-DDREAM': enables DREAM for Ca-Cb mixing (see p37, sp37 and cnst24)
+;
+;during indirect Ca acq. carrier freq. is on Ca for usage of smallest SW
+;but F2 processing (3D) needs referencing --> check cnst42
+;
+;programmed with mc command: run either 'pseudo 3Ds' to combine each dim with 
+;each other in 2Ds (Parmode=3D, TD of unwanted Dim=1, FT with 'xfb')
+;or select dimension under Parmode to run 'real nDs':
+;1D: CaCX, 2D: N-CaCX or 3D: N-Ca-CX
+;
+;$CLASS=BioSolids
+;$DIM=1D, 2D, 3D
+;$TYPE=Heteronuclear
+;$SUBTYPE=hNC, DCP
+;$COMMENT=hNCaCX SPECIFIC Double CP
+
+
+;Avance II / AVIII version
+;Parameters:
+;f1 : C
+;f2 : H
+;f3 : N
+;o1 : C offset (for Ca-CX: center of C signal (~ 100 ppm),
+;               for Dream: center of aliphatics (~ 40 ppm))
+;o2 : H offset (~ 7.5 ppm)
+;o3 : N offset (~ 119 ppm)
+;p1 : C 90 at pl1
+;p2 : C 180 at pl1
+;p3 : H 90 at pl2
+;p16 : NCa CP at sp5 (N), sp50 (C), pl33 (H) (2.5 to 10 ms)
+;p21 : N 90 at pl21
+;p22 : N 180 at pl21
+;p25 : HN CP at sp43 (N) and sp42 (H)(0.5 to 3 ms)
+;p37 : Ca-Cb Dream mixing (3 to 7 ms)(using '-DDREAM')
+;pl1 : C pulse power
+;pl2 : H pulse power
+;pl3 : not used
+;pl12 : H dec power
+;pl14 : H DARR power (= 1*cnst31 (MAS freq); for PDSD = 0 W)
+;pl21 : N pulse power
+;pl33 : H dec power during NCa CP
+;sp5 : N NCa CP power (e.g. 5/2* MAS rate)
+;sp37 : Ca-Cb Dream power (~0.45 * MAS rate)(using '-DDREAM')
+;sp42 : H HN CP power (e.g. n=1 HH condition)
+;sp43 : N HN CP power (e.g. n=1 HH condition)
+;sp50 : C NCa CP power (e.g. 3/2* MAS rate)
+;d0 : incremented delay (t1)
+;d1 : recycle delay; 1 to 5 times T1 (~ 2 to 3 s)
+;d8 : Ca-CX PDSD/DARR mixing time (20 to 50 ms)
+;d10 : incremented delay (t2)
+;d29 : extra time for -DCDC3D (t2)
+;d30 : extra time for -DCDC2D/3D (t1)   
+;pcpd2 : H dec pulse for cpdprg2 (~p4-0.2 us)
+;cpdprg2 : H dec (e.g. 'spinal64_12nofq', or 'sltppm_12nofq') at pl12
+;spnam5 : N shape NCa DCP (e.g. 'square.1000' (= no shape))
+;spnam37 : Ca-Cb adiab. Dream shape, depends on MAS rate!(using '-DDREAM')
+;          (e.g. 'dream_vR13k_d2p5k.1000' used for 13 kHz MAS (= 'vR') and
+;          an amplitude modulation of 2.5 kHz (= 'd'))
+;          general shape parameters for Dream: Solids > TangAmpMod:
+;          size of shape = 1000 (fix), amplitude of modulation = 2500 to 4500,
+;          amplitude scaling factor = 100 % (fix), mean amplitude = 0.45 * MAS
+;          rate, dipolar couplings = 1000 (fix)
+;spnam42 : H shape HN CP (e.g. 'ramp70100.1000')
+;spnam43 : N shape HN CP (e.g. 'square.1000' (= no shape))
+;spnam50 : Ca shape NCa DCP(e.g. 'tacn80' for amplitude modulated tangential shape)
+;cnst10 : C center frequency (~100 ppm)
+;cnst22 : Ca frequency offset (~55 ppm = o1p in indirect Ca dim.)
+;cnst24 : Ca-Cb frequency offset during Dream (e.g. 55 to 30 ppm)(using '-DDREAM')
+;cnst29 : expected td2 for use in constant duty cycle (-DCDC3D)
+;cnst30 : expected td1 for use in constant duty cycle (-DCDC2D/3D)
+;cnst31 : MAS rotation rate in Hz
+;cnst42 : add value (in Hz) to SR-value for F2 processing (3D)
+;inf1 : 1/SW(N) = 2 * DW(N)
+;inf2 : 1/SW(Ca) = 2 * DW(Ca)
+;in0 : = inf1
+;in10 : = inf2
+;in29 : = inf2(-DCDC3D)
+;in30 : = inf1 (-DCDC2D/3D)
+;l0 : loopcounter for F1 (-DCDC2D/3D)
+;l1 : loopcounter for mixing time
+;l10 : loopcounter for F2
+;ZGOPTNS : -DCDC3D : for constant duty cycle with PARMODE = 3D
+;          -DCDC2D : for constant duty cycle with PARMODE = 2D
+;          -DDREAM : uses Dream for Ca-Cb transfer (default: DARR/PDSD for
+;                    Ca-CX transfer)
+;          or blank
+;FnMODE : States-TPPI (or TPPI, States)
+;ns : min. 8
+
+
+;######################################################
+;#                                                    #
+;# N-C SPECIFIC CP                                    #
+;#  Baldus, M.; Petkova, A. T.; Herzfeld, J. H.;      #
+;#    Griffin, R. G. Mol. Phys. 1998,95, 1197-1207.   #
+;#  M. Hong and R.G. Griffin;                         #
+;#    J. Am. Chem. Soc. 120, 7113-7114                #
+;#                                                    #
+;# PDSD & DARR/RAD                                    #
+;#  Szeverenyi, NM and Sullivan, MJ and Maciel, GE.   #
+;#    Journ Magn Reson 47(3):462-475, 1982            #
+;#  Takegoshi, K; Nakamura, S; Terao, T.              #
+;#    Chem Phys Lett. 344:631-637, 2001               #
+;#  CR Morcombe, V Gaponenko, RA Byrd, & KW Zilm      #
+;#    J Am Chem Soc 2004, 126, 7196-7197.             #
+;#                                                    #
+;# DREAM - theoretical expertise                      #
+;#  R. Verel et al. Chem Phys Lett 287:421-428, 1998  #
+;#                                                    #
+;#  DREAM - practical expertise                       #
+;#  T. Westfeld et al. J Biomol NMR 53:103-12, 2012   #
+;#                                                    #
+;######################################################
+
+
+prosol relations=<biosolCHN>
+
+
+#include <CHN_defs.incl>
+        ; defines which channel corresponds to which nucleus
+#include <TauR_def.incl>
+        ; definition of rotor period dependent delays
+
+"p2=p1*2"
+"p22=p21*2"
+
+"cnst42=o1-(bf1*(cnst22/1000000))"       ; Ca sr-value for processing
+
+#ifdef DREAM
+#else
+"l1=d8/TauR"                              ; TauR = time of one rotor period
+define pulse mixing
+"mixing=(l1*TauR)"                        ; mixing = d8
+#endif             /* end of DREAM specific calculations*/
+
+"acqt0=-(p1*2/3.1416)-0.5"                ; correction for baseopt
+
+"in0=inf1"                  ;##########################
+"d0=1u"                     ;#    t1_init => 0, 0     #
+"in30=inf1"                 ;##########################
+"l0=0"
+
+"in10=inf2"                 ;##########################
+"d10=1u"                    ;#    t2_init => 0, 0     #
+"in29=inf2"                 ;#                        #
+"l10=0"                     ;##########################
+
+define delay ONTIME         ;##########################
+define loopcounter T1evo    ;#   Constant Duty Cycle  #
+define loopcounter T2evo    ;#           2D           #
+                            ;##########################
+#ifdef CDC2D
+"T1evo=larger(td1,cnst30)"
+"d30=T1evo*(in30+1u)"
+#endif                      /* CDC2D */
+
+
+#ifdef CDC3D
+"T1evo=larger(td1,cnst30)"  ;##########################
+"d30=T1evo*(in30+1u)"       ;#   Constant Duty Cycle  #
+"T2evo=larger(td2,cnst29)"  ;#           3D           #
+"d29=T2evo*(in29+1u)"       ;##########################
+#endif                      /* CDC3D */
+
+
+                            ;##########################
+;$EXTERN                    ;# python insertion point #
+                            ;##########################
+
+Prepare, ze
+
+"d30=d30/2"
+"d29=d29/2"
+
+"ONTIME=aq+d0+d30+d29+p25+p16"   /*DARR and DREAM not considered*/
+
+;######################################################
+;#               Protections: Pre-Check               #
+;######################################################
+
+#include <TauR_prot.incl>
+        ;min. spinning 2.5 kHz
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#include <p16bio_prot.incl>
+        ;p16 max. 10 ms
+#include <p25bio_prot.incl>
+        ;p25 max. 10 ms
+#include <ONTIME_prot.incl>
+        ;total RF deposition restriction
+#include <t1_prot.incl>
+        ;check t1 evolution time
+#include <t2_prot.incl>
+        ;check t2 evolution time
+
+#ifdef DREAM
+#include <DREAMbio_prot.incl>
+        ;p37 max. 10 ms
+#else
+#include <DARR_prot.incl>
+        ;PDSD/DARR mixing max. 1 sec 
+#endif                           /* end of DREAM protection */
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 30m do:H
+
+  0.5u fq=cnst42(bf hz):C        ; show sr value for F2 dim
+
+  d1
+  0.5u  fq=0.0:H  0.5u fq=cnst10(bf ppm):C     ; H freq. on o2, C: Call freq.
+
+
+if "l0>0"
+{
+  "d51=d0-1u"
+}
+if "l10>0"
+{
+  "d52=d10-1u"
+}
+
+;######################################################
+;#                Initial excitation                  #
+;#                    & H - N CP                      #
+;######################################################
+
+  (p3 pl2 ph1):H
+  (p25:sp43 ph2):N  (p25:sp42 ph0):H
+
+;######################################################
+;#                   t1 evolution                     #
+;#              Polarization is on 15N                #
+;######################################################
+
+  0.5u pl12:H
+
+if "l0>0"
+{
+  0.5u cpds2:H
+  (center (d51) (p1 pl1 ph20 p2 ph21 p1 ph20):C)
+  0.5u do:H
+}
+
+;######################################################
+;#              NCa CP Period (SPECIFIC)              #
+;######################################################
+
+  0.5u fq=cnst22(bf ppm):C                           ; Ca freq.
+  (p16:sp50 ph4):C (p16 pl33 ph0):H (p16:sp5 ph3):N
+
+  0.5u pl12:H
+  
+if "l10>0"
+{
+  0.5u cpds2:H
+  (center (d52) (p21 pl21 ph20 p22 ph21 p21 ph20):N)
+  0.5u do:H
+}
+
+;######################################################
+;#          Ca-CX mixing (PDSD, DARR or DREAM)        #
+;######################################################
+
+#ifdef DREAM
+  0.5u fq=cnst24(bf ppm):C             ; Dream freq.
+  (p37:sp37 ph7):C  (p37 pl33 ph0):H   ; Dream freq.
+#else
+  0.5u fq=cnst10(bf ppm):C             ; Call freq.
+  (p1 pl1 ph5):C                       ; store  magn. along Z
+  (mixing ph20 pl14):H
+  (p1 pl1 ph6 ):C                      ;readout
+#endif                      /* end of different Ca-CX mixing*/
+
+;#######################################################
+;#                     Acquisition                     #
+;#######################################################
+
+  0.5u pl12:H
+  0.5u cpds2:H
+
+gosc ph31                             ;start ADC with ph31 signal routing
+
+#ifdef CDC2D
+  d30
+#endif                                /* end of CDC2D */
+
+#ifdef CDC3D
+  d30
+  d29
+#endif                                /* end of CDC3D */
+
+1m do:H
+lo to Start times ns
+
+30m mc #0 to Start
+  F1PH(calph(ph2, +90), caldel(d0, +in0) & caldel(d30, -in30) & calclc(l0, 1))
+  F2PH(calph(ph4, +90), caldel(d10, +in10) & caldel(d29, -in29) & calclc(l10,1))
+
+HaltAcqu, 1m
+exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph0 = 0                 ; H HN CP Spin lock
+ph1 = 1 3               ; H hard pulse and during NC CP
+ph2 = 0                 ; N HN CP Spin lock
+ph3 = 0 0 2 2           ; N NCa CP Spin lock
+ph4 = 0 0 0 0  2 2 2 2  ; C NCa CP Spin lock
+
+#ifdef DREAM
+ph7 = 0 0 0 0  2 2 2 2  ; C during DREAM follows ph4
+
+ph31= 0 2 2 0  2 0 0 2  ; receiver with DREAM mixing
+
+#else
+ph5 = 3                 ; C 90 to store magn. along Z
+ph6 = 1 1 2 2           ; C 90 read out
+
+ph31= 0 2 3 1  2 0 1 3  ; receiver with DARR/ PDSD mixing
+#endif                  /* end of diff. phase cycling for diff. mixing*/
+
+ph20= 0                 ; C 90 hard pulse and H DARR mixing
+ph21= 1                 ; C 180 pulse
+
+;#######################################################
+
+
+
+;$Id:$

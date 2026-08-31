@@ -1,0 +1,18 @@
+;H-H mixing protection file
+
+; Test the rf on-time for the HH-mixing in CHHC/NHHC (d9)
+; more than 750 us are inefficient
+
+;$COMMENT=Protection against long H-H mixing time
+;$CLASS=BioSolids PROT
+
+
+if "d9<500.1u" goto PassdHH
+1u 
+print "Mixing time d9 exceeds 750 us limit!"
+goto HaltAcqu
+PassdHH, 1m
+
+
+
+;$Id:$

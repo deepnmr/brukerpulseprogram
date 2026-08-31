@@ -1,0 +1,14 @@
+;Sysconf.incl
+;
+;version 06/12/18
+;
+;$CLASS=Common Incl
+;$COMMENT=
+
+
+#define D f1
+#define F f1
+
+
+
+;$Id:$

@@ -1,0 +1,49 @@
+;zghd
+;avance-version (12/01/11)
+;1D sequence with homodecoupling
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"d12=20u"
+
+
+"acqt0=-p1*2/3.1416"
+
+
+1 ze
+  d12 pl24:f2
+2 30m
+  d1 
+  p1 ph1
+  go=2 ph31 hd:f2
+  30m mc #0 to 2 F0(zd)
+  d12 do:f2
+exit
+
+
+ph1=0 2 2 0 1 3 3 1
+ph31=0 2 2 0 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl24: f2 channel - power level for hd/hc decoupling
+;p1 : f1 channel -  high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d12: delay for power switching                      [20 usec]
+;ns: 1 * n, total number of scans: NS * TD0
+
+
+;use DIGMOD homodecoupling-digital
+;   or digital for TCU3
+
+
+
+;$Id:$

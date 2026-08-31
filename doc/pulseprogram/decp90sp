@@ -1,0 +1,45 @@
+;decp90sp
+;avance-version (12/01/11)
+;calibration of 90 degree shaped pulse on f2 channel
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"d2=1s/(cnst2*2)"
+
+
+1 ze
+2 30m
+  d1 
+  p1 ph1
+  d2
+  p13:sp2:f2 ph2
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+
+ph1=0 2 2 0 1 3 3 1
+ph2=0 2 2 0 1 3 3 1
+ph31=0 2 2 0 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp2: f2 channel - shaped pulse  90 degree  (on resonance)
+;p1 : f1 channel -  90 degree high power pulse
+;p13: f2 channel -  90 degree shaped pulse
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J(XH))
+;cnst2: = J(XH)
+;ns: 1 * n, total number of scans: NS * TD0
+
+
+
+;$Id:$

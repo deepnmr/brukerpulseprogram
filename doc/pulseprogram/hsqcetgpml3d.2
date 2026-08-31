@@ -1,0 +1,200 @@
+;hsqcetgpml3d.2
+;avance-version (20/03/03)
+;HSQC-TOCSY
+;3D H-1/X correlation via double inept transfer
+;   using MLEV17 for homonuclear Hartman-Hahn mixing
+;phase sensitive using Echo/Antiecho-TPPI gradient selection (t1)
+;phase sensitive (t2)
+;with decoupling during acquisition
+;using trim pulses in inept transfer
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p5=p6*.667"
+"p7=p6*2"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+"d12=20u"
+
+
+"d0=3u"
+"d10=3u"
+
+"in0=inf1/2"
+"in10=inf2/2"
+
+
+"SCALEF=p7*2/p5"
+"FACTOR1=((d9-p17*2)/(p6*64+p5))/SCALEF"
+"l1=FACTOR1*SCALEF"
+
+
+"DELTA=p16+d16+p2+d0*2"
+"DELTA1=d4-p14/2"
+"DELTA2=d4+p14/2+d10*2"
+"DELTA3=p16+d16+8u"
+
+
+aqseq 321
+
+
+1 ze
+  d11 pl12:f2
+2 d1 do:f2
+  10u pl2:f2
+3 d12 pl1:f1
+  (p1 ph1)
+  DELTA1
+  (center (p2 ph1) (p14:sp3 ph6):f2 )
+  DELTA1 UNBLKGRAD
+
+#   ifdef TRIMP
+  p28 ph1
+#   endif /* TRIMP */
+
+  (p1 ph2)
+  
+  (p3 pl2 ph3):f2
+  d0 
+  (p2 ph5)
+  d0
+  p16:gp1*EA
+  d16
+  (p24:sp7 ph4):f2
+  DELTA
+  (p3 ph4):f2
+
+  (p1 ph7)
+  DELTA2
+  (p2 ph8)
+  d10
+  (p14:sp3 ph1):f2
+  d10
+  DELTA1 pl10:f1
+  (p17 ph26)
+						;begin MLEV17
+4 (p6 ph22 p7 ph23 p6 ph22)
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph22 p7 ph23 p6 ph22) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p6 ph24 p7 ph25 p6 ph24) 
+  (p5 ph23)
+  lo to 4 times l1
+						;end MLEV17
+  (p17 ph26)
+  DELTA3 pl1:f1
+  (p2 ph2)
+  4u
+  p16:gp2
+  d16 pl12:f2
+  4u BLKGRAD
+  go=2 ph31 cpd2:f2
+  d1 do:f2 mc #0 to 2 
+     F1EA(calgrad(EA) & caldel(d0, +in0) & calph(ph3, +180) & calph(ph6, +180) & calph(ph31, +180))
+     F2PH(calph(ph7, +90) & calph(ph8, +90), caldel(d10, +in10))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph6=0
+ph7=0 0 2 2
+ph8=1
+ph22=3
+ph23=0
+ph24=1
+ph25=2
+ph26=0
+ph31=0 2 2 0 2 0 0 2
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp3: f2 channel - shaped pulse (180degree inversion)
+;spnam3: Crp60,0.5,20.1
+;sp7: f2 channel - shaped pulse (180degree refocussing)
+;spnam7: Crp60comp.4
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p5 : f1 channel -  60 degree low power pulse
+;p6 : f1 channel -  90 degree low power pulse
+;p7 : f1 channel - 180 degree low power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion
+;     = 500usec for Crp60,0.5,20.1
+;p16: homospoil/gradient pulse
+;p17: f1 channel - trim pulse in spinlock part         [2.5 msec]
+;p24: f2 channel - 180 degree shaped pulse for refocussing
+;     = 2msec for Crp60comp.4
+;p28: f1 channel - trim pulse in inept transfer        [1 msec]
+;d0 : incremented delay (F1 in 3D)                     [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(CH))
+;d9 : TOCSY mixing time
+;d10: incremented delay (F2 in 3D)                     [3 usec]
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(CH)
+;cnst17: = -0.5 for Crp60comp.4
+;l1: loop for MLEV cycle: (((p6*64) + p5) * l1) + (p17*2) = mixing time
+;inf1: 1/SW(C) = 2 * DW(C)
+;inf2: 1/SW(H) = 2 * DW(H)
+;in0: 1/(2 * SW(C)) = DW(C)
+;nd0: 2
+;in10: 1/(2 * SW(H)) = DW(H)
+;nd10: 2
+;ns: 4 * n
+;ds: >= 32
+;td1: number of experiments in F1
+;td2: number of experiments in F2
+;FnMODE: echo-antiecho in F1
+;FnMODE: States-TPPI, TPPI, States or QSEQ in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 80%
+;gpz2: 20.1% for C-13
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;TRIMP: to use trimpulse p28@pl1 start experiment with
+;          option -DTRIMP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id:$

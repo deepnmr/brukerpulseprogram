@@ -1,0 +1,105 @@
+; GEMSTONE: Gradient-Enhanced Multiplet-Selective Targeted-Observation NMR Experiment
+
+;P. Kiraly , N. Kern, M.P. Plesniak, M. Nilsson, D.J. Procter, G.A. Morris, R.W. Adams, Angew. Chem. Int. Ed., 2021, 60, 666-669.
+
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+create_shape(sp41, cawurst, powerIndex=80, name= CSSF_ad1, length=$cnst52 ms, stepSize= 5.0 us, bandwidth= $cnst51 Hz, Q=11, sweepDirection=lowToHigh)
+create_shape(sp42, cawurst, powerIndex=80, name= CSSF_ad2, length=$cnst52 ms, stepSize= 5.0 us, bandwidth= $cnst51 Hz, Q=11, sweepDirection=highToLow)
+create_shape(sp22, rsnob, name= CSSF_sel, stepSize= 10.0 us, bandwidth= $cnst50 Hz)
+
+
+"d11=30m"
+"d11=30m+1s/(1+cnst50)"
+"d11=30m+1s/(1+cnst51)"
+"d11=30m+1s/(1+cnst52)"
+"d11=30m"
+
+"acqt0=0.0"
+baseopt_echo
+
+
+1 ze
+2 30m
+
+  50u BLKGRAMP	
+  50u LOCKH_OFF 
+  d1 pl1:f1
+  50u LOCKH_ON 
+  50u UNBLKGRAMP
+
+
+  (p1 ph1):f1
+
+
+  d16
+  ( center (p41:sp41 ph6):f1 (p41:gp11) )
+  d16
+
+
+  p16:gp1
+  d16
+  p22:sp22:f1 ph2:r
+  p16:gp1
+  d16 pl1:f1
+
+
+  d16
+  (center (p42:sp42 ph7):f1 (p42:gp12))	
+  d16 pl1:f1
+
+
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+
+  50u BLKGRAD
+
+exit
+
+
+ph1 = 0
+ph2 = 0 1  
+ph6 = 0 0 0 0 1 1 1 1
+ph7 = 0 0 1 1 0 0 1 1
+ph31= 2 0 0 2 0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp22: f1 channel - shaped pulse
+;sp41: f1 channel - shaped pulse (adiabatic)
+;sp42: f1 channel - shaped pulse (adiabatic)
+;p1 : f1 channel -  90 degree high power pulse
+;p22: f1 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                            [1 msec]
+;p41: f1 channel - 180 degree adiabatic pulse
+;p42: f1 channel - 180 degree  reverse sweep adiabatic pulse  
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;ns: 2 * n, total number of scans: NS * TD0
+;ds: 4
+;cnst50: band-width of the band-selective RSNOB pulse in Hz
+;cnst51: sweep-width of the adiabatic pulse in Hz
+;cnst52: duration of the adiabatic pulse in ms [t1max/2: 30-100]
+
+;for z-only gradients:
+;gpz1: 15%
+;gpz11: 0.5%  (0.5-5%)
+;gpz12: -0.5% (-gpz11)
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam11: RECT.1
+;gpnam12: RECT.1
+
+;run wvm -q before zg or launch with xaua
+;$Id: selnogpzs.2,v 1.2 2017/02/13 12:28:15 ber Exp $

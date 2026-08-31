@@ -1,0 +1,296 @@
+;hCH2D.dcp
+;
+;version: 1.0/ TS3.2 /2014/07/11
+;
+;written: Veda 2014/07/11
+;checked: Veda 2015/03/17
+;
+;1D & 2D 13C-1H CP experiment
+;HC CP, CH CP, and H-detection
+;
+;13C hard pulse optimization possible via 'ZGOPTNS' 
+;triple channel mode possible via 'ZGOPTNS'
+;
+;$CLASS=BioSolids
+;$DIM=1D, 2D
+;$TYPE=H detection
+;$SUBTYPE=CP, Heteronuclear
+;$COMMENT=hCH CP-based HSQC
+
+
+;Avance III version
+;Parameters:
+;f1 : H
+;f2 : N (using '-DTC')
+;f3 : C
+;o1 : H offset, on resonance with water peak (~5 ppm, water suppression!)
+;o2 : N offset, center of 15N signal (~119 ppm, using '-DTC')
+;o3 : C offset, center of 13C signal (~100 ppm)
+;p1 : C 90 hard pulse at pl1
+;p2 : C 180 hard pulse at pl1
+;p3 : H 90 hard pulse at pl2
+;p21 : N 90 hard pulse at pl21 (using '-DTC')
+;p22 : N 180 hard pulse at pl21 (using '-DTC')
+;p15 : HC CP at sp40 (H) & sp41 (C), (~1 to 3 ms)
+;p48 : CH CP at sp44 (H) & sp45 (C), (~400 to 800 us)
+;pl1 : C hard pulse power (can be optimized with '-DC90')
+;pl2 : H hard pulse power
+;pl3 : not used
+;pl12 : H dec power ('sltppm_12nofq' at RF=1/4*MAS rate --> ~15 kHz)
+;pl13 : H dec power during H2O suppression (~15 kHz, 'cwX_13nofq', 'cwY_13nofq')
+;pl16 : N dec power ('waltz16_16nofq' at 10 kHz, using '-DTC')
+;pl18 : C dec power ('waltz16_18nofq' at 10 kHz)
+;pl21 : N hard pulse power (using '-DTC')
+;sp40 : H HC CP power (50 kHz RF recommended at 60 kHz MAS)
+;sp41 : C HC CP power (10 kHz RF recommended at 60 kHz MAS)
+;sp44 : H CH CP power (50 kHz RF recommended at 60 kHz MAS)
+;sp45 : C CH CP power (10 kHz RF recommended at 60 kHz MAS)
+;d0 : incremented delay (t1)
+;d1 : recycle delay; 1 to 5 times T1 (~0.8 to 1 s)
+;d19 : delay for water suppression (~100 to 300 ms)
+;d30 : extra time for constant duty cycle (t1)
+;cpdprg1 : H dec ('sltppm_12nofq' at pl12 (15 kHz))
+;cpdprg2 : N dec ('waltz16_16nofq' at pl16 (10 kHz), using '-DTC')
+;cpdprg3 : C dec ('waltz16_18nofq' at pl18 (10 kHz))
+;cpdprg4 : H Water suppression along X ('cwX_13nofq' at pl13 (15 kHz))
+;cpdprg5 : H Water suppression along Y ('cwY_13nofq' at pl13 (15 kHz))
+;pcpd1 : H dec pulse: 33.33 us ('sltppm_12nofq' at 15kHz)
+;pcpd2 : N dec pulse: 25 us ('waltz16_16nofq' 10 kHz, using '-DTC')
+;pcpd3 : C dec pulse: 25 us ('waltz16_18nofq' 10 kHz)
+;spnam40 : H shape (ramp up for CH CP, e.g. 'ramp70100.1000')
+;spnam41 : C shape (e.g. 'square.1000' for HC CP (=no shape))
+;spnam44 : H shape (ramp down for CH CP, e.g. 'ramp10070.1000')
+;spnam45 : C shape (e.g. 'square.1000' for CH CP (=no shape))
+;cnst30 : expected td1 for use in constant duty cycle (-DCDC)
+;inf1 :  1/SW(C) = 2 * DW(C)
+;in0 : = inf1
+;in30 : = inf1
+;l0 : loopcounter for F1
+;ZGOPTNS : -DCDC  : for constant duty cycle (same heating effects/scan)
+;          -DTC   : for HNC triple channel mode 
+;                   (default: HC double channel mode)
+;          -DC90  : optimize 13C 90 pulse (ZERO crossing)
+;          -Dlacq : acquisition times > 50ms
+;          or blank
+;FnMODE : States-TPPI
+;ns : MIN. 4 (full: 8)
+;ds : 2 or 4
+
+
+;######################################################
+;#                                                    #
+;# hCH2D.cp based on hNH2D.dcp                        #
+;# Knight et al, Angew. Chem. Int. Ed. Engl.          #
+;# 2011, 50, 11697-11701.                             #
+;#                                                    #
+;######################################################
+
+
+prosol relations=<biosolHNC>
+
+
+#include <HNC_defs.incl>
+        ; defines H:f1, N:f2, C:f3
+
+#include <trigg.incl>
+        ; definition of external trigger output
+
+"acqt0=-(p1*2/3.1416)-0.5u"     ; baseopt correction
+
+"spoffs40=0.0"                ;##########################
+"spoffs41=0.0"                ;#     ensure correct     #
+"spoffs44=0.0"                ;#     shape offsets      #
+"spoffs45=0.0"                ;##########################
+
+"p2=p1*2"
+"p22=p21*2"
+
+"in0=inf1"                  ;##########################
+"d0=1u"                     ;#    t1_init => 0, 0     #
+"in30=inf1"                 ;#                        #
+"l0=0"                      ;##########################
+
+define delay ONTIME         ;##########################
+define loopcounter T1evo    ;#   Constant Duty Cycle  #
+                            ;##########################
+#ifdef CDC
+"T1evo=larger(td1,cnst30)"
+"d30=T1evo*(in30+1u)/2"
+#else
+"d30=1u"
+#endif                      /* CDC */
+
+
+                            ;##########################
+;$EXTERN                    ;# python insertion point #
+                            ;##########################
+
+"ONTIME=aq+d0+d30+p15+p48+d19" 
+
+Prepare, ze
+
+;######################################################
+;#               Protections: Pre-Check               #
+;######################################################
+
+#ifdef lacq
+#else
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#include <ONTIME_H_prot.incl>
+        ;total RF deposition restriction to < 1 s
+#endif                 /* end of lacq */
+
+#include <p15bio_prot.incl>
+        ;p15 max. 10 ms
+#include <p48bio_prot.incl>
+        ;p48 max. 10 ms
+#include <noH2Obio_prot.incl>
+        ;water suppression d19 max. 500 ms
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 30m  do:C
+
+#ifdef TC
+  0.5u do:N
+#endif          /* end of TC */
+
+  d1
+  trigg
+
+if "l0>0"
+{
+  "d51=d0-1u"
+}
+
+;######################################################
+;#             Initial excitation & HC CP             #
+;######################################################
+
+  (p3 pl2 ph1):H
+
+  (p15:sp40 ph0):H  (p15:sp41 ph2):C
+
+;######################################################
+;#                   t1 evolution                     #
+;#             Polarization is on 13C                 #
+;######################################################
+
+  0.5u pl12:H
+
+#ifdef TC
+if "l0>0"
+{
+  0.5u cpds1:H
+  (center (d51) (p22 pl21 ph20):N)
+  0.5u do:H  pl13:H
+}
+#else
+if "l0>0"
+{
+  0.5u cpds1:H
+  d51
+  0.5u do:H  pl13:H
+}
+#endif          /* end of TC */
+
+;######################################################
+;#             Water suppression                      #
+;######################################################
+
+  (p1 pl1 ph3):C          ; brings magn. to z
+
+  0.5u cpds4:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds5:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds4:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds5:H
+  d19*0.25
+  0.5u do:H
+
+  (p1 pl1 ph4):C          ; brings magn. to y
+  
+;######################################################
+;#           13C hard pulse optimization              #
+;######################################################
+
+#ifdef C90                ; brings magn. to z
+  (p1 pl1 ph22):C
+#endif           /* end of C90 */ 
+
+;######################################################
+;#                     C-H CP                         #
+;######################################################
+
+  (p48:sp45 ph5):C  (p48:sp44 ph6):H
+
+;#######################################################
+;#                     Acquisition                     #
+;#######################################################
+
+#ifdef TC
+  0.5u pl16:N  pl18:C
+  0.5u cpds2:N  cpds3:C
+#else
+  0.5u pl18:C
+  0.5u cpds3:C
+#endif          /* end of TC */
+
+  gosc ph31     ;start ADC with ph31 signal routing
+
+#ifdef CDC
+  d30
+#endif          /* end of CDC */
+
+#ifdef TC
+  1m do:C  do:N
+#else
+  1m do:C
+#endif          /* end of TC */
+
+lo to Start times ns
+
+30m mc #0 to Start
+F1PH(calph(ph2, +90), caldel(d0, +in0) & caldel(d30, -in30) & calclc(l0, 1))
+
+HaltAcqu, 1m
+exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph1 = 1 3                  ; H 90 hard pulse
+ph0 = 0                    ; H HC CP Spin lock
+ph2 = 1                    ; C HC CP Spin lock
+ph3 = 0                    ; C 1st 90 hard pulse (flip to z)
+ph4 = 0 0 2 2              ; C 2nd 90 hard pulse (flip back)
+ph5 = 1                    ; C CH CP Spin lock
+ph6 = 1 1 1 1  3 3 3 3     ; H CH CP Spin lock
+
+ph31= 1 3 3 1  3 1 1 3     ; receiver
+
+#ifdef TC
+ph20= 0                    ; N 180 hard pulse
+#endif                     /* end of TC */
+
+#ifdef C90 
+ph22= 0 0 2 2              ; C hard pulse 
+#endif                     /* end of C90 */ 
+
+;#######################################################
+
+
+
+;$Id: $

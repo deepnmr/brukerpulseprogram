@@ -1,0 +1,136 @@
+;cpredorxy8i
+;avance-version (20/11/23)
+
+;2d REDOR  experiment 
+;Rance & Byrd phase cycling for the echo
+;see: Gullion & Schaefer, J.M.R., 81, 196, 1989
+
+;interleaved xy8 acquisition of Sr and So signal
+;written by jos (06/06/04)
+;updated JOS 07/06/06
+;updated for AV3 JOS 10/25/07
+
+;parameters:
+;p3 : proton 90 at power level pl12
+;p15 : contact time at pl1 (f1) and pl2 (f2)
+;cpdprg2 : cw, tppm (at pl12), 
+;p2 : X 180 degree pulse at pl11
+;p12 : Y 180 degree pulse at pl3
+;p31 : TPPM pulse length
+;cnst31 : spin rate >1 kHz
+;l0 : number loops of xy8
+;d1 : recycle delay
+;d31 : used to check spin rate
+;pl1 : X power level for contact
+;pl11 : X power level for 180
+;pl2 : proton power level for contact
+;pl12 : proton power level for decoupling
+;pl3 : Y power level for 180 pulse
+;pl22 : =119 dB (no recoupling pulses) (S0 signal)
+;pl13 : e.g. used in tppm13
+;spnam0 : file name for variable amplitude CP
+
+;$COMMENT=REDOR experiment, cp for excitation, XY8 phase cycle
+;$CLASS=Solids
+;$DIM=pseudo 2D
+;$TYPE=cross polarisation
+;$SUBTYPE=interleaved REDOR 
+
+
+#include <Avance.incl>
+
+
+"l1=l0*8"
+"d25=0.25s/cnst31"
+"d26=0.25s/cnst31-(p12/2)"	; one-quarter rotor cycle ...
+"d27=0.25s/cnst31-(p2/2)"	; ... with various corrections
+"d29=0.75s/cnst31-(p2/2)"
+"d31=1s/cnst31"
+define loopcounter nfid
+"nfid=td1/2"
+define delay dephase
+"dephase = (d31*2)+(d31*l1)"
+define delay totaldephase
+"totaldephase=(d31*2)+(d31*l1)+((nfid-1)*l3*l1*d31)"
+"acqt0=1u*cnst11"
+  
+#include <trigg.incl>
+
+
+1 ze			;accumulate into an empty memory
+  dephase
+  totaldephase
+#include <rot_prot.incl>
+#include <p15_prot.incl>
+#include <aq_prot.incl>
+2 d1 do:f2		;recycle delay, decoupler off in go-loop
+  "l1=l0*8" 
+  10u pl1:f1                  	;set power level to drive HP amplifier
+  10u pl12:f2                  	;set decoupler power
+  10u pl3:f3
+  rpp8	       	              	; reset phase list ph8 ...
+  rpp9		              	;          ... and ph9
+  trigg
+  p3:f2 ph1                   	;90 degree proton pulse
+  0.5u
+  (p15 ph2):f1 (p15:sp0 ph3):f2   	;cross-polarization
+   d25 cpds2:f2  		; tppm decoupling at pl12
+3  d26 pl11:f1			; several F3 pulses ...
+  (p12 ph8^):f3       		; ... at intervals of ...
+   d26				; ... one-half rotor cycle
+   d27
+  (p2 ph9^):f1	        	; F1 pulse
+   d27
+lo to 3 times l1 
+  d29
+  (p2 ph2):f1           	; Hahn echo refocussing pulse
+  d29
+  d25			      	; Hahn echo occurs about now
+  go=2 ph31 
+  1m do:f2
+  30m wr #0 if #0 zd		; write S 
+  1u				; this delay equalizes loop inc.
+
+12 d1 do:f2		;recycle delay, decoupler off in go-loop
+  "l1=l0*8" 
+  10u pl1:f1                  	;set power level to drive HP amplifier
+  10u pl12:f2                  	;set decoupler power
+  10u pl22:f3
+  rpp8	       	              	; reset phase list ph8 ...
+  rpp9		              	;          ... and ph9
+  trigg                       	;additional trigger available on HP router
+  p3:f2 ph1                   	;90 degree proton pulse
+0.5u
+  (p15 ph2):f1 (p15:sp0 ph3):f2   	;cross-polarization
+   d25 cpds2:f2  		; tppm decoupling at pl12
+13  d26 pl11:f1			; several F3 pulses ...
+  (p12 ph8^):f3       		; ... at intervals of ...
+   d26				; ... one-half rotor cycle
+   d27
+  (p2 ph9^):f1	        	; F1 pulse
+   d27
+lo to 13 times l1 
+  d29
+  (p2 ph2):f1           	; Hahn echo refocussing pulse
+  d29
+  d25			      	; Hahn echo occurs about now
+  go=12 ph31 
+  1m do:f2
+  30m wr #0 if #0 zd		; write S0
+
+30  1u iu0
+   lo to 30 times l3
+lo to 2 times nfid
+HaltAcqu, 1m
+exit
+
+ph1=  1 1 3 3
+ph2=  0 1 0 1
+ph3=  0
+ph8=  0 1 0 1  1 0 1 0
+ph9=  0 1 0 1  1 0 1 0
+ph31= 0 1 2 3
+
+
+
+;$Id:$

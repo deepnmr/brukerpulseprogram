@@ -1,0 +1,266 @@
+;na_hpdino19
+;avance-version (13/11/08)
+;hetero TOCSY-NOESY
+;2D P-31/H-1 correlation via hetero TOCSY
+;   using a DIPSI2 spinlock
+;   and additional HH NOESY step
+;phase sensitive
+;water suppression using 3-9-19 pulse sequence
+;(use parameterset NA_HPDINO19)
+;
+;G.W. Kellogg, A.A. Szewczak & P.B. Moore, 
+;   J. Am. Chem. Soc. 114, 2727-2728 (1992)
+;(G.W. Kellogg, J. Magn. Reson. 98, 176-182 (1992) )
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple_na>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define pulse P_SAT
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d11=30m"
+"d12=20u"
+
+
+"in0=inf1/2"
+
+#   ifdef LABEL_CN
+"d0=in0/2-larger(p2,p4)/2-p21*2/3.1416"
+#   else
+"d0=in0/2-p2/2-p21*2/3.1416"
+#   endif /*LABEL_CN*/
+
+
+"TAU=d8-p16-d16-d12-54u"
+"TAU1=p1*2/3.1416-(p0-p27)*0.231-de+46u"
+
+
+"FACTOR1=(d21/(p25*115.112))/2"
+"l1=FACTOR1*2"
+
+"P_SAT=p1*4/3"
+
+"l4=d1/(P_SAT+5m)"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+
+#   ifdef LABEL_CN
+  d11 pl12:f2 pl16:f3
+2 d11 do:f2 do:f3
+3 d12 pl1:f1 pl2:f2 pl3:f3
+#   else
+  d11 pl16:f3
+2 d11 do:f3
+3 d12 pl1:f1 pl3:f3
+#   endif /*LABEL_CN*/
+
+4 (P_SAT ph1)
+  5m
+  lo to 4 times l4
+  4u
+
+  (p21 ph3):f3
+  d0 
+
+#   ifdef LABEL_CN
+  (center (p2 ph5) (p4 ph1):f2 )
+#   else
+  (p2 ph5)
+#   endif /*LABEL_CN*/
+
+  d0 pl25:f1 pl23:f3
+  (p33 ph4):f3
+
+					;begin DIPSI2:f1, DIPSI2:f3
+5 (p25*3.556 ph11):f1 (p25*3.556 ph21):f3
+  (p25*4.556 ph12):f1 (p25*4.556 ph22):f3
+  (p25*3.222 ph11):f1 (p25*3.222 ph21):f3
+  (p25*3.167 ph12):f1 (p25*3.167 ph22):f3
+  (p25*0.333 ph11):f1 (p25*0.333 ph21):f3
+  (p25*2.722 ph12):f1 (p25*2.722 ph22):f3
+  (p25*4.167 ph11):f1 (p25*4.167 ph21):f3
+  (p25*2.944 ph12):f1 (p25*2.944 ph22):f3
+  (p25*4.111 ph11):f1 (p25*4.111 ph21):f3
+  
+  (p25*3.556 ph12):f1 (p25*3.556 ph22):f3
+  (p25*4.556 ph11):f1 (p25*4.556 ph21):f3
+  (p25*3.222 ph12):f1 (p25*3.222 ph22):f3
+  (p25*3.167 ph11):f1 (p25*3.167 ph21):f3
+  (p25*0.333 ph12):f1 (p25*0.333 ph22):f3
+  (p25*2.722 ph11):f1 (p25*2.722 ph21):f3
+  (p25*4.167 ph12):f1 (p25*4.167 ph22):f3
+  (p25*2.944 ph11):f1 (p25*2.944 ph21):f3
+  (p25*4.111 ph12):f1 (p25*4.111 ph22):f3
+
+  (p25*3.556 ph12):f1 (p25*3.556 ph22):f3
+  (p25*4.556 ph11):f1 (p25*4.556 ph21):f3
+  (p25*3.222 ph12):f1 (p25*3.222 ph22):f3
+  (p25*3.167 ph11):f1 (p25*3.167 ph21):f3
+  (p25*0.333 ph12):f1 (p25*0.333 ph22):f3
+  (p25*2.722 ph11):f1 (p25*2.722 ph21):f3
+  (p25*4.167 ph12):f1 (p25*4.167 ph22):f3
+  (p25*2.944 ph11):f1 (p25*2.944 ph21):f3
+  (p25*4.111 ph12):f1 (p25*4.111 ph22):f3
+
+  (p25*3.556 ph11):f1 (p25*3.556 ph21):f3
+  (p25*4.556 ph12):f1 (p25*4.556 ph22):f3
+  (p25*3.222 ph11):f1 (p25*3.222 ph21):f3
+  (p25*3.167 ph12):f1 (p25*3.167 ph22):f3
+  (p25*0.333 ph11):f1 (p25*0.333 ph21):f3
+  (p25*2.722 ph12):f1 (p25*2.722 ph22):f3
+  (p25*4.167 ph11):f1 (p25*4.167 ph21):f3
+  (p25*2.944 ph12):f1 (p25*2.944 ph22):f3
+  (p25*4.111 ph11):f1 (p25*4.111 ph21):f3
+  lo to 5 times l1
+					;end DIPSI2:f1, DIPSI2:f3
+
+  4u
+  4u pl1:f1 pl16:f3
+
+  (p1 ph2)
+  d12 pl32:f1
+  TAU cw:f1 ph29
+  4u do:f1
+  50u UNBLKGRAD
+  p16:gp1
+  d16 pl1:f1
+  (p1 ph1)
+
+  50u
+  p16:gp2
+  d16 pl18:f1
+  p27*0.231 ph6
+  d19*2
+  p27*0.692 ph6
+  d19*2
+  p27*1.462 ph6
+  d19*2
+  p27*1.462 ph7
+  d19*2
+  p27*0.692 ph7
+  d19*2
+  p0*0.231 ph7
+  TAU1
+  p16:gp2
+
+#   ifdef LABEL_CN
+  d16 pl12:f2
+  4u BLKGRAD
+  go=2 ph31 cpd2:f2 cpd3:f3
+  d11 do:f2 do:f3 mc #0 to 2 
+#   else
+  d16
+  4u BLKGRAD
+  go=2 ph31 cpd3:f3
+  d11 do:f3 mc #0 to 2 
+#   endif /*LABEL_CN*/
+
+     F1PH(calph(ph3, +90), caldel(d0, +in0))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=1 3
+ph4=0 0 0 0 2 2 2 2
+ph5=0 0 2 2
+ph6=0
+ph7=2
+ph11=0
+ph12=2
+ph21=0 0 0 0 2 2 2 2
+ph22=2 2 2 2 0 0 0 0
+ph29=0
+ph31=0 2 0 2 2 0 2 0
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl16: f3 channel - power level for CPD/BB decoupling
+;pl18: f1 channel - power level for 3-9-19-pulse (watergate)
+;pl23: f3 channel - power level for TOCSY-spinlock
+;pl25: f1 channel - power level for TOCSY-spinlock (higher sel.)
+;         to match p25/pl23
+;pl32: f1 channel - power level for low power presaturation
+;p0 : f1 channel -  90 degree pulse at pl18
+;                      use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse                          [1 msec]
+;p21: f2 channel -  90 degree high power pulse
+;p25: f3 channel -  90 degree pulse at pl23
+;p27: f1 channel -  90 degree pulse at pl18
+;p33: f3 channel - trim pulse                           [2 ms]
+;d0 : incremented delay (2D) = in0/2-larger(p2,p4)/2-p21*2/3.1416
+;d1 : relaxation delay; 1-5 * T1
+;d8 : mixing time
+;d11: delay for disk I/O                                [30 msec]
+;d12: delay for power switching                         [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;d21: hetero-TOCSY mixing time (PH)                     [20 msec]
+;o2p: 77 ppm
+;o3p: 0 ppm
+;l1: loop for DIPSI cycle: ((p25*115.112) * l1) = mixing time
+;l4: loop for saturation sequence: = d1 / (p1*4/3 + 5m)
+;inf1: 1/SW(P) = 2 * DW(P)
+;in0: 1/(2 * SW(P)) = DW(P)
+;nd0: 2
+;ns: 8 * n
+;ds: >= 32
+;td1: number of experiments
+;FnMODE: States-TPPI (or TPPI)
+;cpd2: decoupling according to sequence defined by cpdprg2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:    gp 1 : gp 2
+;                         30 :   10
+
+;for z-only gradients:
+;gpz1: 30%
+;gpz2: 10%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+;set pl32 to 0W when presaturation is not required
+;   use pl1 + 75 to 80dB to reduce radiation damping
+
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with 
+;             option -DLABEL_CN (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id:$

@@ -1,0 +1,136 @@
+;HOMCOR.dp
+
+
+;version: 1.0/ TS4.2.0 01/12/2022
+; JOS
+
+
+;###############################################################
+;#                                                             #
+;#  FSLG HETCOR 1H Calibration experiment                      #
+;#  B. Kumari et al. Aplied magn. Reson. 2019                  #
+;#       https://doi.org/10.1007/s00723-019-01156-2            #
+;###############################################################
+
+
+;$COMMENT= 
+;$CLASS=SolidsIcon
+;$DIM=2D
+;$TYPE=DPMAS
+;$SUBTYPE=HETCOR
+
+prosol relations=<solids_ICON>
+#include <Delay.incl>
+#include <trigg.incl>
+      
+
+"plw13=plw31*pow(((cnst51+cnst38)/(10000)),2)"
+
+define pulse pma
+"pma=(p1*547)/900"
+"cnst20 = cnst51"
+
+#ifdef fslg
+
+#endif /* fslg */
+
+#ifdef dumbo
+"spw10=plw13"
+"in0=(0.588*l3*p10)"
+"inf1=in0"
+#else
+#include <lgcalc.incl>
+"in0=(0.578*l3*4*p5)"
+"inf1=in0"
+#endif /* dumbo */
+
+"l0=0"
+"l1=d8*cnst31"
+define delay mix
+#ifdef sync 
+"mix=(l1*1s/cnst31)-p3"
+#else
+"mix=d8"
+#endif
+
+"acqt0=-p1*2/3.1416"
+
+
+Prepare, ze
+
+Start, 10m do:f2
+  d1
+  trigg
+  1u fq=0.0:f1                     ;set 1H on resonance
+  (p1 pl1 ph0):f1
+
+#ifdef dumbo
+  1u fq=cnst24:f1
+3 (p10:sp10 ph13):f1
+  lo to 3 times l0
+  1u fq=cnst21:f1
+#else
+  (pma ph1):f1
+  1u fq=cnst24:f1
+3 (p5 pl13 fq=cnst22 ph3):f1
+  (p5 fq=cnst23 ph4):f1
+  (p5 fq=cnst22 ph3):f1
+  (p5 fq=cnst23 ph4):f1
+  lo to 3 times l0
+  (pma ph7 pl1 fq=cnst21):f1
+#endif 
+  (p1 ph8):f1
+mix
+  (p1 ph9):f1
+  go=Start ph31 
+  10m mc #0 to Start F1PH(calph(ph0, +90), caldel(d0, +in0) & calclc(l0, l3))
+
+HaltAcqu, 1m
+Exit, exit
+
+
+ph0=1 3
+ph1=1
+
+ph13=2
+ph3=0
+ph4=2
+ph7=3 
+ph8= 1 1 3 3
+ph9={{{3}*4}^2}^1
+ph31={{{0 2}^2}^2}^1 
+  
+
+;#######################################################
+
+
+;HOMCOR experiment
+
+;Avance NEO  version
+;parameters:
+;p1      : H 90 at pl1
+;p10 		: DUMBO decoupling pulse 26 to 28 us
+;pl1     : H pulse power
+;pl12    : H dec power
+;pl31	   : H for 10kHz spinlock field
+;sp10	   : DUMBO shape -edumbo22 or dumbo01 (create with au program dumbo
+;cnst24  : FSLG offset , use same from HETCOR experiment
+;cnst31  : MAS rate in Hz
+;cnst32 : 1H heteronuclear decoupling power correction factor in %
+;cnst33 : 1H spinlock power correction factor in %
+;cnst38 : 1H FSLG decoupling power correction factor in %
+;cnst50	 : desired spinlock field in Hz for CP X (n-0.5)*MASR  for H (n+0.5)*MASR
+;cnst51  : 1H FSLG or DUMBO decoupling field in Hz  = cnst20 
+;cnst52  : 1H heteronuclear decoupling in Hz pl12 decoupling
+;d1      : recycle delay; 1 to 5 times T1
+;d8 	 : mixing delay - short 2us to several hundred us
+;pcpd2   : not used, instead p31 is used as pulse length in decoupling sequence cpdprg2
+;cpdprg2 : spinal64, swftppm, tppm etc. decoupling program
+;spnam0  : H amplitude modulated contact pulse use tan modulated pulse tanhc60 or tanhc
+;spnam1  : X amplitude modulated contact pulse use constant amplitude square.100
+;spnam10 : dumbo or dumbo_1+0 or edumbo22_1+0
+;ZGOPTNS : -Dsync rotor synchronized mixing delay
+
+
+
+;$Id: HOMCOR.cp,v 1.0         Exp $

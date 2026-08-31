@@ -1,0 +1,415 @@
+;b_hncocanhgpspwg6d.2
+;avance-version (21/09/15)
+;HNCOCANH
+;6D sequence with
+;   inverse correlation for triple resonance using multiple
+;      inept transfer steps
+;
+;      F1(H, t1) -> F3(N, t2) -> F2(C=O,t3) 
+;                -> F2(Ca,t4) -> F3(N,t5) -> F1(H,t6)
+;
+;on/off resonance Ca and C=O pulses using shaped pulse
+;phase sensitive
+;using semi-constant time
+;using shaped pulses for inversion and refocussing on f3
+;water suppression using watergate sequence
+;(use parameterset )
+;
+;(P. Schanda, H. v. Melckebeke & B. Brutscher, 
+;   J. Am. Chem. Soc. 128, 9042-9043 (2006) )
+;(E. Lescop, P. Schanda & B. Brutscher, 
+;   J. Magn. Reson.  187 163-169 (2007) )
+;(F. Fiorito, S. Hiller, G. Wider & K. Wuethrich, 
+;   J. Biomol. NMR 35, 27-37 (2006) )
+;
+;$CLASS=HighRes
+;$DIM=6D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+
+"d21=5.5m"
+"d22=4.5m"
+"d23=14m"
+"d26=2.7m"
+"d27=25m"
+
+
+"p41=(bwfac25/(cnst55*cnst51*bf1))*1000000"
+"spw25=plw1*pow((p1*totrot25)/(p41*90.0*integfac25),2)"
+"spw27=plw1*pow((p1*totrot27)/(p41*90.0*integfac27),2)"
+"spoal25=1"
+"spoal27=0"
+
+"p42=(bwfac26/(cnst55*cnst52*bf1))*1000000"
+"spw26=plw1*pow((p1*totrot26)/(p42*90.0*integfac26),2)"
+"spw42=plw1*pow((p1*totrot42)/(p42*90.0*integfac42),2)"
+"spoal26=0.5"
+"spoal42=0.5"
+
+"p43=(bwfac28/(cnst55*cnst53*bf1))*1000000"
+"spw28=plw1*pow((p1*totrot28)/(p43*90.0*integfac28),2)"
+"spoal28=1"
+
+
+"d32=3u"
+"d34=3u"
+"d35=3u"
+"d51=3u"
+"d52=3u"
+"d53=3u"
+"d54=3u"
+"d55=3u"
+
+"d31=d26-p56/2-p41*cnst41-p42/2"
+"d33=d22-p14-d53"
+"d41=d26+p56/2+d51-p41*cnst41-p42/2"
+"d42=d23-p57/2"
+"d43=d22-p14-4u"
+"d44=d27-p14-4u"
+"d45=d23-p57/2-4u"
+
+"in31=inf1/2"
+"in32=inf2/2"
+"in33=inf3/2"
+"in34=inf4/2"
+"in35=inf5/2"
+
+"FACTOR1=d41*10000000*2/td1"
+"INCR1=FACTOR1/10000000"
+
+"if ( INCR1 > in31 ) { in41 = in31; } else { in41 = INCR1; }"
+"if ( INCR1 > in31 ) { in51 = 0; } else { in51=in31-INCR1; }"
+
+
+"FACTOR2=d42*10000000*2/td2"
+"INCR2=FACTOR2/10000000"
+
+"if ( INCR2 > in32 ) { in42 = in32; } else { in42 = INCR2; }"
+"if ( INCR2 > in32 ) { in52 = 0; } else { in52=in32-INCR2; }"
+
+"FACTOR3=d43*10000000*2/td3"
+"INCR3=FACTOR3/10000000"
+
+"if ( INCR3 > in33 ) { in43 = in33; } else { in43 = INCR3; }"
+"if ( INCR3 > in33 ) { in53 = 0; } else { in53=in33-INCR3; }"
+
+"FACTOR4=d44*10000000*2/td4"
+"INCR4=FACTOR4/10000000"
+
+"if ( INCR4 > in34 ) { in44 = in34; } else { in44 = INCR4; }"
+"if ( INCR4 > in34 ) { in54 = 0; } else { in54=in34-INCR4; }"
+
+"FACTOR5=d45*10000000*2/td5"
+"INCR5=FACTOR5/10000000"
+
+"if ( INCR5 > in35 ) { in45 = in35; } else { in45 = INCR5; }"
+"if ( INCR5 > in35 ) { in55 = 0; } else { in55=in35-INCR5; }"
+
+
+"DELTA1=d23-d22-p14"
+"DELTA2=p26+d21"
+"DELTA3=d23-p57/2-d52-p14-p44-d26"
+"DELTA4=d23-d26-p44-p14-d55-p57/2"
+"DELTA5=d26-p16-d16-larger(p42,p56)/2-4u"
+"DELTA6=d27-d22-p14-p56-d54"
+"DELTA7=d26-p14-d32"
+"DELTA8=d22-d34-p44"
+"DELTA9=d26-d35-p14"
+
+
+"spoffs2=0"
+"spoffs3=0"
+"spoffs5=bf2*((cnst22-cnst21)/1000000)"
+"spoffs7=bf2*((cnst21-cnst22)/1000000)"
+"spoffs8=0"
+"spoffs25=0"
+"spoffs26=bf1*((cnst54-cnst18)/1000000)"
+"spoffs27=0"
+"spoffs28=bf1*((cnst54-cnst18)/1000000)"
+"spoffs30=0"
+"spoffs42=0"
+
+
+"o1_F1=bf1*cnst54/1000000"
+"o1_F3=bf2*cnst21/1000000"
+"o1_F4=bf2*cnst22/1000000"
+
+
+1 ze
+
+  d11 pl26:f3 
+2 d11 do:f3
+3 d1 pl1:f1 fq=cnst21(bf ppm):f2
+  d12 pl3:f3 fq=cnst54(bf ppm):f1
+  d12
+  50u UNBLKGRAD
+
+  p16:gp7
+  d16
+
+  (p41:sp25 ph5)
+  d31
+  (p56:sp39 ph1):f3
+  d51
+  (p42:sp42 ph1)
+  d41
+  (p41:sp27 ph2):f1
+
+  p16:gp1
+  d16 pl3:f3
+  30u fq=cnst18(bf ppm):f1
+
+  (p21 ph6):f3
+  d42
+  (p57:sp40 ph1):f3
+  d52
+  (p14:sp3 ph1):f2
+  DELTA3 pl3:f3
+  (p44:sp30 ph1)
+  DELTA7
+  (p14:sp5 ph1):f2
+  d32
+  (p21 ph1):f3
+  (p44:sp30 ph3)
+
+  p16:gp2
+  d16
+
+  (p13:sp2 ph7):f2
+  (
+   refalign (d33 p14:sp5 ph1 d53):f2 
+   center (p44:sp30 ph1)
+   center (p56:sp39 ph1):f3
+  )
+  (p14:sp3 ph1):f2
+  (
+   refalign (d43 p14:sp5 ph1 4u):f2 
+   center (p44:sp30 ph3)
+   center (p56:sp39 ph1):f3
+  )
+  (p13:sp8 ph2):f2
+
+  4u
+  p16:gp6
+  d16
+  30u fq=cnst22(bf ppm):f2
+
+  (p13:sp2 ph8):f2
+  d34
+  (p44:sp30 ph1)
+  DELTA8
+  (p14:sp7 ph1):f2
+  DELTA6
+  (p56:sp39 ph1):f3
+  d54
+  (p14:sp3 ph1):f2 
+  d44
+  (p14:sp7 ph1):f2
+  4u
+  (p13:sp8 ph2):f2
+  (p44:sp30 ph3)
+
+  p16:gp3
+  d16 pl3:f3
+
+  (p21 ph9):f3
+  d35
+  (p14:sp7 ph1):f2
+  DELTA9
+  (p44:sp30 ph1)
+  DELTA4
+  (p14:sp3 ph1):f2
+  d55
+  (p57:sp40 ph1):f3
+  d45
+  4u pl3:f3
+  (p21 ph1):f3
+  (p44:sp30 ph3)
+
+  p16:gp4
+  d16
+
+  (p43:sp28 ph1)
+  4u
+  p16:gp5
+  d16
+  DELTA5
+  (center (p42:sp26 ph1) (p56:sp39 ph1):f3 )
+  DELTA5
+  p16:gp5
+  d16 pl26:f3
+  4u BLKGRAD
+  go=2 ph31 cpd3:f3 
+  d11 do:f3 mc #0 to 2
+     F1PH(calph(ph5, +90), caldel(d31, +in31) & caldel(d41, -in41) & caldel(d51, +in51))
+     F2PH(calph(ph6, -90), caldel(d32, +in32) & caldel(d42, -in42) & caldel(d52, +in52))
+     F3PH(calph(ph7, +90), caldel(d33, +in33) & caldel(d43, -in43) & caldel(d53, +in53))
+     F4PH(calph(ph8, +90), caldel(d34, +in34) & caldel(d44, -in44) & caldel(d54, +in54))
+     F5PH(calph(ph9, +90), caldel(d35, +in35) & caldel(d45, -in45) & caldel(d55, +in55))
+exit
+
+
+ph1=0
+ph2=1
+ph3=2
+ph4=3
+ph5=0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+    2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ph6=0 0 0 0 2 2 2 2
+ph7=2 2 2 2 2 2 2 2 0 0 0 0 0 0 0 0
+ph8=0 2
+ph9=0 0 2 2
+ph31=0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0
+     2 0 0 2 0 2 2 0 0 2 2 0 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl26: f3 channel - power level for CPD/BB low power decoupling
+;sp2: f2 channel - shaped pulse  90 degree  (on resonance)
+;sp3: f2 channel - shaped pulse 180 degree  (on resonance)
+;sp5: f2 channel - shaped pulse 180 degree  (Ca off resonance)
+;sp7: f2 channel - shaped pulse 180 degree  (C=O off resonance)
+;sp8: f2 channel - shaped pulse  90 degree  (on resonance)
+;                  for time reversed pulse
+;sp25: f1 channel - shaped pulse  90 degree (Pc9_4_90.1000)
+;sp26: f1 channel - shaped pulse 180 degree (Reburp.1000)
+;sp27: f1 channel - shaped pulse  90 degree (Pc9_4_90.1000)
+;                   for time reversed pulse
+;sp28: f1 channel - shaped pulse  90 degree (Eburp2.1000)
+;sp30: f1 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;sp39: f3 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;sp40: f3 channel - shaped pulse 180 degree (Reburp.1000)
+;sp42: f1 channel - shaped pulse 180 degree (Reburp.1000)
+;p1 : f1 channel -  90 degree high power pulse
+;p13: f2 channel -  90 degree shaped pulse
+;p14: f2 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p41: f1 channel -  90 degree shaped pulse for excitation
+;                      Pc9_4_90.1000             (2.2ms at 600.13 MHz)
+;p42: f1 channel - 180 degree shaped pulse for refocussing
+;                      Reburp.1000               (1.4ms at 600.13 MHz)
+;p43: f1 channel -  90 degree shaped pulse for excitation
+;                      Eburp2.1000/Eburp2tr.1000 (1.7ms at 600.13 MHz)
+;p44: f1 channel - 180 degree shaped pulse for refocussing
+;                      Bip720,50,20.1            (200us at 600.13 MHz)
+;p56: f3 channel - 180 degree shaped pulse for inversion
+;                      Bip720,50,20.1            (500us at 600.13 MHz)
+;p57: f3 channel - 180 degree shaped pulse for refocussing
+;                      Reburp.1000               (1.6ms at 600.13 MHz)
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d21: 1/(2J(NH)                                        [5.5 msec]
+;d22: 1/(4J(COCa)                                      [4.5 msec]
+;d23: 1/(4J(NCO)                                       [14 msec]
+;d26: 1/(4J(NH)                                        [2.7 msec]
+;d27: 1/(4J(NCa)                                       [25 msec]
+;d31: incremented delay (F1 in 6D) = d26-p56/2-p41*cnst41-p42/2
+;d32: incremented delay (F2 in 6D)                     [3 usec]
+;d33: incremented delay (F3 in 6D) = d22-p14-d53
+;d34: incremented delay (F4 in 6D)                     [3 usec]
+;d35: incremented delay (F5 in 6D)                     [3 usec]
+;d41: decremented delay (F1 in 6D) = d26+p56/2+d51-p41*cnst41-p42/2
+;d42: decremented delay (F2 in 6D) = d23-p57/2
+;d43: decremented delay (F3 in 6D) = d22-p14-4u
+;d44: decremented delay (F4 in 6D) = d27-p14-4u
+;d45: decremented delay (F5 in 6D) = 
+;d51: incremented delay (F1 in 6D)                     [3 usec]
+;d52: incremented delay (F2 in 6D)                     [3 usec]
+;d53: incremented delay (F3 in 6D)                     [3 usec]
+;d54: incremented delay (F4 in 6D)                     [3 usec]
+;d55: incremented delay (F5 in 6D)                     [3 usec]
+;cnst18: H2O chemical shift (offset, in ppm)
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst22: Calpha chemical shift (offset, in ppm)
+;cnst41: compensation of chemical shift evolution during p41
+;           Pc9_4_90.1000: 0.529
+;cnst43: compensation of chemical shift evolution during p43
+;           Eburp2.1000: 0.5
+;cnst51: scaling factor for p41 to compensate for transition region
+;           Pc9_4_90.1000: 1.172
+;cnst52: scaling factor for p42 to compensate for transition region
+;           Reburp.1000: 1.426
+;cnst53: scaling factor for p43 to compensate for transition region
+;           Eburp2.1000: 1.000
+;cnst54: H(N) chemical shift (offset, in ppm)
+;cnst55: H(N) bandwidth (in ppm)
+;o2p: Calpha chemical shift (cnst22)
+;inf1: 1/SW(HN) = 2 * DW(HN)
+;inf2: 1/SW(N) = 2 * DW(N)
+;inf3: 1/SW(CO) = 2 * DW(CO)
+;inf4: 1/SW(Ca) = 2 * DW(Ca)
+;inf5: 1/SW(N) = 2 * DW(N)
+;in31: 1/(2 * SW(HN)) = DW(HN)
+;in32: 1/(2 * SW(N)) = DW(N)
+;in33: 1/(2 * SW(CO)) = DW(CO)
+;in34: 1/(2 * SW(Ca)) = DW(Ca)
+;in35: 1/(2 * SW(N)) = DW(N)
+;in41: = k1 * in31
+;in42: = k2 * in32
+;in43: = k3 * in33
+;in44: = k4 * in34
+;in45: = k5 * in35
+;in51: = (1 - k1) * in31
+;in52: = (1 - k2) * in32
+;in53: = (1 - k3) * in33
+;in54: = (1 - k4) * in34
+;in55: = (1 - k5) * in35
+;ns: 8 * n
+;ds: >= 16
+;td1: number of experiments in F1
+;td2: number of experiments in F2
+;td3: number of experiments in F3
+;td4: number of experiments in F4
+;td5: number of experiments in F5
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;FnMODE: States-TPPI (or TPPI) in F3
+;FnMODE: States-TPPI (or TPPI) in F4
+;FnMODE: States-TPPI (or TPPI) in F5
+;cpds1: decoupling according to sequence defined by cpdprg1
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd1: f1 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+;cpdprg3: garp4.p62
+
+
+;for z-only gradients:
+;gpz1: 50%
+;gpz2: -23%
+;gpz3: -27%
+;gpz4: -11%
+;gpz5: 31%
+;gpz6: -13%
+;gpz7: 17%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+
+
+
+;$Id: $

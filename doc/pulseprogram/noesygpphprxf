@@ -1,0 +1,136 @@
+;noesygpphprxf
+;avance-version (12/01/11)
+;2D homonuclear correlation via dipolar coupling with 
+;   X double half filter
+;dipolar coupling may be due to noe or chemical exchange.
+;phase sensitive
+;with decoupling during acquisition
+;with presaturation during relaxation delay
+;
+;G. Otting & K. Wuethrich, J. Magn. Reson. 85, 586 - 594 (1989)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d2=1s/(cnst2*2)"
+"d11=30m"
+"d12=20u"
+"d13=4u"
+
+
+"in0=inf1/2"
+
+"d0=3u"
+
+
+"DELTA1=d2-d0"
+"DELTA2=d8-p16-d16"
+"DELTA3=d2+p3*2"
+
+
+1 ze
+  d11 pl12:f2
+2 d11 do:f2
+3 d12 pl9:f1 
+  d1 cw:f1 ph29
+  d13 do:f1
+  d12 pl1:f1 
+  (p1 ph4)
+  d2 pl2:f2
+  (p3 ph13):f2
+  d13 
+  (p3 ph1):f2
+  (p2 ph5)
+  DELTA1 UNBLKGRAD
+  
+  d0			
+  (p4 ph1):f2		
+  d0			
+  
+  (p1 ph1)
+  DELTA2 
+  p16:gp1             
+  d16
+  (p1 ph1)
+  
+  d2 
+  (p3 ph3):f2
+  4u
+  (p3 ph1):f2
+  (p2 ph1)
+  DELTA3 pl12:f2
+  
+  4u BLKGRAD  
+  go=2 ph31 cpd2:f2
+  d11 do:f2 mc #0 to 2
+     F1I(ip3*2, 2, ip13*2, 2)
+     F1PH(calph(ph4, +90) & calph(ph5, +90) & calph(ph29, +90), caldel(d0, +in0))
+exit
+  
+  
+ph1=0
+ph2=1 
+ph3=0
+ph4=0 2
+ph5=0 2
+ph13=0
+ph29=0
+ph31=0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl9 : f1 channel - power level for presaturation
+;pl12: f2 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse
+;d0 : incremented delay (2D)                           [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)XH
+;d8 : mixing time
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d13: short delay                                      [4 usec]
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(XH)
+;inf1: 1/SW(H) = 2 * DW(H)
+;in0: 1/(2 * SW(H)) = DW(H)
+;nd0: 2
+;ns: 8 * n
+;ds: 32
+;td1: total number of experiments 
+;        = number of experiments in each 2D * 4
+;FnMODE: States-TPPI (or TPPI)
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:	gp 1 
+;			  20 
+
+;for z-only gradients:
+;gpz1: 20%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+
+
+;use AU-program split [ipap 4] to create separate datasets
+
+
+
+;$Id:$

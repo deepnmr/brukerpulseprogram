@@ -1,0 +1,212 @@
+;selroadgpjs
+;avance-version (21/09/15)
+;1D EASY ROESY
+;jump-symmetrized with adiabatic spinlocks for mixing
+;   using selective refocussing with a shaped pulse
+;
+;C.M. Thiele, K. Petzold & J. Schleucher, 
+;   Chem. Eur. J. 15, 585-588 (2009)
+;J. Schleucher, J. Quant, S. Glaser & C. Griesinger, 
+;   J. Magn. Reson A 112, 144-151 (1995)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+define pulse P_SL
+
+
+"cnst24=1000000.0*tan((cnst28*2*PI)/360.0)/(dw*4)"
+
+"if ( cnst24 > 6500 ) {cnst25 = 6400.0;} else {cnst25 = cnst24;}"
+"if ( cnst24 > 6500 ) {cnst29 = atan(cnst25*4*dw/1000000.0)*360.0/(2*PI);} else {cnst29=cnst28;}"
+
+"if (cnst26<cnst25) {cnst27=cnst25;} else {if (cnst26>6500) {cnst27=6400;} else {cnst27=cnst26;} }"
+
+
+"cnst30=abs(cnst27/tan((cnst29*2*PI)/360.0))"
+
+define list<frequency> roesylist={sfo hz, 0.0, cnst30, -cnst30, 0}
+
+
+"p30=1000000.0/(cnst27*4)"
+
+"cnst31= (p30/p1) * (p30/p1)"
+
+"spw12=plw1/cnst31"
+"spw13=plw1/cnst31"
+"spw16=plw1/cnst31"
+"spw17=plw1/cnst31"
+"spw41=plw1/cnst31"
+
+"cnst23=cnst30+cnst31+p30"
+
+
+"d11=30m"
+"d12=20u"
+
+"p41=1m"
+
+
+"P_SL=p15/2"
+
+
+"spoffs12=0"
+"spoffs13=0"
+"spoffs16=0"
+"spoffs17=0"
+"spoffs41=0"
+
+
+#   ifdef CALC_SPOFFS
+"spoffs2=bf1*(cnst21/1000000)-o1"
+#   else
+#   endif /*CALC_SPOFFS*/
+
+
+1 ze
+2 d11
+  
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u  
+#   endif /*FLAG_BLK*/
+
+  d12  roesylist:f1
+  4u roesylist.inc
+
+  d1 pl1:f1
+  50u UNBLKGRAD
+
+  (p1 ph1):f1
+  
+  3u
+  p16:gp3
+  d16
+  p12:sp2:f1 ph2
+  3u
+  p16:gp3
+  d16 pl1:f1
+    
+  (p1 ph2):f1
+  4u
+  p16:gp1
+  d16 roesylist:f1
+  4u roesylist.inc
+
+  (p41:sp12 ph2):f1
+  (P_SL:sp41 ph2):f1
+  (p41:sp13 ph2):f1
+
+  4u
+  4u roesylist:f1
+  4u roesylist.inc
+
+  (p41:sp16 ph2):f1
+  (P_SL:sp41 ph2):f1
+  (p41:sp17 ph2):f1
+
+  4u
+  p16:gp2
+  d16 roesylist:f1
+  4u roesylist.inc
+  4u pl1:f1
+
+#   ifdef FLAG_BLK
+  4u  
+#   else
+  4u BLKGRAD
+#   endif /*FLAG_BLK*/
+
+  (p1 ph3)
+
+  go=2 ph31 
+  30m mc #0 to 2 F0(zd)
+
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u  
+#   endif /*FLAG_BLK*/
+
+exit
+  
+
+ph1=0 2
+ph2=0
+ph3=2 2 0 0 3 3 1 1
+ph29=0
+ph31=0 2 2 0 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp2: f1 channel - shaped pulse
+;sp12: f1 channel - shaped pulse for adiabatic ramp down (lowfield, positive offset) (= pl1 + cnst31)
+;spnam12: Gaussramp+down.1
+;sp13: f1 channel - shaped pulse for adiabatic ramp up (lowfield, positive offset) (= pl1 + cnst31)
+;spnam13: Gaussramp+up.1
+;sp16: f1 channel - shaped pulse for adiabatic ramp down (highfield, negative offset) (= pl1 + cnst31)
+;spnam16: Gaussramp-down.1
+;sp17: f1 channel - shaped pulse for adiabatic ramp up (highfield, negative offset) (= pl1 + cnst31)
+;spnam17: Gaussramp-up.1
+;sp41: f1 channel - shaped pulse for ROESY-spinlock (= pl1 + cnst31)
+;spnam41: Squa100.1000
+;p1 : f1 channel -  90 degree high power pulse
+;p12: f1 channel - 180 degree shaped pulse
+;p15: f1 channel - pulse for ROESY spinlock
+;p16: homospoil/gradient pulse                         [1 msec]
+;p30: f1 channel -  90 degree pulse at sp41
+;p41: f1 channel - shaped pulse for adiabatic ramp     [1 msec]
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery
+;cnst21: chemical shift for selective pulse (offset, in ppm)
+;cnst23; (for display purpose only)
+;cnst24: min. RF field strength to make sure that the carrier is shifted 
+;           to the edge of the spectrum
+;cnst25: reduced min. RF field strength in case an upper limit of 6.5kHz is exceeded 
+;           (set to 6.4kHz), this leads to a recalculation of the tilt angle (cnst29)
+;cnst26: requested RF field strength (gammaB1) for ROESY spinlock
+;           reduced to 6.4kHz if an upper limit of 6.5kHz is exceeded
+;cnst27: used RF field strength (gammaB1) for ROESY spinlock
+;cnst28: requesetd tilt angle for ROESY spinlock (between axis of spinlock and z-axis) [45 degree]
+;cnst29: used tilt angle for ROESY spinlock (between axis of spinlock and z-axis) 
+;cnst30: low and highfield offset, 
+;          calculated from gammaB1 (cnst27) for tilt angle (cnst29)
+;cnst31: difference in power level (dB) for spinlock relative to pl1
+;ns: 8 * n
+;ds: 16
+
+
+
+;for z-only gradients:
+;gpz1: 31%
+;gpz2: 11%
+;gpz3: 23%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;CALC_SPOFFS: automatically calcuate spoffs for selective pulses
+;             start experiment with option -DCALC_SPOFFS (eda: ZGOPTNS)
+;FLAG_BLK: for BLKGRAD before d1 rather than go
+;             option -DFLAG_BLK: (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: $

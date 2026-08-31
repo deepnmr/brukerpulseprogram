@@ -1,0 +1,161 @@
+;ledbpgp2sdync
+;avance-version (22/01/23)
+;2D sequence for diffusion measurement using stimulated 
+;   echo and LED
+;using bipolar gradient pulses for diffusion
+;using 2 spoil gradients
+;use the ZGOPTNS -DFLAG_BLK to set the system to BLKGRAD before the acquisition in order to avoid lock artefacts from the gradient recovery.
+;use the ZGOPTNS -DPRESAT to switch on signal suppression by presaturation.
+
+;D. Wu, A. Chen & C.S. Johnson Jr., 
+;   J. Magn. Reson. A 115, 260-264 (1995).
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+; -------------- This "out of the box" DOSY works in conjunction with the Dynamics Center for the automated fitting of DOSY data --------------
+; for a more detailed description, refer to the description in the title of the parameter set DOSY_DC.
+; The DOSY experiment is usually started with the command xaua (rather than zg) to trigger the AU program "dosy" prior to acquisition.
+; when triggered manually, the AU program "dosy" will ask the user to define the gradient list or if triggered in automation, it will use the settings from the file Difframp in the TopSpin directory. 
+; Relying on Difframp can lead to unwanted behavior, for example if Difframp does not exist or if it contains outdated values, or if it was changed by another user. 
+; To avoid this, the "out of the box" DOSY uses a hard-coded gradient list to make sure that the experiment runs out of the box after reading the parameter set "DOSY_DC".
+; The experiment works for all users with the same settings, increases reproducibility and thereby the comparability of the experimental data. The experiment can be started with zg or in automation by IconNMR.
+; Note that the ledbpgp2sdync pulse program is part of an optimized DOSY experimental procedure which works in conjunction with optimized preset values from the parameter set "DOSY_DC" and the processing AU program "proc_dosy_dc". Using those three components, the DOSY_DC will work "out of the box" by following the instructions given in the title of the parameter set. 
+; The hard coded gradient list can be redefined by changing "#define dosymacro" and "define list<gradient> diff".
+
+; The hard coded gradient list is equivalent to the list that is created by the command "dosy 10 98 8 e no"
+; To change the hard-coded gradient list, change the below string accordingly.
+; This string is passed to the processing AU program proc_dosy_dc to create the difflist in the experiment folder which is read by the Dynamics Center.
+#define dosymacro "file: dosycmd dosy 10 98 8 e no"
+
+; explicit gradient list as obtained with the command "dosy 10 98 8 e no"
+; "dosy 10 98 8 e no" gradient strenght 10 to 98%, 8 F1 increments, exponential sampling, only creating the gradient list without starting acquisition
+; to change the hard-coded gradient list, enter dosy in the TopSpin command line and follow the dialog. The gradient list is created in the following path topshimhome\exp\stan\nmr\lists\gp\user\Difframp. Insert the gradient values in the following line:
+define list<gradient> diff= { 0.100000 0.138549 0.191959 0.265957 0.368481 0.510527 0.707330 0.980000 }
+
+
+"p2=p1*2"
+"d12=4u"
+"DELTA=d1-30m-4u"
+"DELTA1=d20-p1*2-p2-p30*2-d16*2-p19-d16-3*d12"
+"DELTA2=d21-p19-d16-3*d12"
+#ifndef PRESAT
+"plw9=0"
+#endif
+"acqt0=-p1*2/3.1416"
+
+1 ze
+print dosymacro
+2 30m
+
+#   ifdef FLAG_BLK
+  4u LOCKH_OFF
+#   else
+  4u
+#   endif /*FLAG_BLK*/
+
+  d12 pl9:f1
+  DELTA cw:f1 ph29
+  d12 do:f1 
+  d12 pl1:f1
+  50u UNBLKGRAD
+  p1 ph1
+  p30:gp6*diff
+  d16
+  p2 ph1
+  p30:gp6*-1*diff
+  d16
+  p1 ph2
+  p19:gp7
+  d16 pl9:f1
+
+#   ifdef FLAG_BLK
+  d12 BLKGRAMP
+  DELTA1 cw:f1 ph29
+  d12 do:f1
+  20u UNBLKGRAMP
+#   else
+  d12
+  DELTA1 cw:f1 ph29
+  d12 do:f1
+  20u
+#   endif /*FLAG_BLK*/
+  d12 pl1:f1
+
+  p1 ph3
+  p30:gp6*diff
+  d16
+  p2 ph1
+  p30:gp6*-1*diff
+  d16
+  p1 ph4
+  p19:gp8
+  d16 pl9:f1 
+
+#   ifdef FLAG_BLK
+  d12 BLKGRAMP
+  DELTA2 cw:f1 ph29
+  d12 do:f1
+#   else
+  DELTA2 cw:f1 ph29
+  d12 do:f1
+  d12 BLKGRAD
+#   endif /*FLAG_BLK*/
+  d12 pl1:f1
+
+  p1 ph3
+  go=2 ph31
+  30m mc #0 to 2 F1QF(calgrad(diff))
+  4u BLKGRAD
+exit
+
+ph1= 0 0 0 0  0 0 0 0  0 0 0 0  0 0 0 0
+ph2= 0 0 0 0  2 2 2 2  0 0 2 2  0 0 2 2
+ph3= 0 1 2 3  0 1 2 3  2 3 2 3  0 1 0 1
+ph4= 0 1 2 3  0 1 2 3  0 1 0 1  2 3 2 3
+ph29=0
+ph31=0 3 2 1  2 1 0 3  0 3 2 1  2 1 0 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1  : f1 channel -  90 degree high power pulse
+;p2  : f1 channel - 180 degree high power pulse
+;p19: gradient pulse 2 (spoil gradient)
+;p30: gradient pulse (little DELTA * 0.5)
+;d1  : relaxation delay; 1-5 * T1
+;d16: delay for gradient recovery
+;d20: diffusion time (big DELTA)
+;d21: eddy current delay (Te)			[5 ms]
+;ns: 4 * n
+;ds: 4 * m
+;td1: number of experiments
+;FnMODE: QF(no-frequency)
+;        use xf2 and DOSY processing
+
+
+;use gradient ratio:    gp 6 : gp 7   : gp 8
+;                       100  : -17.13 : -13.17
+
+;for z-only gradients:
+;gpz6: 100%
+;gpz7: -17.13% (spoil)
+;gpz8: -13.17% (spoil)
+
+;use gradient files:   
+;gpnam6: dynctrap
+;gpnam7: SMSQ10.100
+;gpnam8: SMSQ10.100
+
+
+
+
+;$Id:$
+

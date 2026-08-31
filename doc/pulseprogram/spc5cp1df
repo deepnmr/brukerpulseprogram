@@ -1,0 +1,156 @@
+;spc5cp1Df
+;avance-version (21/02/18)
+;
+;1D SQ-DQ correlation experiment with SPC5 sequence and cross polarization
+;for setup of 2D INADEQUATE type experiments
+;for yield measurements
+;
+;corresponding 2D sequence spc5cp2daswf for inadequate experiments
+;modified by HF 09.05.2008 for floating point phases
+;revised by GALT 18.08.2011
+;
+;references:
+; M. Hohwy, C. M. Rienstra, C. P. Jaroniec, and R. G. Griffin:
+; Fivefold symmetric homonuclear recoupling in rotating solids:
+; Application to double quantum spectroscopy
+; J. Chem. Phys. 110, 7983-7992 (1999)
+;
+;for the original C7 sequence see: 
+; Lee et al. Chem Phys Lett 242, 304-309, 1995
+;
+;phase cycling: 	4 (double quantum filter + read pulse phase cycling) 
+;								* 4 (read pulse 90 degree phase shift) 
+;								* 2 (1H (f2) spin temperature inversion)
+; full phase cycle: ns=32
+; ns=16 should give resonably clean spectra
+; for ns=4 or ns=8 some artefacts may occur 
+; (most of these are suppressed by the read pulse cycling)
+;
+;Avance III version
+;
+;parameters:
+;d1 : recycle delay
+;d0 : min. delay in t1 evolution
+;pl1 : for X contact pulse
+;sp0 : proton power level during contact
+;pl2 : =120dB, not used
+;pl11 : for SPC5 recouping sequence B1=5*cnst31 in Hz
+;pl12 : for 1H excitation and decoupling
+;pl13 : for LG decoupling cpdprg1 = cwlg or cw13 or tppm13
+;p1   : excitation pulse f1 at plw1
+;p3   : 1H excitation pulse at plw12
+;p5   : FSLG 2pi pulse set by lgcalc.incl
+;p15  : HH contact pulse
+;pcpd2 : decoupling pulse f2 at plw12, pcpd2 = 2*P3-0.2us used by TPPM and SPINAL
+;pcpd1 : decoupling pulse during SPC5
+;spnam0 : for CP on 1H e.g. ramp.64 
+;cpdprg1: decoupling f2 during SPC5, e.g. cw (or cwlg) or tppm
+;cpdprg2: decoupling f2, e.g. tppm15, SPINAL64
+;cnst20: LG-RF field as adjusted, in Hz used to calculate cnst22 and cnst23 +and - LG frequency
+;cnst21: =0 frequency reset (set by lgclac.incl)
+;cnst22: +LG frequency offset calc. by lgcalc.incl
+;cnst23: -LG frequency offset calc. by lgcalc.incl
+;cnst24: offset for 1H evol. during FSLG: 0 - -2000
+;cnst31: spinning speed
+;l0     : number of composite SPC5 cycles for exciation (usually a multiple of 5)
+;l1     : number of composite SPC5 cycles for reconversion (usually amultiple of 5)
+;zgoptns : blank or =fixed (l1=l0)
+;ns     : 16*n (full cycle: ns=32, ns=4 and ns=8 may result in minor artefacts)
+;
+;
+;$CLASS=Solids
+;$DIM=1D
+;$TYPE=cross polarisation
+;$SUBTYPE=homonuclear correlation
+;$COMMENT=DQ excitation sequence SPC5, cp for excitation
+
+prosol relations=<solids_cp>
+
+
+#include <lgcalc.incl>
+			;calculates cnst22 and cnst23 from cnst20, RF field at pl13
+
+define pulse pul360
+"pul360=(1s/cnst31)/5"
+define pulse pul90
+"pul90=(0.25s/cnst31)/5"
+define pulse pul270
+"pul270=(0.75s/cnst31)/5"
+
+"d31=(1s/cnst31)"
+
+;for identical excitation and reconversion blocks
+#ifdef fixed
+"l1=l0"
+#endif
+
+define delay mix
+"mix=l0*2*d31"
+;for protection against excessively long recoupling pulses
+define delay excite
+"excite=2.0*l0*pul360"
+define delay reconv
+"reconv=2.0*l1*pul360"
+define delay recoup
+"recoup=excite+reconv"
+
+;for digmod=baseopt
+"acqt0=(-2.0*p1)/3.14159"
+
+#include <rot_prot.incl>
+			;requires cnst31 to be set to 1000 Hz or larger
+  ze
+1 mix
+2 d1 do:f2 
+#include <p15_prot.incl>	
+			;make sure p15 does not exceed 10 msec	
+			;let supervisor change this pulseprogram if 
+			;more is needed
+#include <aq_prot.incl>
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#include <recoup_prot.incl>
+			;allows max. 10 ms of total (excitation and reconversion) recoupling time               
+  1m rpp11
+  1m rpp12
+  1m rpp13
+  1m rpp14
+  1u fq=cnst21:f2
+  (p3 pl12 ph1):f2
+  (p15 pl1 ph2):f1 (p15:sp0 ph10):f2
+  (p1 pl1 ph4):f1	(1u cpds1):f2		
+3 (pul90 ph11 pl11 ipp13 ipp14):f1	;SPC5 DQ excitation
+  (pul360 ph12 ipp12):f1   
+  (pul270 ph11 ipp11):f1
+  lo to 3 times l0						;l0 = multiple of 5 
+5 (pul90 ph13):f1							;SPC5 DQ reconversion
+  (pul360 ph14 ipp14):f1
+  (pul270 ph13 ipp13):f1  
+  lo to 5 times l1						;l1 = multiple of 5 
+  (p1 pl1 ph5):f1 (1u cpds2):f2
+  gosc ph31
+  1m do:f2
+  1m ip13
+  1m ip14
+  lo to 2 times ns
+  100m wr #0 
+  1m do:f2
+HaltAcqu, 1m
+exit
+
+ph1 = {1}*16 {3}*16
+ph2= 0
+ph4= {3}*16 {1}*16
+ph5= 1 2 3 0 2 3 0 1
+     3 0 1 2 0 1 2 3
+ph10=0
+
+ph11= (degree, 45.0) 0 72 144 216 288 180 252 324 36 108
+ph12= (degree, 45.0) 180 252 324 36 108 0 72 144 216 288
+ph13= (degree, 90.0) 90 162 234 306 18 270 342 54 126 198  
+ph14= (degree, 90.0) 270 342 54 126 198 90 162 234 306 18
+ph31= 2 1 0 3 3 2 1 0 0 3 2 1 1 0 3 2                      ;DQ selection phase cycling
+
+
+;$Id:$

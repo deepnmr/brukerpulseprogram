@@ -1,0 +1,280 @@
+;hCaH1D.dcp
+
+;version: 1.0/ TS3.2 /2015/03/18
+;version: 2.0/ TS3.2 /2015/08/10
+;version: 2.1/ TS3.5 /2016/01/11
+
+;written: Veda 2015/03/18
+;checked: Veda 2015/03/19
+;modified: Vdec 2016/Jan: offset setting
+
+;1D 13Ca-1H CP experiment
+;H-Ca CP, Ca-H CP, and H-detection
+
+;13Ca selective 90 or 180 shaped pulse optimization possible via 'ZGOPTNS' 
+;included optimization of Ca-Cb selective 180 pulse using '-DCABQ3': change o3
+;triple channel mode possible via 'ZGOPTNS'
+
+;Avance III version
+;Parameters:
+;f1 : H
+;f2 : N (using '-DTC')
+;f3 : C
+;o1 : H offset, on resonance with water peak (~5 ppm, water suppression!)
+;o2 : N offset, center of 15N signal (~119 ppm, using '-DTC')
+;o3 : C offset, center of 13Ca signal (set to value of cnst22, ~54 ppm) or
+;     center of Ca-Cb signal (set to value of cnst24, ~40 ppm, using '-DCABQ3')
+;p1 : C 90 hard pulse at pl1
+;p2 : C 180 hard pulse at pl1
+;p3 : H 90 hard pulse at pl2
+;p18 : HCa CP at sp52 (C) and sp38 (H), (~2 to 6 ms)
+;p20 : Ca-Cb selective 180 pulse at sp20 (~200 us (not too long to stay 
+;      selective (using '-DCABQ3') --> is linearly proportional to 1/B0! 
+;      --> adjust length to B0 used)
+;p21 : N 90 hard pulse at pl21 (using '-DTC')
+;p22 : N 180 hard pulse at pl21 (using '-DTC')
+;p24 : Ca selective 180 pulse at sp24 (~256 to 275 us (if no selectivity from 
+;      Cb needed) or 600 to 700 us (selectivity from Cb involved) at 600 MHz)
+;      (using '-DCQ3')
+;      (is linearly proportional to 1/B0! --> adjust length to B0 used)
+;p34 : Ca selective 90 pulse at sp34 (~320 us at 600 MHz)(using '-DCQ5')
+;      (is linearly proportional to 1/B0! --> adjust length to B0 used)
+;p38 : CaH CP at sp18 (H) and sp54 (C), (~400 to 800 us)
+;pl1 : C hard pulse power
+;pl2 : H hard pulse power
+;pl3 : not used
+;pl12 : H dec power ('sltppm_12nofq' at RF=1/4*MAS rate --> ~15 kHz)
+;pl13 : H dec power during H2O suppression (~15 kHz, 'cwX_13nofq', 'cwY_13nofq')
+;pl16 : N dec power ('waltz16_16nofq' at 10 kHz, using '-DTC')
+;pl18 : C dec power ('waltz16_18nofq' at 10 kHz)
+;pl21 : N hard pulse power (using '-DTC')
+;sp18 : H CaH CP power (50 kHz RF recommended at 60 kHz MAS)
+;sp20 : Ca-Cb selective 180 power (using '-DCABQ3')
+;       (open the shape in the shapetool>stdisp and go to >Analysis>
+;       Integrate Shape and enter:"length of p20, '180.0', length of p1"
+;       --> result will tell by how much pl1 needs to be changed for sp20)
+;sp24 : Ca selective 180 power (using '-DCQ3')
+;       (open the shape in the shapetool>stdisp and go to >Analysis>
+;       Integrate Shape and enter:"length of p24, '180.0', length of p1"
+;       --> result will tell by how much pl1 needs to be changed for sp24)
+;sp34 : Ca selective 90 excitation power (using '-DCQ5')
+;       (open the shape in the shapetool>stdisp and go to >Analysis>
+;       Integrate Shape and enter:"length of p34, '90.0', length of p1"
+;       --> result will tell by how much pl1 needs to be changed for sp34)
+;sp38 : H HCa CP power (50 kHz RF recommended at 60 kHz MAS)
+;sp52 : Ca HCa CP power (10 kHz RF recommended at 60 kHz MAS)
+;sp54 : Ca CaH CP power (10 kHz RF recommended at 60 kHz MAS)
+;d1 : recycle delay; 1 to 5 times T1 (~0.8 to 1 s)
+;d19 : delay for water suppression (~100 to 300 ms)
+;cpdprg2 : N dec ('waltz16_16nofq' at pl16 (10 kHz), using '-DTC')
+;cpdprg3 : C dec ('waltz16_18nofq' at pl18 (10 kHz))
+;cpdprg4 : H Water suppression along X ('cwX_13nofq' at pl13 (15 kHz))
+;cpdprg5 : H Water suppression along Y ('cwY_13nofq' at pl13 (15 kHz))
+;pcpd2 : N dec pulse: 25u ('waltz16_16nofq' 10 kHz, using '-DTC')
+;pcpd3 : C dec pulse: 25u ('waltz16_18nofq' 10 kHz)
+;spnam18 : H shape (ramp down for CaH CP, e.g. 'ramp10070.1000')
+;spnam20 : Ca-Cb shape (e.g. 'Q3.2000')(using '-DCABQ3')
+;spnam24 : Ca shape (e.g. 'Q3.2000')(using '-DCQ3')
+;spnam34 : Ca shape (e.g. 'Q5tr.2000')(using '-DCQ5')
+;spnam38 : H shape (ramp up for HCa CP, e.g. 'ramp70100.1000')
+;spnam52 : C shape (e.g. 'square.1000' for HCa CP (=no shape))
+;spnam54 : C shape (e.g. 'square.1000' for CaH CP (=no shape))
+;cnst22 : frequency offset for Ca (~54 ppm)
+;cnst24 : frequency offset for center of Ca-Cb signal (~40 ppm)
+;ZGOPTNS : -DTC   : for HNC triple channel mode 
+;                   (default: HC double channel mode)
+;          -DCQ5  : optimize 13Ca selective 90 shape (ZERO crossing)
+;          -DCQ3  : optimize 13Ca selective 180 shape (NEGMAX)
+;          -DCABQ3  : optimize 13Ca-13Cb selective 180 shape (NEGMAX)
+;          -Dlacq : acquisition times > 50ms
+;          or blank
+;ns : MIN. 4 (full: 8)
+;ds : 2 or 4
+
+;######################################################
+;#                                                    #
+;# hCaH1D.cp based on hNH2D.dcp                       #
+;# Knight et al, Angew. Chem. Int. Ed. Engl.          #
+;# 2011, 50, 11697-11701.                             #
+;#                                                    #
+;######################################################
+
+;$COMMENT=hCaH CP-based HSQC
+;$CLASS=BioSolids
+;$DIM=1D
+;$TYPE=H detection
+;$SUBTYPE=CP, Heteronuclear
+
+prosol relations=<biosolHNC>
+
+
+#include <HNC_defs.incl>
+        ; defines H:f1, N:f2, C:f3
+
+"spoffs18=0.0"                ;##########################
+"spoffs24=0.0"                ;#     ensure correct     #
+"spoffs34=0.0"                ;#     shape offsets      #
+"spoffs38=0.0"                ;##########################
+
+#ifdef CABQ3
+"spoffs52=bf3*((cnst22-cnst24)/1000000)"  ; Ca freq.
+"spoffs54=bf3*((cnst22-cnst24)/1000000)"  ; Ca freq.
+"spoal52=1"                               ; phase alignment
+"spoal54=0"                               ; phase alignment
+#else
+"spoffs52=0.0"                            ; Ca freq.
+"spoffs54=0.0"                            ; Ca freq.
+#endif
+
+"acqt0=-(p1*2/3.1416)-0.5u"     ; baseopt correction
+
+"p2=p1*2"
+"p22=p21*2"
+
+define delay ONTIME     
+
+                            ;##########################
+;$EXTERN                    ;# python insertion point #
+                            ;##########################
+
+"ONTIME=aq+p18+p38+d19+p24+p34" 
+
+Prepare, ze
+
+;######################################################
+;#               Protections: Pre-Check               #
+;######################################################
+
+#ifdef lacq
+#else
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#include <ONTIME_H_prot.incl>
+        ;total RF deposition restriction to < 1 s
+#endif                 /* end of lacq */
+
+#include <p18bio_prot.incl>
+        ;p18 max. 10 ms
+#include <p38bio_prot.incl>
+        ;p38 max. 10 ms
+#include <noH2Obio_prot.incl>
+        ;water suppression d19 max. 500 ms
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 30m  do:C
+
+#ifdef TC
+  0.5u do:N
+#endif          /* end of TC */
+
+  d1
+
+#ifdef CABQ3
+  0.5u fq=cnst24(bf ppm):C               ; Ca-Cb freq.
+#else
+  0.5u fq=cnst22(bf ppm):C               ; Ca freq.
+#endif           /* end of CABQ3 */
+
+;######################################################
+;#           Initial excitation & HCa CP              #
+;######################################################
+
+  (p3 pl2 ph1):H
+
+  (p18:sp38 ph0):H  (p18:sp52 ph2):C        ; Ca freq.
+
+;######################################################
+;#             Water suppression                      #
+;######################################################
+
+  (p1 pl1 ph3):C                   ; brings magn. to z
+
+  0.5u cpds4:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds5:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds4:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds5:H
+  d19*0.25
+  0.5u do:H
+
+  (p1 pl1 ph4):C                    ; brings magn. to y
+  
+;######################################################
+;#           Possible optimization steps              #
+;######################################################
+
+#ifdef CQ5                          ; brings magn. to z
+  (p34:sp34 ph23):C
+#endif           /* end of CQ5 */ 
+
+#ifdef CQ3                  ; flips magn. by 180 degree
+  (p24:sp24 ph23):C
+#endif           /* end of CQ3 */
+
+#ifdef CABQ3                ; flips magn. by 180 degree
+  (p20:sp20 ph23):C
+#endif           /* end of CABQ3 */
+
+;######################################################
+;#                    Ca-H CP                         #
+;######################################################
+
+  (p38:sp54 ph5):C  (p38:sp18 ph6):H         ; Ca freq.
+
+;######################################################
+;#                     Acquisition                    #
+;######################################################
+
+#ifdef TC
+  0.5u pl16:N  pl18:C
+  0.5u cpds2:N  cpds3:C
+#else
+  0.5u pl18:C
+  0.5u cpds3:C
+#endif          /* end of TC */
+
+  go=Start ph31     ;start ADC with ph31 signal routing
+
+#ifdef TC
+  1m do:C  do:N
+#else
+  1m do:C
+#endif          /* end of TC */
+
+30m mc #0 to Start F0(zd)
+
+HaltAcqu, 1m
+exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph1 = 1 3                  ; H 90 hard pulse
+ph0 = 0                    ; H HCa CP Spin lock
+ph2 = 1                    ; Ca HCa CP Spin lock
+ph3 = 0                    ; C 1st 90 hard pulse (flip to z)
+ph4 = 0 0 2 2              ; C 2nd 90 hard pulse (flip back)
+ph5 = 1                    ; Ca CaH CP Spin lock
+ph6 = 1 1 1 1  3 3 3 3     ; H CaH CP Spin lock
+ph20= 0                    ; N 180 hard pulse
+ph23= 0                    ; selective C pulses for optimization
+
+ph31= 1 3 3 1  3 1 1 3     ; receiver
+
+;#######################################################
+
+
+
+;$Id: $

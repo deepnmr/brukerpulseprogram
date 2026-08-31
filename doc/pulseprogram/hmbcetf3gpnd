@@ -1,0 +1,114 @@
+;hmbcetf3gpnd
+;avance-version (12/01/11)
+;HMBC
+;2D H-1/X correlation via heteronuclear zero and double quantum
+;   coherence
+;phase sensitive using Echo/Antiecho gradient selection
+;no decoupling during acquisition
+;using f3 - channel
+;
+;D.O. Cicero, G. Barbato & R. Bazzo, J. Magn. Reson. 148, 
+;   209-213 (2001)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"cnst30=(1-sfo3/sfo1)/(1+sfo3/sfo1)"
+
+define list<gradient> EA1 = { 1.000 -cnst30}
+define list<gradient> EA2 = { -cnst30 1.000}
+
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d6=1s/(cnst13*2)"
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+
+"DELTA1=p2+d0*2"
+
+
+1 ze 
+2 d1
+3 p1 ph1
+  d6 UNBLKGRAD
+  (p21 ph3):f3
+  d0
+  p2 ph2
+  d0
+  p16:gp1*EA1
+  d16
+  (p22 ph4):f3
+  DELTA1
+  p16:gp1*EA2
+  d16
+  (p21 ph4):f3
+  4u BLKGRAD
+  go=2 ph31
+  d1 mc #0 to 2 
+     F1EA(calgrad(EA1) & calgrad(EA2), caldel(d0, +in0) & calph(ph4, +180) & calph(ph31, +180))
+exit 
+  
+
+ph1=0
+ph2=0 0 2 2
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph31=0 2 0 2 2 0 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;d0 : incremented delay (2D)                           [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d6 : delay for evolution of long range couplings (1/2Jlr)
+;d16: delay for homospoil/gradient recovery
+;cnst13: = J(XH) long range
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;nd0: 2
+;ns: 2 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: echo-antiecho
+
+
+;use gradient ratio:    gp 1
+;                         80
+
+;for z-only gradients:
+;gpz1: 80%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+
+
+
+;Processing
+
+;PH_mod(F1): pk (or no)
+
+;use xfb and xf2m
+
+
+
+;$Id:$

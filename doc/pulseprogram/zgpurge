@@ -1,0 +1,114 @@
+;zgpurge
+;avance-version (14/10/10)
+;1D sequence with f1 presaturation
+;   and purge element
+;
+;A.J. Simpson & S.A. Brown, J. Magn. Reson. 175, 
+;   340-346 (2005)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+"p2=p1*2"
+
+
+"acqt0=-p1*2/3.1416"
+
+
+1 ze
+2 30m
+
+  4u pl9:f1
+  d1 cw:f1 ph29
+  4u do:f1
+  4u pl1:f1
+  50u UNBLKGRAD
+
+  p1 ph1
+  4u pl9:f1
+  d20 cw:f1 ph29
+  4u do:f1
+  4u pl1:f1
+  p2 ph1
+  4u pl9:f1
+  d20 cw:f1 ph29
+  4u do:f1
+  4u pl1:f1
+  p1 ph2
+
+  p16:gp1
+  d16 pl9:f1
+  d21 cw:f1 ph29
+  4u do:f1
+  p16:gp2
+  d16 pl1:f1
+
+  p1 ph3
+  4u pl9:f1
+  d20 cw:f1 ph29
+  4u do:f1
+  4u pl1:f1
+  p2 ph1
+  4u pl9:f1
+  d20 cw:f1 ph29
+  4u do:f1
+  4u pl1:f1
+  p1 ph4
+
+  p16:gp3
+  d16 pl9:f1
+  d21 cw:f1 ph29
+  4u do:f1
+  p16:gp4
+  d16 pl1:f1
+  4u BLKGRAD
+
+  p1 ph3
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+
+ph1=0
+ph2=0 0 2 2
+ph3=0 0 0 0 2 2 2 2 1 1 1 1 3 3 3 3
+ph4=0 2 0 2 2 0 2 0 1 3 1 3 3 1 3 1
+ph29=0
+ph31=0 2 2 0 2 0 0 2 3 1 1 3 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl9 : f1 channel - power level for presaturation
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;d20: T2 filter delay (between 3us and 15ms)         [200 usec]
+;d21: delay in z-filter (T1 filter)                  [200 usec]
+;ns: 1 * n, total number of scans: NS * TD0
+
+
+;for z-only gradients:
+;gpz1: -13.17%
+;gpz2: 52.68%
+;gpz3: -17.13%
+;gpz4: 68.52%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+
+;$Id:$

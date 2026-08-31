@@ -1,0 +1,306 @@
+;noah2_BO2 
+;avance-version (19/11/11)
+;NOAH-2 (BO): HMBC+2BOB with multiplicity editing
+;HMBC: 2D long-range H-1/X correlation recorded with two nJ(CH) settings
+;the two HMBC data sets can be added using noah_add option or processed 
+;separately using noah_split option defined in userP1 parameter
+;2BOB: time-shared, multiplicity edited, CT HMQC + H2BC (aka HMQC-COSY)
+;phase sensitive using Echo/Antiecho gradient selection
+;
+;E. Kupce & T. Claridge, J. Magn. Reson. 307 (2019) 106568. 
+;T.M. Nagy, T. Gyongyosi, K.E. Kover & O.W. Sorensen, Chem. Commun, 
+;55 (2019) 12208.
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"cnst30=sfo1/(sfo2*4)"
+"cnst31=2*sfo2/sfo1"
+
+define list<gradient> EA1 = {cnst30 -cnst30}
+define list<gradient> gR = {cnst31}
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"   ;JCOMP
+"d4=1s/(cnst2*4)"
+"d6=1s/(cnst13*2)"
+"d7=1s/(cnst14*2)"
+
+"d0=3u"
+"d22=d21/2-d2*2-p31-p2/2"     
+"d29=d22+d0*2+p2-p3*4/PI-16u"  
+
+"in0=inf1/2"
+
+"in22=in0"
+"in29=in0"
+
+"td1=tdmax(td1,d29*4,in29)"
+
+
+"TAU=d16+p16"
+"TAU1=0.5s/(cnst6 + 0.146*(cnst7-cnst6))"
+"TAU2=0.5s/(cnst7 - 0.146*(cnst7-cnst6))"
+"TAU3=(TAU1+TAU2)/2-TAU"
+
+"DELTA=d0*2+p2"
+"DELTA1=d4-p14/2"  
+"DELTA2=d4+p14/2"  
+"DELTA3=TAU+p2/2+4u+d0-p3*2/PI"
+"DELTA4=d2-4u"
+"DELTA5=TAU3-p14/2"
+"DELTA6=(TAU1-TAU2)/2-p14/2"
+"DELTA7=TAU2-TAU"
+"DELTA8=TAU3+p14/2-8u"
+"DELTA9=d2+p2/2"
+"DELTA10=d2-p16"
+"DELTA11=1s/(2*cnst6)-TAU"
+"DELTA12=1s/(2*cnst7)-TAU"
+"DELTA13=DELTA10-d0*2-p2/2+p3*4/PI"
+"DELTA14=d6-p16-10u"
+"DELTA15=d7-p16-10u"
+
+"l3=td1/8"
+"l9=1"
+
+
+"acqt0=0"
+
+
+1 ze
+2 31m do:f2
+3 3m
+4 5m
+5 50u UNBLKGRAD
+  4u pl1:f1
+  p16:gp0
+  4u
+
+  (p1 ph1)
+  4u
+  p16:gp0*1.37
+  50u BLKGRAD
+  d1 st0
+  p1 ph1
+  DELTA1
+  (p14:sp3 ph4):f2
+  (p2 ph1):f1 
+  DELTA2 
+  p1 ph1
+  DELTA1 UNBLKGRAD
+  (p14:sp3 ph4):f2
+  (p2 ph1):f1 
+  DELTA2 pl2:f2
+  p1 ph1
+  DELTA11
+  p16:gp3  
+  d16 pl2:f2
+  (p3 ph3):f2
+  DELTA12
+  p16:gp4
+  d16
+  (p3 ph3):f2
+  4u
+  p16:gp5
+  if "l9 %2 == 1"
+  {
+     DELTA14
+  }
+  else
+  { 
+     DELTA15  
+  }
+  (p3 ph5):f2
+  DELTA3  
+  (p14:sp3 ph4):f2
+  4u
+  p16:gp1*EA*0.77
+  d16
+  d0 
+  (p2 ph1)
+  d0
+  4u
+  p16:gp1*EA*0.77
+  d16
+  (p14:sp3 ph4):f2
+  DELTA3 pl2:f2
+  (p3 ph3):f2
+  (p2 ph1)    
+  4u
+  p16:gp1*gR*0.77
+  d16
+  4u BLKGRAD
+  goscnp ph31
+
+  4u pl2:f2
+  (p3 ph1):f2
+  50u UNBLKGRAD 
+  4u pl12:f2
+  p16:gp0*1.77
+  2m st
+  20u cpd2:f2
+
+  (p1 ph1)
+  d22                  
+  DELTA4 do:f2          
+  4u pl2:f2         
+  (p3 ph3):f2
+  DELTA9
+  (p31:sp18 ph1):f2
+ 
+  d0                   
+  (p2 ph1) 
+  d0                   
+
+  p16:gp1*EA1         
+  DELTA13
+  4u
+  (p31:sp18 ph1):f2     
+  4u pl2:f2           
+  (p3 ph5):f2  
+                     
+  p16:gp1*EA1*-1      
+  DELTA10 pl12:f2
+  d29 cpd2:f2
+  4u do:f2
+  4u pl2:f2
+  (p1 ph2) (p3 ph1):f2
+
+  if "l9 %2 == 1"
+  {
+     p16:gp1*0.5
+     d16
+     DELTA5
+     (p14:sp3 ph1):f2
+  }
+  else
+  { 
+     DELTA6    
+     (p14:sp3 ph1):f2
+     p16:gp1*0.5
+     d16 
+     DELTA7  
+  }
+
+  (p2 ph1) 
+  p16:gp1*0.75
+  d16
+  DELTA8 pl12:f2      
+  4u cpd2:f2
+  4u BLKGRAD
+  go=2 ph31
+
+  30m do:f2 wr #0 if #0 zd 
+  1m iu9
+  lo to 3 times 2
+
+  1m igrad EA
+  1m igrad EA1
+  1m ru9
+  lo to 4 times 2 
+
+  1m id0
+  1m dd22
+  1m dd29
+  1m ip3*2 
+  1m ip31*2
+  lo to 5 times l3  
+
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=0 0 2 2
+ph6=2
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp3: f2 channel - shaped pulse 180 degree (adiabatic)
+;sp18: f2 channel - shaped pulse 180 degree (adiabatic matched sweep)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;p16: homospoil/gradient pulse                          [1 msec]
+;p31: f2 channel - 180 degree shaped pulse for adiabatic matched sweep
+;d0 : incremented delay (2D HMBC)                       [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d2 : delay for evolution of one-bond couplings 1/(2J)XH
+;d4 : delay for evolution of one-bond couplings 1/(4J)XH
+;d6 : delay for evolution of long range couplings 1/(2J)lr
+;d7 : delay for evolution of long range couplings 1/(2J)lr
+;d16: delay for homospoil/gradient recovery
+;d21: constant-time delay 				[25 msec]
+;d22: decremented delay: d21/2-d2*2-p31-p2/2
+;d29: decremented delay: d22+d0*2+p2-p3*4/PI-16u
+;cnst2: 1J(CH) average one-bond CH coupling             [145 Hz]
+;cnst6: 1J(CH, min) minimum one-bond CH coupling        [120 Hz]
+;cnst7: 1J(CH, max) maximum one-bond CH coupling        [170 Hz]
+;cnst13: J(XH) long range CH coupling                   [10 Hz]
+;cnst14: J(XH) long range CH coupling                   [5 Hz]
+;l3 : loop for 2D experiment = td1/8
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;nd0: 2
+;in22: = in0
+;in29: = in0
+;nbl: number of blocks (NOAH experiments)  [2]
+;ns: 2 * n
+;ds: 16
+;td1: number of experiments - multiple of NBL
+;FnMODE: echo-antiecho
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz0:  17.13%
+;gpz1:  80%
+;gpz3:  15%
+;gpz4: -10%
+;gpz5: -5%
+
+;use gradient files:
+;gpnam0: SMSQ10.100
+;gpnam1: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+;WaveMaker shapes (optional)
+;use 'wvm -a' command to create the necessary shape files
+;sp3:wvm:ad180C:  cawurst(60 kHz, 0.5 ms; L2H)   
+;sp18:wvm:ad180Cj: cawurst-20(300 ppm; Jcomp, L2H)
+;cpd2:wvm :wudec: cawurst_d-20(220 ppm, 1.4 ms; L2H)
+
+
+;Processing:
+
+;use splitx_au au-program to split the data
+;define user processing au programs (USERP1...P2) for automatic processing
+;   of all data sets
+;   userP1: noah_hmbc noah_split
+;   userP2: noah_hsqc noah_TS
+
+; information for splitx_au:
+; auprog: noah_hmbc noah_split:noah_hsqc noah_TS
+
+
+;$Id:$

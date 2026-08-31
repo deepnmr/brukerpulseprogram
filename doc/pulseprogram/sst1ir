@@ -1,0 +1,95 @@
+;sst1ir
+;avance-version (21/07/20)
+;single-scan inversion recovery for fast T1 determination
+;
+;N.M. Loening, M.J. Thrippleton, J. Keeler & R.G. Griffin,
+;   J. Magn. Reson. 164, 321-328 (2003)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=Relaxation
+;$SUBTYPE=
+;$COMMENT=single-scan inversion recovery with slice selection for fast T1 determination
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+define delay LOOP
+define delay TAU
+define delay LTAU
+
+define list<frequency> fqlist=<$FQ1LIST>
+define list<delay> vdelay=<$VDLIST>
+
+
+"cnst31=0"
+"LOOP=0"
+"LTAU=0"
+
+"spw9=plw1*pow((p1*totrot9)/(p42*90.0*integfac9),2)"
+
+
+1 ze
+  LOOP
+  d1
+  50u UNBLKGRAD
+  (p44:sp30 ph2):f1         ;inversion pulse
+  p19:gp1
+  d16
+
+2 2m
+3 1u fqlist:f1
+
+  "TAU=vdelay-LOOP-LTAU"
+  "LTAU=vdelay"
+  "LOOP=2m+13u+p42+2*d31+de+aq"
+  "cnst31=-((2*d31)+de)*fqlist*360"
+  1u ip1+cnst31
+
+  TAU
+  2u gron0
+  (p42:sp9 ph1):f1
+  d31
+  d31 groff
+
+  go=2 ph31
+  1m wr #0 if #0 zd
+  1m fqlist.inc vdelay.inc ;iu0
+  lo to 3 times td1
+  4u BLKGRAD
+exit
+
+
+ph1= 0
+ph2= 0
+ph31=0
+
+
+;sp9 : f1 channel - shaped pulse  90 degree
+;spnam9 : shape for slice selection (selective excitation)
+;sp30: f1 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;spnam30: shape for BB-inversion
+;p19: gradient pulse 2
+;p42: f1 channel - slice selective 90 degree
+;p44: f1 channel - 180 degree shaped pulse
+;d1: pre-relaxation delay
+;d16: delay for homospoil/gradient recovery
+;d31: compensation delay
+;ns: 1
+;td1: number of experiments
+
+;fq1list: slice selection frequencies
+;sfo1: channel 1 center frequency
+
+
+;for z-only gradients:
+;gpz1: 23.23%
+
+;use gradient files:
+;gpnam1 : SMSQ10.100
+
+
+
+;$Id: $

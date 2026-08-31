@@ -1,0 +1,178 @@
+;lpr_noesygpph19
+;avance-version (21/09/15)
+;L-PROSY NOESY
+;2D homonuclear correlation via dipolar coupling 
+;dipolar coupling may be due to noe or chemical exchange.
+;phase sensitive
+;water suppression using 3-9-19 pulse sequence with gradients
+;using L-PROSY steps
+;(use parameterset )
+;
+;M. Novakovic, S.F. Cousin, M.J. Jaroszewicz, R. Rosenzweig & L. Frydman,
+;   J.  Magn. Reson., 294, 169-180 (2018)
+;M. Piotto, V. Saudek & V. Sklenar, J. Biomol. NMR 2, 661 - 666 (1992)
+;V. Sklenar, M. Piotto, R. Leppik & V. Saudek, J. Magn. Reson., 
+;   Series A 102, 241 -245 (1993)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"d12=20u"
+
+"p41=(bwfac25/(cnst55*cnst51*bf1))*1000000"
+"spw25=plw1*pow((p1*totrot25)/(p41*90.0*integfac25),2)"
+"spw27=plw1*pow((p1*totrot27)/(p41*90.0*integfac27),2)"
+"spoal25=1"
+"spoal27=0"
+
+
+"in0=inf1"
+
+"FACTOR1=(trunc((p41*cnst41*2)/(in0))+1)"
+
+"d0=(in0*FACTOR1)-(p41*cnst41*2)"
+
+"TAU1=FACTOR1*180"
+
+
+"DELTA2=(p0-p27)*0.231+de"
+"DELTA3=p1*2/PI"
+
+"TAU=d8-p16-d16"
+
+
+"spoffs25=0"
+"spoffs27=0"
+
+
+"o1_F1=bf1*cnst54/1000000"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+2 d1
+3 d12 pl1:f1
+  50u UNBLKGRAD
+  20u fq=cnst54(bf ppm):f1
+
+  p16:gp1
+  d16
+
+4 (p41:sp25 ph2):f1
+
+  d0
+
+  (p41:sp27 ph1):f1
+
+  TAU
+  p16:gp2
+  d16
+  lo to 4 times l9
+
+  20u fq=cnst18(bf ppm):f1
+
+  (p29:sp11 ph4):f1
+
+  2u
+  2u pl1:f1
+
+  p1 ph5
+  DELTA2
+  4u
+  p16:gp3
+  d16 pl18:f1
+  p27*0.231 ph6
+  d19*2
+  p27*0.692 ph6
+  d19*2
+  p27*1.462 ph6
+  d19*2
+  p27*1.462 ph7
+  d19*2
+  p27*0.692 ph7
+  d19*2
+  p0*0.231 ph7
+  DELTA3
+  p16:gp3
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  d1 mc #0 to 2 
+     F1PH(calph(ph2, +90), caldel(d0, +in0))
+
+TAU1*0.001
+exit
+
+
+ph1=0
+ph2=0 2 
+ph4=2 2 2 2 0 0 0 0
+ph5=0 0 0 0 2 2 2 2
+ph6=0 0 1 1 0 0 1 1 2 2 3 3 2 2 3 3
+ph7=2 2 3 3 2 2 3 3 0 0 1 1 0 0 1 1
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl18: f1 channel - power level for 3-9-19-pulse (watergate)
+;sp11: f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;sp25: f1 channel - shaped pulse  90 degree (Pc9_4_90.1000)
+;sp27: f1 channel - shaped pulse  90 degree (Pc9_4_90.1000)
+;                   for time reversed pulse
+;p0 : f1 channel -  90 degree pulse at pl18
+;                      use for fine adjustment
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;p27: f1 channel -  90 degree pulse at pl18
+;p29: f1 channel -  90 degree shaped pulse
+;p41: f1 channel -  90 degree shaped pulse for excitation
+;                      Pc9_4_90.1000             (2.2ms at 600.13 MHz)
+;d0 : incremented delay (2D)
+;d1 : relaxation delay; 1-5 * T1
+;d8 : mixing time
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d19: delay for binomial water suppression
+;     d19 = (1/(2*d)), d = distance of next null (in Hz)
+;cnst18: H2O chemical shift (offset, in ppm)
+;cnst41: compensation of chemical shift evolution during p41 
+;           Pc9_4_90.1000: 0.529 (experimentally 0.54)
+;cnst51: scaling factor for p41 to compensate for transition region
+;           Pc9_4_90.1000: 1.172
+;cnst54: H(N) chemical shift (offset, in ppm)
+;cnst55: H(N) bandwidth (in ppm)
+;l9: number of L-PROSY blocks
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns: 8 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+
+
+;for z-only gradients:
+;gpz1: 60%
+;gpz2: 80%
+;gpz3: 31%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+;$Id: $

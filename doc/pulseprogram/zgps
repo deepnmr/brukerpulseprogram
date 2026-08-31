@@ -1,0 +1,51 @@
+;zgps
+;avance-version (12/01/11)
+;1D sequence with presaturation
+;using shaped pulse for off-resonance presaturation
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"d12=20u"
+
+
+"acqt0=-p1*2/3.1416"
+
+
+1 ze
+2 30m 
+3 p18:sp6:f1 ph29
+  4u
+  lo to 3 times l6
+  d12 pl1:f1 
+  p1 ph1
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+
+ph1=0 2 2 0 1 3 3 1
+ph29=0
+ph31=0 2 2 0 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp6: f1 channel - shaped pulse for presaturation
+;p1 : f1 channel -  90 degree high power pulse
+;p18: f1 channel - presaturation using shaped pulse
+;d12: delay for power switching                      [20 usec]
+;l6: p18 * l6 = total duration of presaturation
+;ns: 1 * n, total number of scans: NS * TD0
+
+;use 100msec pulse of square shape defined by 1000 points
+
+
+
+;$Id:$

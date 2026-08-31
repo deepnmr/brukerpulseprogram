@@ -1,0 +1,62 @@
+;hmqcndd
+;avance-version (12/01/11)
+;HMQC
+;1D H-1/X correlation via heteronuclear zero and double quantum
+;   coherence
+;no decoupling during acquisition
+;
+;A. Bax, R.H. Griffey & B.L. Hawkins, J. Magn. Reson. 55, 301 (1983)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+"d13=4u"
+
+
+1 ze 
+2 30m
+  d1
+  p1 ph1
+  d2
+  p3:f2 ph3
+  d13
+  p2 ph2
+  d13
+  p3:f2 ph4
+  d2
+  go=2 ph31 
+  30m mc #0 to 2 F0(zd)
+exit 
+  
+
+ph1=0 
+ph2=0 
+ph3=0 2 
+ph4=0 0 2 2 
+ph31=0 2 2 0 
+
+  
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)XH
+;d13: short delay                                    [4 usec]
+;cnst2: = J(XH)
+;ns: 4 * n, total number of scans: NS * TD0
+;ds: 16
+
+
+
+;$Id:$

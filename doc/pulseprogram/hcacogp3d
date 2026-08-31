@@ -1,0 +1,223 @@
+;hcacogp3d
+;avance-version (21/09/15)
+;3D sequence with
+;   inverse correlation for triple resonance using multiple
+;      inept transfer steps
+;
+;      F1(H) -> F2(Ca) -> F2'(C=O, t1) -> F2(Ca, t2) -> F1(H,t3)
+;
+;on/off resonance Ca and C=O pulses using shaped pulse
+;phase sensitive (t1)
+;phase sensitive using Echo/Antiecho-TPPI gradient selection (t2)
+;(use parameterset HCACOGP3D)
+;
+;(L.E. Kay et al., J. Magn. Reson 89, 496 - 514 (1990))
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+"d13=4u"
+
+"d22=4.5m"
+
+
+"d0=3u"
+"d10=3u"
+
+"in0=inf1/2"
+"in10=inf2/2"
+
+
+"DELTA=d0*2+larger(p14,p22)-p14"
+"DELTA1=d22-d21-p2-p14-p24/2-p16-8u"
+"DELTA2=d22-p14-p24/2-p16-8u"
+"DELTA3=d22-p14-p24/2-4u"
+"DELTA4=d22-d21-p2-p14-p24/2-d10*2"
+"DELTA5=d21-p16-d16-p22"
+"DELTA6=d4-p16-d16-8u"
+
+
+"spoffs2=0"
+"spoffs3=0"
+"spoffs5=bf2*((cnst21-cnst22)/1000000)"
+"spoffs7=bf2*((cnst22-cnst21)/1000000)"
+"spoffs8=0"
+"spoffs9=0"
+"spoffs10=0"
+"spoffs12=0"
+
+
+"o1_F1=bf2*cnst21/1000000"
+"o1_F2=bf2*cnst22/1000000"
+
+
+aqseq 321
+
+
+1 d11 ze
+  d11 pl12:f2
+2 d11 do:f2
+3 d1 fq=cnst22(bf ppm):f2
+  p1 ph1
+  d4 
+  (center (p2 ph1) (p14:sp3 ph2):f2 )
+  d4
+  (p1 ph2) (p13:sp2 ph3):f2
+
+  d21 UNBLKGRAD
+  p2 ph1
+  4u
+  p16:gp1
+  DELTA1
+  (p14:sp5 ph1):f2
+  4u
+  (p24:sp9 ph1):f2
+  4u
+  p16:gp2
+  DELTA2
+  (p14:sp5 ph1):f2
+  4u
+  (p13:sp8 ph1):f2 
+
+  d13
+  d12 fq=cnst21(bf ppm):f2
+
+  (p23:sp10 ph4):f2
+  d0
+  (center (p2 ph1) (p14:sp7 ph1):f2 (p22 ph1):f3 )
+  d0
+  4u
+  (p14:sp3 ph1):f2
+  DELTA
+  (p14:sp7 ph1):f2
+  4u
+  (p23:sp12 ph1):f2
+
+  d13
+  d12 fq=cnst22(bf ppm):f2
+
+  (p13:sp2 ph5):f2
+  4u
+  (p14:sp5 ph1):f2
+  DELTA3
+  (p24:sp9 ph1):f2
+  d10
+  (p14:sp5 ph1):f2
+  DELTA4
+  p2 ph1
+  p16:gp3*EA
+  d16
+  DELTA5
+  (p22 ph1):f3
+  d10
+
+  (ralign (p1 ph1) (p13:sp8 ph6):f2 )
+  d4
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  4u
+  p16:gp4
+  d16
+  DELTA6 pl12:f2
+  4u BLKGRAD
+  go=2 ph31 cpd2:f2
+  d11 do:f2 mc #0 to 2 
+     F1PH(calph(ph4, +90), caldel(d0, +in0)) 
+     F2EA(calgrad(EA), caldel(d10, +in10) & calph(ph5, +180) & calph(ph31, +180))
+exit
+
+
+ph1=0
+ph2=1
+ph3=0 2
+ph4=0 0 2 2
+ph5=0 0 0 0 2 2 2 2
+ph6=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph31=0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp2: f2 channel - shaped pulse  90 degree  (on resonance, Ca)
+;sp3: f2 channel - shaped pulse 180 degree  (on resonance, Ca)
+;sp5: f2 channel - shaped pulse 180 degree  (off resonance, C=O)
+;sp7: f2 channel - shaped pulse 180 degree  (off resonance, Ca)
+;sp8: f2 channel - shaped pulse  90 degree  (on resonance, Ca)
+;     sp8 for time reversed Calpha pulses
+;sp9: f2 channel - shaped pulse 180 degree  (on resonance, Ca)
+;     sp9 requires higher selectivity - refocussing Calpha only
+;sp10: f2 channel - shaped pulse  90 degree  (on resonance, C=O)
+;sp12: f2 channel - shaped pulse  90 degree  (on resonance, C=O)
+;     sp12 for time reversed C=O pulse
+;     sp10, sp12 may require higher selectivity
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p13: f2 channel -  90 degree shaped pulse
+;p14: f2 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p22: f3 channel - 180 degree high power pulse
+;p23: f2 channel -  90 degree shaped pulse (C=O, selective)
+;p24: f2 channel - 180 degree shaped pulse (Ca, selective)
+;d0 : incremented delay (F1 in 3D)                     [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(HCa))                                      [1.7 msec]
+;d10: incremented delay (F2 in 3D)                     [3 usec]
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d13: short delay                                      [4 usec]
+;d16: delay for homospoil/gradient recovery
+;d21: 1/(4J`(HCa)) for CH                              [1.7 msec]
+;     1/(6J`(HCa)) for CH and CH2                      [1.2 msec]
+;d22: 1/(4J(CaCO))                                     [4.5 msec]
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst22: Calpha chemical shift (offset, in ppm)
+;inf1: 1/SW(CO) = 2 * DW(CO)
+;inf2: 1/SW(Ca) = 2 * DW(Ca)
+;in0: 1/(2 * SW(C=O)) = DW(C=O)
+;nd0: 2
+;in10: 1/(2 * SW(Ca)) = DW(Ca)
+;nd10: 2
+;ns: 16 * n
+;ds: 32
+;td1: number of experiments in F1
+;td2: number of experiments in F2
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: echo-antiecho in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:    gp 1 : gp 2 : gp 3 : gp 4
+;                          3 :    3 :   80 : 20.1
+
+;for z-only gradients:
+;gpz1: 3%
+;gpz2: 3%
+;gpz3: 80%
+;gpz4: 20.1%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+
+;$Id: $

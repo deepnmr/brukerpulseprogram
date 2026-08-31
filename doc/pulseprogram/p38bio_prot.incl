@@ -1,0 +1,18 @@
+;p38bio_prot.incl
+
+; Test the rf on-time for short Ca to H CP
+; 2 ms is maximum
+
+;$COMMENT=Protection against long CP time
+;$CLASS=BioSolids PROT
+
+
+if "p38<2.1m" goto Passp38
+1u
+print "Ca-H CP contact time p38 exceeds 2 msec limit!"
+goto HaltAcqu
+Passp38, 1m
+
+
+
+;$Id:$

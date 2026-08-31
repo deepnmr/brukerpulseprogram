@@ -1,0 +1,400 @@
+; hCaNCOCa4D.bsh
+; version: 1.0/ TS3.2 /2014/05/07
+; written and checked for TopSolids: veda /2014/05/07
+; comment PY programm change 14/11/26
+;
+; BSH CP for backward sequential Ca(i)-N(i)-CO(i-1)-Ca(i-1) 
+; correlations on protonated or deuterated samples
+;
+; programmed with mc command:
+; run either 'pseudo 4Ds' to combine each dim with 
+; each other in 2Ds (Parmode=4D, TDs of unwanted Dim=1, FT with 'xfb')
+; or select dimension under Parmode to run 'real nDs':
+; 1D COCa, 2D Ca-COCa, 3D Ca-N-COCa or 4D Ca-N-CO-Ca
+;
+; use of ROTOR-SYNCHRONIZED SWH in indirect dimensions is recommended!
+; (e.g. for States-TPPI:  SWH = n * MAS spinning rate   
+;  with n = 1/10, 1/5, 1/4, 1/3, 1/2, 1, 2, 3, ...)
+;
+;$CLASS=BioSolids
+;$DIM=4D
+;$TYPE=Heteronuclear
+;$SUBTYPE=BSH and DCP
+;$COMMENT=hCaNCOCa BSH CP
+
+
+;Avance II / AVIII version
+;Parameters:
+;p1      : C 90 at pl1
+;p2      : C 180 at pl1
+;p3      : H 90 at pl2
+;p4      : H 180 at pl2
+;p15     : HC CP at sp41 (C) and sp40 (H)
+;p16     : NCa CP at pl5 (N), sp50 (C), pl33 (H)
+;p17     : NCO CP at pl6 (N), sp51 (C), pl34 (H)
+;p21     : N 90 at pl21	
+;p22     : N 180 at pl21
+;p27     : CO-Ca BSH CP contact time (~ 5 ms, max. 10 ms)
+;p28     : CO flip angle ~63 deg (can be calculated with PY program 'calcbshcp')
+;p29     : CO flip to Y (~4 to 6 us)
+;pl1     : C pulse power
+;pl2     : H pulse power
+;pl5     : N NCa CP power
+;pl6     : N NCO CP power
+;pl12    : H hig dec power
+;pl16    : N Dec. during AQ (using 'waltz16', 2 kHz)
+;pl21    : N pulse power
+;pl33    : H 'cw' dec power during NCa (~80 kHz sufficient)
+;pl34    : H 'cw' dec power during NCO, BSH & further 'cw' 
+;          (~80 kHz sufficient)
+;pl50    : C NCa CP power (-DNshape)
+;pl51    : C NCO CP power (-DNshape)
+;sp5     : N NCa CP power (-DNshape)
+;sp6     : N NCO CP power (-DNshape)
+;sp27    : CO-Ca BSH CP power (can be calculated with PY program 'calcbshcp')
+;sp40    : H CP power (n=1 HH condition)
+;sp41    : C CP power (n=1 HH condition)
+;sp50    : C NCa CP power
+;sp51    : C NCO CP power
+;d0      : incremented delay (t1)
+;d1      : recycle delay; 1 to 5 times T1
+;d10     : incremented delay (t2)
+;d20     : incremented delay (t3) 
+;d28     : extra time for -DCDC4D (t3)
+;d29     : extra time for -DCDC3D/4D (t2)
+;d30     : extra time for -DCDC2D/3D/4D (t1)
+;pcpd2   : H dec pulse cpdprg2 (~p4-0.2 us)
+;pcpd3   : N dec pulse cpdprg3 (125 us / 2 kHz)
+;cpdprg2 : Decoupling file 'spinal64', or 'swftppm' (at pl12)
+;cpdprg3 : Decoupling file 'waltz16' on N (2 kHz)
+;spnam5  : N ramp use e.g. 'tcn' for amplitude modulated tangential
+;          pulse CaN CP (-DNshape)
+;spnam6  : N ramp use e.g. 'tcn' for amplitude modulated tangential 
+;          pulse NCO CP (-DNshape)
+;spnam27 : C ramp use e.g. 'ramp.10070' for variable amplitude CO-Ca BSH CP
+;spnam40 : H ramp use e.g. ramp.10070 for variable amplitude HCa CP
+;spnam41 : C ramp use e.g. square.100 for square pulse HCa CP
+;spnam50 : Ca ramp use e.g. 'tcn' for amplitude modulated tangential
+;          pulse CaN CP
+;spnam51 : CO ramp use e.g. 'tcn' for amplitude modulated tangential
+;          pulse NCO CP
+;cnst10  : Frequency reset to Carrier (o1, usually ~100 ppm)
+;cnst21  : Frequency offset for CO (~175 ppm)
+;cnst22  : Frequency offset for Ca (~55 ppm)
+;cnst28  : expected td3 for use in -DCDC4D
+;cnst29  : expected td2 for use in -DCDC3D/4D
+;cnst30  : expected td1 for use in -DCDC2D/3D/4D
+;cnst31  : MAS rotation rate in Hz
+;inf1    : 1/SW(Ca) = 2 * DW(Ca)
+;inf2    : 1/SW(N) = 2 * DW(N)
+;inf3    : 1/SW(CO) = 2 * DW(CO)
+;in0     : increment in F1 (Ca)
+;in10    : increment in F2 (N)
+;in20    : increment in F3 (CO)
+;in28    : increment in F3 (CO) for -DCDC4D
+;in29    : increment in F2 (N) for -DCDC3D/4D
+;in30    : increment in F1 (Ca) for -DCDC2D/3D/4D
+;l0      : loopcounter for F1 (Ca)
+;l10     : loopcounter for F2 (N)
+;l20     : loopcounter for F3 (CO)
+;ZGOPTNS : -DNshape : to have the shape during NC CPs on N (else on C)
+;          -Dflip : CO flip pulse needed for 2D/ 3D experiments
+;          -DCDC4D : for constant duty cycle with PARMODE = 4D
+;          -DCDC3D : for constant duty cycle with PARMODE = 3D
+;          -DCDC2D : for constant duty cycle with PARMODE = 2D
+;          or blank
+;FnMODE  : States-TPPI is recommended (for easy rotor sync.)
+;          but mc command allows for other FnModes as well
+;ns : min. 8
+
+;############################################################
+;#                                                          #
+;#  BSH CP (CO to Ca)                                       #
+;# 1.) Chevelkov, V.; Giller, K.; Becker, S.; Lange, A.     #
+;#     JMR, 2013,230, 205-211.                              #
+;# 2.) Chevelkov, V.; Shi, C.; Fasshuber, H.K.;             #
+;#     Becker, S.; Lange, A.,                               #
+;#     J. Biomol. NMR, 2013,56, 303-311.                    #
+;#                                                          #
+;#    sp27(13CO) = (wr^2* ((CO-Ca)^2/4))/wr                 #
+;#    --> use python program "calcbshcp"                    #
+;#                                                          #
+;#  N-C SPECIFIC CP                                         #
+;#     Baldus, M.; Petkova, A. T.; Herzfeld, J. H.;         #
+;#     Griffin, R. G., Mol. Phys. 1998,95, 1197-1207.       #
+;#                                                          #
+;#  pl5 (15N) = 5*wr/2                                      #
+;#  sp50(13Ca) = 3*wr/2                                     #
+;#                                                          #
+;#  pl6 (15N) = 5*wr/2                                      #
+;#  sp51(13CO) = 7*wr/2                                     #
+;#                                                          #
+;############################################################
+
+
+prosol relations=<biosolCHN>
+
+
+#include <CHN_defs.incl>
+        ; defines which channel corresponds to which nucleus
+        ; f1 = C; f2 = H; f3 = N
+
+"in0=inf1"                  ;##########################
+"d0=1u"                     ;#    t1_init => 0, 0     #
+"in30=inf1"                 ;##########################
+"l0=0"
+
+"in10=inf2"                 ;##########################
+"d10=1u"                    ;#    t2_init => 0, 0     #
+"in29=inf2"                 ;##########################
+"l10=0"
+
+"in20=inf3"                 ;##########################
+"d20=1u"                    ;#    t3_init => 0, 0     #
+"in28=inf3"                 ;##########################
+"l20=0"
+
+define delay ONTIME         ;##########################
+define loopcounter T1evo    ;#   Constant Duty Cycle  #
+define loopcounter T2evo    ;#           2D           #
+define loopcounter T3evo    ;##########################
+#ifdef CDC2D
+"T1evo=larger(td1,cnst30)"
+"d30=T1evo*(in30+2u)"
+#endif                      /* CDC2D */
+
+
+#ifdef CDC3D
+"T1evo=larger(td1,cnst30)"  ;##########################
+"d30=T1evo*(in30+2u)"       ;#   Constant Duty Cycle  #
+"T2evo=larger(td2,cnst29)"  ;#           3D           #
+"d29=T2evo*(in29+2u)"       ;##########################
+#endif                      /* CDC3D */
+
+
+#ifdef CDC4D
+"T1evo=larger(td1,cnst30)"  ;##########################
+"d30=T1evo*(in30+2u)"       ;#   Constant Duty Cycle  #
+"T2evo=larger(td2,cnst29)"  ;#                        #
+"d29=T2evo*(in29+2u)"       ;#           4D           #
+"T3evo=larger(td3,cnst28)"  ;#                        #
+"d28=T3evo*(in28+2u)"       ;##########################
+#endif                      /* CDC4D */
+
+
+ "acqt0=-(p1*2/3.1416)-0.5u"
+
+"p2=2*p1"
+"p22=2*p21"
+
+                            ;##########################
+;$EXTERN                    ;# python insertion point #
+                            ;##########################
+
+Prepare, ze
+
+"d30=d30/2"
+"d29=d29/2"
+"d28=d28/2"
+
+"ONTIME=aq+d0+d30+d29+d28+p15+p16+p17+p27"
+
+;######################################################
+;#               Protections: Pre-Check               #
+;######################################################
+
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#include <p15bio_prot.incl>
+        ;p15 max. 10 ms
+#include <p16bio_prot.incl>
+        ;p16 max. 10 ms
+#include <p17bio_prot.incl>
+        ;p17 max. 10 ms
+#include <p27bio_prot.incl>
+        ;p27 max. 10 ms
+#include <ONTIME_prot.incl>
+        ;total RF deposition restriction
+#include <t1_prot.incl>
+        ;check t1 evolution time
+#include <t2_prot.incl>
+        ;check t2 evolution time
+#include <t3_prot.incl>
+        ;check t3 evolution time
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 30m do:H do:N
+  d1
+
+  0.5u fq=0:H
+  0.5u fq=cnst22(bf ppm):C                   ; Ca freq.
+
+if "l0>0"
+{
+  "d51=d0-2u"
+}
+if "l10>0"
+{
+  "d52=d10-2u"
+}
+if "l20>0"
+{
+  "d53=d20-2u"
+}
+
+;######################################################
+;#         Initial excitation  and HCa CP             #
+;######################################################
+
+  (p3  pl2 ph1):H
+  (p15:sp41 ph2):C  (p15:sp40 ph0):H
+
+;######################################################
+;#                   t1 evolution  (Ca)               #
+;######################################################
+
+  0.5u pl12:H
+  
+if "l0>0"
+{
+  0.5u cpds2:H
+  (center
+   (d51)
+   (p22 pl21 ph0):N  ; to refocus scalar C-N couplings
+  )
+  0.5u do:H
+}
+
+;######################################################
+;#            Ca-N CP Period (SPECIFIC)               #
+;######################################################
+
+#ifdef Nshape
+  (p16 pl50 ph4):C  (p16 pl33 ph0):H  (p16:sp5 ph3):N
+#else
+  (p16:sp50 ph4):C  (p16 pl33 ph0):H  (p16 pl5 ph3):N
+#endif                              /* end of Nshape */
+
+;######################################################
+;#                 t2 evolution (N)        	          #
+;###################################################### 
+
+  (0.5u pl12):H  (0.5u fq=cnst10(bf ppm)):C 
+                                     ; carrier freq. o1
+
+if "l10>0"
+{
+  0.5u cpds2:H
+  (center
+   (d52)
+   (p2 pl1 ph0):C     ; to refocus scalar C-N couplings
+  )
+  0.5u do:H
+}
+
+;######################################################
+;#            N-CO CP Period (SPECIFIC)               #
+;######################################################
+
+  0.5u fq=cnst21(bf ppm):C                   ; CO freq.
+
+#ifdef Nshape
+  (p17 pl51 ph5):C  (p17 pl34 ph0):H  (p17:sp6 ph6):N
+#else
+  (p17:sp51 ph5):C  (p17 pl34 ph0):H  (p17 pl6 ph6):N
+#endif                              /* end of Nshape */
+
+;######################################################
+;#                 t3 evolution (CO)                  #
+;###################################################### 
+
+  0.5u pl12:H
+
+if "l20>0"
+{
+  0.5u cpds2:H
+  (center
+   (d53)
+   (p22 pl21 ph0):N   ; to refocus scalar C-N couplings
+  )
+  0.5u do:H
+}
+
+;######################################################
+;#           CO to Ca transfer via BSH CP             #
+;######################################################
+
+  (p28 pl1 ph18):C                   ; align CO for BSH 
+  0.5u fq=cnst22(bf ppm):C                   ; Ca freq.
+  (p27:sp27 ph17):C  (p27 pl34 ph0):H 
+                           ; BSH CP with cw proton dec.
+
+#ifdef flip 
+  (p29 ph19):C     ; CO flip to Y (needed in 2D and 3D)
+#endif                                  /*end of flip*/
+
+;#######################################################
+;#                     Acquisition                     #
+;#######################################################
+
+  0.5u pl12:H  pl16:N
+  0.5u cpds2:H  0.5u cpds3:N
+
+  gosc ph31         ;start ADC with ph31 signal routing
+
+#ifdef CDC2D
+  d30
+#endif                                /* end of CDC2D */
+
+#ifdef CDC3D
+  d30
+  d29
+#endif                                /* end of CDC3D */
+
+#ifdef CDC4D
+  d30
+  d29
+  d28
+#endif                                /* end of CDC4D */
+
+1m do:H
+1m do:N
+lo to Start times ns
+
+30m mc #0 to Start
+  F1PH(calph(ph2, +90), caldel(d0,  +in0) & caldel(d30, -in30) & calclc(l0, 1))
+  F2PH(calph(ph3, +90), caldel(d10, +in10) & caldel(d29, -in29) & calclc(l10,1))
+  F3PH(calph(ph5, +90), caldel(d20, +in20) & caldel(d28, -in28) & calclc(l20,1))
+
+HaltAcqu, 1m
+exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph0 = 0                                   ; 1H cp
+ph1 = 1 3                                 ; 1H p90 excite
+ph2 = 0                                   ; 13C in HCa cp
+ph3 = 0 0 2 2                             ; 15N in CaN dcp
+ph4 = 0 0 0 0  2 2 2 2                    ; 13C in CaN dcp
+ph5 = 0 0 0 0  0 0 0 0  2 2 2 2  2 2 2 2  ; 13C in NCO dcp
+ph6 = 0                                   ; 15N in NCO dcp
+ph17= 0 0 0 0  0 0 0 0  0 0 0 0  0 0 0 0  
+      2 2 2 2  2 2 2 2  2 2 2 2  2 2 2 2  ; BSH CP
+ph18= 1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1  
+      3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3  ; trim CO before BSH 
+
+#ifdef flip
+ph19= 2 2 2 2  2 2 2 2  2 2 2 2  2 2 2 2
+      0 0 0 0  0 0 0 0  0 0 0 0  0 0 0 0  ; CO along Y, Ca in X
+#endif                                    /* end of flip */ 
+
+ph31= 0 2 2 0  2 0 0 2  2 0 0 2  0 2 2 0  ; receiver
+    
+;#######################################################
+
+;$Id:$

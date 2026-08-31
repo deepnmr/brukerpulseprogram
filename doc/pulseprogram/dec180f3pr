@@ -1,0 +1,70 @@
+;dec180f3pr
+;avance-version (12/01/11)
+;calibration of 180 degree pulse on f3 channel
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d11=30m"
+"d12=20u"
+"d21=1s/(cnst4*2)"
+
+
+"DELTA=d21-p21*3-3u"
+
+
+1 ze 
+  d11 pl16:f3
+2 30m do:f3
+  d12 pl9:f1
+  d1 cw:f1 ph29
+  4u do:f1
+  d12 pl1:f1
+  p1 ph1
+  d21 pl3:f3
+  p2 ph1
+  p21:f3 ph2
+  3u
+  p21*2:f3 ph1
+  DELTA pl16:f3
+  go=2 ph31 cpd3:f3
+  30m do:f3 mc #0 to 2 F0(zd)
+exit 
+  
+
+ph1=0 
+ph2=0 2 
+ph29=0
+ph31=0 2
+
+  
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p21: f3 channel -  90 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d11: delay for disk I/O                               [30 msec]
+;d21: 1/(2J(YH))
+;cnst4: = J(YH)
+;ns: 2 * n, total number of scans: NS * TD0
+;ds: 2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;set pl16 to 0W if no decoupling is required
+
+
+
+;$Id:$

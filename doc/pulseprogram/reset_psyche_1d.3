@@ -1,0 +1,131 @@
+;reset_psyche_1d.3
+;pseudo 2D sequence
+;broadband homodecoupling using single saltire psyche element
+;
+
+; Foroozandeh M,  Morris GA., Nilsson M Chem.Eur.J. 2018, 24, 13988-14000.
+;M. Foroozandeh, R.W. Adams, P. Kiraly, M. Nilsson and G.A. Morris,
+;   Chem. Commun. , x-x (2015)
+;M. Foroozandeh, R.W. Adams, N.J. Meharry, D. Jeannerat, M. Nilsson & 
+;   G.A. Morris, Angew. Chem. Int. Ed. , (2014)
+;(K. Zangger & H. Sterk, J. Magn. Reson. 124, 486-489 (1997) )
+;(J.A. Aguilar, S. Faulkner, M. Nilsson & G.A. Morris, 
+;   Angew. Chem. Int. Ed. 49, 3901-3903 (2010) )
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define delay BETA
+define delay SWi
+define pulse P_in
+define delay tauJ
+define delay tau
+
+
+"l31=d24/(2*dw)" 
+"in0=dw*l31"
+"d0=3u"
+"DELTA=d24*td1"
+
+"SWi=1000000/(l31*2*dw)"
+"p2=p1*2"
+"tauJ=dw*l31/2-p16-d16"
+"tau=(dw*2*l30)+d16"
+
+"spnam37='Saltire_psyche_50ms_10kHz.20'"
+"p45=50000"
+
+"cnst62=(cnst61/360)*sqrt((2*cnst60)/(p45/2000000))"
+"P_in = 1000000.0 / (cnst62*4)"
+"BETA = cnst62 / (2.27 * 2) "
+"cnst63= (P_in/p1) * (P_in/p1)"
+"spw37=plw1/cnst63"
+
+
+
+1 ze
+2 d1 pl1:f1
+3 p1 ph1 
+  d0
+
+  tauJ UNBLKGRAD
+  p16:gp1 
+  d16
+  p2 ph2 
+  p16:gp1 
+  d16
+  tauJ
+
+  p16:gp2 
+  d16
+  tau
+  ( center (p45:sp37 ph3):f1 (p45:gp0) )
+  d16
+  p16:gp2 
+  d16 BLKGRAD
+  d0
+
+  go=2 ph31
+  d1 mc #0 to 2 F1QF(caldel(d0, +in0))
+	DELTA
+exit
+
+ph1= 0 2 0 2 0 2 0 2		
+ph2= 0 0 0 0 1 1 1 1		
+ph3= 0 0 1 1 0 0 1 1 
+ph31=0 2 2 0 2 0 0 2	
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp37: f1 channel - shaped pulse 180 degree for psyche element (Crp_psyche.20)
+;spnam37: Crp_psyche.20
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse [1 msec]
+;p45: f1 channel - 180 degree shaped pulse for psyche element  [50 msec]
+;                      Saltire_psyche_50ms_10kHz.20
+;d0 : incremented delay (2D)                                   [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;d24: chunk duration [10-25 ms]
+;DELTA: total duration of reconstructed FID
+;cnst60: sweepwidth of single chirp element in Crp_psyche.20 in Hz [10000]
+;cnst61: desired flip angle in degree (ca. 20)
+;cnst62: gammaB1/2PI value for p49:sp37 (in Hz)
+;cnst63: scaling factor for power (sp37)
+;l30: number of complex points at the beginning not to be included 
+;        in reconstruction
+;l31: number of complex points along the acquisition dimension per block
+;BETA: flip angle (ca. 20 degree)
+;SWi: sweep width in the pseudo dimension 
+;        should be 2 to 3 times the width of the widest multiplett
+;in0: = dw*l31
+;ns: 1 * n, total number of scans: NS * TD0
+;ds: 4
+;FnMODE: QF
+
+
+;for z-only gradients:
+;gpz0: 1%
+;gpz1: 27%
+;gpz2: 43%
+
+;use gradient files:
+;gpnam0: RECT.1
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+;use AU-program proc_reset to process data
+
+
+
+;$Id:$

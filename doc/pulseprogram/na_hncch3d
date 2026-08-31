@@ -1,0 +1,445 @@
+;na_hncch3d
+;avance-version (18/04/16)
+;HNC-TOCSY-CH
+;3D sequence with
+;   inverse correlation for triple resonance
+;      via multiple inept transfer steps
+;      and FLOPSY8 CC spinlock and DIPSI3 hetero TOCSY
+;
+;   in A:
+;      F1(NH2) -> F3(N6,t1) -> F2(C6) 
+;                      -> F2(C2/C8,t2) -> F1(H2/H8,t3)
+;
+;phase sensitive (t1)
+;phase sensitive (t2)
+;water suppression using watergate sequence
+;(use parameterset NA_HNCCH3D)
+;
+;J.-P. Simorre, G.R. Zimmermann, L. Mueller & A. Pardi,
+;   J. Am. Chem. Soc. 118, 5316-5317 (1996)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple_na>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"p22=p21*2"
+"d11=30m"
+
+"d4=1.25m"
+
+
+"in0=inf1/2"
+"in10=inf2/2"
+
+"d0=(in0-p2-p21*2/3.1416-8u)/2"
+"d10=3u"
+
+
+"DELTA1=d4-p22-p2-d10*2"
+"DELTA2=d4-p16-d16"
+
+
+"FACTOR1=(d21/(p7*94.224))"
+"l1=FACTOR1"
+
+"FACTOR2=(d22/(p25*217.3))"
+"l11=FACTOR2"
+
+
+"o1_F1=bf1*cnst19/1000000"
+"o1_F1=bf2*cnst29/1000000"
+
+
+aqseq 312
+
+
+1 ze
+  d11 pl12:f2 pl16:f3
+2 d11 do:f2 do:f3
+
+3 d1 pl1:f1 pl2:f2 pl3:f3
+  50u UNBLKGRAD
+  30u fq=cnst19(bf ppm):f1 fq=cnst25(bf ppm):f2 fq=cnst31(bf ppm):f3
+  
+  (p1 ph2)
+  4u
+  4u pl25:f1 pl23:f3
+
+						;begin DIPSI3:f1, DIPSI3:f3
+4 (p25*2.722 ph11):f1 (p25*2.722 ph13):f3
+  (p25*4.389 ph12):f1 (p25*4.389 ph14):f3
+  (p25*2.778 ph11):f1 (p25*2.778 ph13):f3
+  (p25*3.056 ph12):f1 (p25*3.056 ph14):f3
+  (p25*0.333 ph11):f1 (p25*0.333 ph13):f3
+  (p25*2.556 ph12):f1 (p25*2.556 ph14):f3
+  (p25*4.000 ph11):f1 (p25*4.000 ph13):f3
+  (p25*2.722 ph12):f1 (p25*2.722 ph14):f3
+  (p25*4.111 ph11):f1 (p25*4.111 ph13):f3
+  (p25*3.778 ph12):f1 (p25*3.778 ph14):f3
+  (p25*3.889 ph11):f1 (p25*3.889 ph13):f3
+  (p25*2.889 ph12):f1 (p25*2.889 ph14):f3
+  (p25*3.000 ph11):f1 (p25*3.000 ph13):f3
+  (p25*0.333 ph12):f1 (p25*0.333 ph14):f3
+  (p25*2.500 ph11):f1 (p25*2.500 ph13):f3
+  (p25*4.050 ph12):f1 (p25*4.050 ph14):f3
+  (p25*2.830 ph11):f1 (p25*2.830 ph13):f3
+  (p25*4.389 ph12):f1 (p25*4.389 ph14):f3
+
+  (p25*2.722 ph12):f1 (p25*2.722 ph14):f3
+  (p25*4.389 ph11):f1 (p25*4.389 ph13):f3
+  (p25*2.778 ph12):f1 (p25*2.778 ph14):f3
+  (p25*3.056 ph11):f1 (p25*3.056 ph13):f3
+  (p25*0.333 ph12):f1 (p25*0.333 ph14):f3
+  (p25*2.556 ph11):f1 (p25*2.556 ph13):f3
+  (p25*4.000 ph12):f1 (p25*4.000 ph14):f3
+  (p25*2.722 ph11):f1 (p25*2.722 ph13):f3
+  (p25*4.111 ph12):f1 (p25*4.111 ph14):f3
+  (p25*3.778 ph11):f1 (p25*3.778 ph13):f3
+  (p25*3.889 ph12):f1 (p25*3.889 ph14):f3
+  (p25*2.889 ph11):f1 (p25*2.889 ph13):f3
+  (p25*3.000 ph12):f1 (p25*3.000 ph14):f3
+  (p25*0.333 ph11):f1 (p25*0.333 ph13):f3
+  (p25*2.500 ph12):f1 (p25*2.500 ph14):f3
+  (p25*4.050 ph11):f1 (p25*4.050 ph13):f3
+  (p25*2.830 ph12):f1 (p25*2.830 ph14):f3
+  (p25*4.389 ph11):f1 (p25*4.389 ph13):f3
+						;end DIPSI3:f1, DIPSI3:f3
+  4u
+  4u pl1:f1 pl3:f3
+
+  d0
+  (p2 ph1)
+  d0
+
+  (p21 ph3):f3
+  4u
+  (p21 ph2):f3
+  4u
+  4u pl26:f2 pl23:f3
+
+						;begin DIPSI3:f2, DIPSI3:f3
+5 (p25*2.722 ph11):f2 (p25*2.722 ph13):f3
+  (p25*4.389 ph12):f2 (p25*4.389 ph14):f3
+  (p25*2.778 ph11):f2 (p25*2.778 ph13):f3
+  (p25*3.056 ph12):f2 (p25*3.056 ph14):f3
+  (p25*0.333 ph11):f2 (p25*0.333 ph13):f3
+  (p25*2.556 ph12):f2 (p25*2.556 ph14):f3
+  (p25*4.000 ph11):f2 (p25*4.000 ph13):f3
+  (p25*2.722 ph12):f2 (p25*2.722 ph14):f3
+  (p25*4.111 ph11):f2 (p25*4.111 ph13):f3
+  (p25*3.778 ph12):f2 (p25*3.778 ph14):f3
+  (p25*3.889 ph11):f2 (p25*3.889 ph13):f3
+  (p25*2.889 ph12):f2 (p25*2.889 ph14):f3
+  (p25*3.000 ph11):f2 (p25*3.000 ph13):f3
+  (p25*0.333 ph12):f2 (p25*0.333 ph14):f3
+  (p25*2.500 ph11):f2 (p25*2.500 ph13):f3
+  (p25*4.050 ph12):f2 (p25*4.050 ph14):f3
+  (p25*2.830 ph11):f2 (p25*2.830 ph13):f3
+  (p25*4.389 ph12):f2 (p25*4.389 ph14):f3
+
+  (p25*2.722 ph12):f2 (p25*2.722 ph14):f3
+  (p25*4.389 ph11):f2 (p25*4.389 ph13):f3
+  (p25*2.778 ph12):f2 (p25*2.778 ph14):f3
+  (p25*3.056 ph11):f2 (p25*3.056 ph13):f3
+  (p25*0.333 ph12):f2 (p25*0.333 ph14):f3
+  (p25*2.556 ph11):f2 (p25*2.556 ph13):f3
+  (p25*4.000 ph12):f2 (p25*4.000 ph14):f3
+  (p25*2.722 ph11):f2 (p25*2.722 ph13):f3
+  (p25*4.111 ph12):f2 (p25*4.111 ph14):f3
+  (p25*3.778 ph11):f2 (p25*3.778 ph13):f3
+  (p25*3.889 ph12):f2 (p25*3.889 ph14):f3
+  (p25*2.889 ph11):f2 (p25*2.889 ph13):f3
+  (p25*3.000 ph12):f2 (p25*3.000 ph14):f3
+  (p25*0.333 ph11):f2 (p25*0.333 ph13):f3
+  (p25*2.500 ph12):f2 (p25*2.500 ph14):f3
+  (p25*4.050 ph11):f2 (p25*4.050 ph13):f3
+  (p25*2.830 ph12):f2 (p25*2.830 ph14):f3
+  (p25*4.389 ph11):f2 (p25*4.389 ph13):f3
+
+  (p25*2.722 ph12):f2 (p25*2.722 ph14):f3
+  (p25*4.389 ph11):f2 (p25*4.389 ph13):f3
+  (p25*2.778 ph12):f2 (p25*2.778 ph14):f3
+  (p25*3.056 ph11):f2 (p25*3.056 ph13):f3
+  (p25*0.333 ph12):f2 (p25*0.333 ph14):f3
+  (p25*2.556 ph11):f2 (p25*2.556 ph13):f3
+  (p25*4.000 ph12):f2 (p25*4.000 ph14):f3
+  (p25*2.722 ph11):f2 (p25*2.722 ph13):f3
+  (p25*4.111 ph12):f2 (p25*4.111 ph14):f3
+  (p25*3.778 ph11):f2 (p25*3.778 ph13):f3
+  (p25*3.889 ph12):f2 (p25*3.889 ph14):f3
+  (p25*2.889 ph11):f2 (p25*2.889 ph13):f3
+  (p25*3.000 ph12):f2 (p25*3.000 ph14):f3
+  (p25*0.333 ph11):f2 (p25*0.333 ph13):f3
+  (p25*2.500 ph12):f2 (p25*2.500 ph14):f3
+  (p25*4.050 ph11):f2 (p25*4.050 ph13):f3
+  (p25*2.830 ph12):f2 (p25*2.830 ph14):f3
+  (p25*4.389 ph11):f2 (p25*4.389 ph13):f3
+
+  (p25*2.722 ph11):f2 (p25*2.722 ph13):f3
+  (p25*4.389 ph12):f2 (p25*4.389 ph14):f3
+  (p25*2.778 ph11):f2 (p25*2.778 ph13):f3
+  (p25*3.056 ph12):f2 (p25*3.056 ph14):f3
+  (p25*0.333 ph11):f2 (p25*0.333 ph13):f3
+  (p25*2.556 ph12):f2 (p25*2.556 ph14):f3
+  (p25*4.000 ph11):f2 (p25*4.000 ph13):f3
+  (p25*2.722 ph12):f2 (p25*2.722 ph14):f3
+  (p25*4.111 ph11):f2 (p25*4.111 ph13):f3
+  (p25*3.778 ph12):f2 (p25*3.778 ph14):f3
+  (p25*3.889 ph11):f2 (p25*3.889 ph13):f3
+  (p25*2.889 ph12):f2 (p25*2.889 ph14):f3
+  (p25*3.000 ph11):f2 (p25*3.000 ph13):f3
+  (p25*0.333 ph12):f2 (p25*0.333 ph14):f3
+  (p25*2.500 ph11):f2 (p25*2.500 ph13):f3
+  (p25*4.050 ph12):f2 (p25*4.050 ph14):f3
+  (p25*2.830 ph11):f2 (p25*2.830 ph13):f3
+  (p25*4.389 ph12):f2 (p25*4.389 ph14):f3
+  
+  lo to 5 times l11
+						;end DIPSI3:f2, DIPSI3:f3
+
+  4u
+  4u pl2:f2
+  (p3 ph4):f2
+  4u
+  30u fq=cnst18(bf ppm):f1 fq=cnst29(bf ppm):f2 fq=cnst0(bf ppm):f3
+  4u pl20:f2
+
+						;begin FLOPSY8
+6 (p7*0.511 ph16):f2
+  (p7*1.067 ph17):f2
+  (p7*1.822 ph18):f2
+  (p7*1.767 ph19):f2
+  (p7*1.444 ph20):f2
+  (p7*1.767 ph19):f2
+  (p7*1.822 ph18):f2
+  (p7*1.067 ph17):f2
+  (p7*0.511 ph16):f2
+
+  (p7*0.511 ph21):f2
+  (p7*1.067 ph22):f2
+  (p7*1.822 ph23):f2
+  (p7*1.767 ph24):f2
+  (p7*1.444 ph25):f2
+  (p7*1.767 ph24):f2
+  (p7*1.822 ph23):f2
+  (p7*1.067 ph22):f2
+  (p7*0.511 ph21):f2
+
+  (p7*0.511 ph21):f2
+  (p7*1.067 ph22):f2
+  (p7*1.822 ph23):f2
+  (p7*1.767 ph24):f2
+  (p7*1.444 ph25):f2
+  (p7*1.767 ph24):f2
+  (p7*1.822 ph23):f2
+  (p7*1.067 ph22):f2
+  (p7*0.511 ph21):f2
+
+  (p7*0.511 ph16):f2
+  (p7*1.067 ph17):f2
+  (p7*1.822 ph18):f2
+  (p7*1.767 ph19):f2
+  (p7*1.444 ph20):f2
+  (p7*1.767 ph19):f2
+  (p7*1.822 ph18):f2
+  (p7*1.067 ph17):f2
+  (p7*0.511 ph16):f2
+
+  (p7*0.511 ph16):f2
+  (p7*1.067 ph17):f2
+  (p7*1.822 ph18):f2
+  (p7*1.767 ph19):f2
+  (p7*1.444 ph20):f2
+  (p7*1.767 ph19):f2
+  (p7*1.822 ph18):f2
+  (p7*1.067 ph17):f2
+  (p7*0.511 ph16):f2
+
+  (p7*0.511 ph16):f2
+  (p7*1.067 ph17):f2
+  (p7*1.822 ph18):f2
+  (p7*1.767 ph19):f2
+  (p7*1.444 ph20):f2
+  (p7*1.767 ph19):f2
+  (p7*1.822 ph18):f2
+  (p7*1.067 ph17):f2
+  (p7*0.511 ph16):f2
+
+  (p7*0.511 ph21):f2
+  (p7*1.067 ph22):f2
+  (p7*1.822 ph23):f2
+  (p7*1.767 ph24):f2
+  (p7*1.444 ph25):f2
+  (p7*1.767 ph24):f2
+  (p7*1.822 ph23):f2
+  (p7*1.067 ph22):f2
+  (p7*0.511 ph21):f2
+
+  (p7*0.511 ph21):f2
+  (p7*1.067 ph22):f2
+  (p7*1.822 ph23):f2
+  (p7*1.767 ph24):f2
+  (p7*1.444 ph25):f2
+  (p7*1.767 ph24):f2
+  (p7*1.822 ph23):f2
+  (p7*1.067 ph22):f2
+  (p7*0.511 ph21):f2
+
+  lo to 6 times l1
+						;end FLOPSY8
+
+  4u
+  p16:gp3
+  d16 pl2:f2 pl3:f3
+
+  (p3 ph5):f2
+  d10
+  (p22 ph1):f3
+  DELTA1
+  (p2 ph1)
+  d10
+  (p4 ph1):f2
+  d4
+  (p3 ph1):f2
+
+  p16:gp4
+  d16
+
+  (p29:sp11 ph1):f1
+  4u
+  (p1 ph1)
+
+  p16:gp5
+  d16
+
+  (p11:sp1 ph6 4u p2 ph1 4u p11:sp1 ph6):f1 (DELTA2 p4 ph1):f2
+
+  p16:gp5
+  d16 pl12:f2 pl16:f3
+
+  4u BLKGRAD
+
+  go=2 ph31 cpd2:f2 cpd3:f3
+  d11 do:f2 do:f3 mc #0 to 2 
+     F1PH(calph(ph3, -90), caldel(d0, +in0))
+     F2PH(calph(ph5, +90), caldel(d10, +in10))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=1 1 3 3
+ph4=1 3
+ph5=1 1 1 1 3 3 3 3
+ph6=2
+
+ph11=0
+ph12=2
+ph13=0
+ph14=2
+
+ph16=(720) 0
+ph17=(720) 90
+ph18=(720) 135
+ph19=(720) 630
+ph20=(720) 45
+ph21=(720) 360
+ph22=(720) 450
+ph23=(720) 495
+ph24=(720) 270
+ph25=(720) 405
+
+ph31=0 2 2 0 2 0 0 2
+  
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl16: f3 channel - power level for CPD/BB decoupling
+;pl20: f2 channel - power level for TOCSY-spinlock (higher sel.)
+;pl23: f3 channel - power level for TOCSY-spinlock
+;pl25: f1 channel - power level for TOCSY-spinlock (higher sel.)
+;         to match p25/pl23
+;pl26: f2 channel - power level for TOCSY-spinlock (higher sel. II)
+;         to match p25/pl23
+;sp1 : f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;sp11: f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p7 : f2 channel -  90 degree pulse at pl20
+;p11: f1 channel -  90 degree shaped pulse              [1 msec]
+;p16: homospoil/gradient pulse
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p25: f3 channel -  90 degree pulse at pl23
+;p29: f1 channel -  90 degree shaped pulse              [1 msec]
+;d0 : incremented delay (F1 in 3D) = (in0-p2-p21*2/3.1416-8u)/2
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(CH))                                        [1.25 msec]
+;d10: incremented delay (F2 in 3D)                      [3 usec]
+;d11: delay for disk I/O                                [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d21: TOCSY mixing time (CC)                            [38 msec]
+;d22: TOCSY mixing time (CN)                            [45 msec]
+;cnst0 : N(aro) chemical shift (offset, in ppm)         [195 ppm]
+;cnst18: H2O chemical shift (offset, in ppm)
+;cnst19: H(N) chemical shift (offset, in ppm)
+;cnst25: C6 (A) chemical shift (offset, in ppm)         [160 ppm]
+;cnst29: C(aro) chemical shift (offset, in ppm)         [145 ppm]
+;cnst31: N(H2) chemical shift (offset, in ppm)          [81 ppm]
+;o1p: H2O chemical shift (cnst18)
+;o2p: C(aro) chemical shift (cnst29)
+;o3p: N(H2) chemical shift (cnst31)
+;l1: loop for FLOPSY8 cycle (CC TOCSY) :
+;       mixing time = ((p6*94.224) * l1)                [38 msec]
+;l11: loop for DIPSI3 cycle (CN hetero TOCSY) :
+;       mixing time = ((p25*217.3) * l11)               [45 msec]
+;inf1: 1/SW(N) = 2 * DW(N)
+;inf2: 1/SW(C) = 2 * DW(C)
+;in0: 1/(2 * SW(N)) = DW(N)
+;nd0: 2
+;in10: 1/(2 * SW(C)) = DW(C)
+;nd10: 2
+;ns: 8 * n
+;ds: >= 32
+;td1: number of experiments in F1
+;td2: number of experiments in F2
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;cpd2: decoupling according to sequence defined by cpdprg2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;use gradient ratio:	gp 3 : gp 4 : gp 5
+;			  11 :   23 :  -31
+
+;for z-only gradients:
+;gpz3: 11%
+;gpz4: 23%
+;gpz5: -31%
+
+;use gradient files:   
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+
+;$Id:$

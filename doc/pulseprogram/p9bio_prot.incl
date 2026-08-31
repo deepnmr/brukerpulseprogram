@@ -1,0 +1,18 @@
+;p9_prot.incl
+
+; Test the rf on-time for PAIN mixing
+; 30ms is maximum
+
+;$COMMENT=Protection against long PAIN mixing time
+;$CLASS=BioSolids PROT
+
+
+if "p9<30.1m" goto Passp9
+1u
+print "PAIN mixing time p9 exceeds 30 ms limit!"
+goto HaltAcqu
+Passp9, 1m
+
+
+
+;$Id:$

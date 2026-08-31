@@ -1,0 +1,214 @@
+;hCH2D.hsqc
+;version: 1.0/ TS4/ 2017/09/18
+
+;written: Daniel Mathieu, VDec 2017/09/18
+;checked: VDec 2017/09/19
+;double-checked: JOS 2017/09/27
+
+;1D & 2D 13C-1H experiment via double inept transfer
+;and H-detection (='HSQC')
+;phase sensitive
+
+
+;$CLASS=BioSolids
+;$DIM=1D, 2D
+;$TYPE=H detection
+;$SUBTYPE=Heteronuclear, HSQC
+;$COMMENT=scalar based, INEPT
+
+;Avance III/ NEO version
+;Parameters:
+;f1 : H
+;f3 : C
+;o1 : H offset, on resonance with water peak (~5 ppm, water suppression!)
+;o3 : C offset, center of 13C ali (& arom.) signal (~45 ppm)
+;p1 : C 90 hard pulse at pl1
+;p2 : C 180 hard pulse at pl1
+;p3 : H 90 hard pulse at pl2
+;p4 : H 180 hard pulse at pl2
+;p21 : not used (see p1)
+;p22 : not used (see p2)
+;pl1 : C hard pulse power
+;pl2 : H hard pulse power
+;pl3 : not used (see pl1)
+;pl13 : H dec power during H2O suppression (~15 kHz, 'cwX_13nofq', 'cwY_13nofq')
+;pl18 : C dec power ('waltz16_18nofq' at 10 kHz)
+;pl21 : not used (see pl1)
+;d0 : incremented delay (t1)
+;d1 : recycle delay; 1 to 5 times T1 (1 s)
+;d5 : 1/(4J)CH (is set automatically)
+;d19 : delay for water suppression (~100 to 300 ms)
+;cpdprg2 : C dec ('waltz16_18nofq' at pl18 (10 kHz))
+;cpdprg4 : H Water suppression along X ('cwX_13nofq' at pl13 (15 kHz))
+;cpdprg5 : H Water suppression along Y ('cwY_13nofq' at pl13 (15 kHz))
+;pcpd2 : C dec pulse: 25 us ('waltz16_18nofq' 10 kHz)
+;cnst5: = J(CH) in Hz (theor. ~145 Hz, but real value is often higher up to 200 Hz)
+;inf1: 1/SW(C) = 2 * DW(C)
+;in0: 1/(2 * SW(C)) = DW(C)
+;td1: number of experiments
+;ZGOPTNS : -Dlacq : acquisition times > 50ms
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+;nd0: 2
+;ns: 4 * n
+
+;######################################################
+;#                                                    #
+;# INEPT based on:                                    #
+;# G. Bodenhausen & D.J. Ruben, Chem. Phys. Lett. 69, #
+;# 185 (1980)                                         #
+;#                                                    #
+;# MISSISSIPPI water suppression:                     #
+;# D.H. Zhou & C.M. Rienstra, J Magn Reson 192,       #
+;# 167-172 (2008)                                     #
+;#                                                    #
+;######################################################
+
+
+prosol relations=<biosolHNC>
+
+
+#include <HNC_defs.incl>
+        ; defines H:f1, N:f2, C:f3
+
+#include <trigg.incl>
+        ; definition of external trigger output
+
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+
+"d5=1s/(cnst5*4)"
+
+"d0=1u"
+"in0=inf1/2"
+
+"DELTA=d0*2+p4"         ; symmetry delay for t1
+"DELTA1=d5-p3*2/PI+de"
+
+"acqt0=0"
+baseopt_echo
+
+define delay ONTIME
+"ONTIME=aq+d0*2"
+
+Prepare, ze
+
+;######################################################
+;#               Protections: Pre-Check               #
+;######################################################
+
+#ifdef lacq
+#else
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#include <ONTIME_H_prot.incl>
+        ;total RF deposition restriction to < 1 s
+#endif                 /* end of lacq */
+
+#include <noH2Obio_prot.incl>
+        ;water suppression d19 max. 500 ms
+
+;######################################################
+;#           Start of Active Pulse Program            #
+;######################################################
+
+Start, 10m do:C
+  d1
+
+;########################################################
+;#      H -> C refocused INEPT (using J-coupling)       #
+;########################################################
+
+  (p3 pl2 ph0):H
+  d5
+  (center (p4 pl2 ph1):H (p2 pl1 ph3):C)
+  d5
+  (lalign (p3 pl2 ph2):H (p1 pl1 ph4):C)
+  d5
+  DELTA                          ; symmetry delay for t1
+  (center (p4 pl2 ph1):H (p2 pl1 ph3):C)
+  d5
+
+;########################################################
+;#                    t1 evolution                      #
+;#                Polarization is on C                  #
+;########################################################
+
+  d0
+  (p4 pl2 ph5):H
+  d0
+
+;######################################################
+;#             Water suppression                      #
+;######################################################
+
+  (p1 pl1 ph6):C  (0.5u pl13):H   ; brings C magn. to z
+
+  0.5u cpd4:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpd5:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpd4:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpd5:H
+  d19*0.25
+  0.5u do:H
+
+;########################################################
+;#      C -> H refocused INEPT (using J-coupling)       #
+;########################################################
+
+  (p1 pl1 ph7):C           ; brings C magn. to xy plane
+  d5
+  (center (p4 pl2 ph1):H (p2 pl1 ph7):C)
+  d5
+  (ralign (p3 pl2 ph2):H (p1 pl1 ph8):C)
+  DELTA1
+  (center (p4 pl2 ph1):H (p2 pl1 ph9):C)
+  d5 pl18:C
+
+;######################################################
+;#                     Acquisition                    #
+;######################################################
+
+go=Start ph31 cpd2:C
+
+10m do:C mc #0 to Start
+  F1PH(calph(ph4, +90) & calph(ph3, +90), caldel(d0, +in0))
+
+HaltAcqu, 1m
+exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph0 = 0                  ; initial 1H 90 pulse
+ph1 = 0                  ; 1H pi pulses during INEPTs
+ph2 = 1                  ; 1H 90 pulses during INEPTs
+ph3 = 0 0 0 0  0 0 0 0
+      2 2 2 2  2 2 2 2   ; 13C pi pulses during 1st INEPT
+ph4 = 0 2                ; 13C 90 pulse during 1st INEPT
+ph5 = 0 0 2 2            ; 1H dec during t1
+ph6 = 1 1 1 1  3 3 3 3   ; 13C 90 pulse before H2O suppr.
+ph7 = 0                  ; 13C first 90 and pi pulse during 2nd INEPT
+ph8 = 1                  ; 13C last 90 pulse during 2nd INEPT
+ph9 = 0 0 0 0  0 0 0 0
+      2 2 2 2  2 2 2 2   ; 13C last pi pulse during 2nd INEPT
+
+
+ph31= 0 2 0 2  2 0 2 0   ; receiver
+
+;#######################################################
+
+
+
+;$Id:$

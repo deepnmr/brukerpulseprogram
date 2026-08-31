@@ -1,0 +1,285 @@
+;hcchcogp4d
+;avance-version (21/09/15)
+;HCCH-COSY
+;4D sequence with
+;   inverse correlation using multiple inept transfer and
+;
+;      F1(H,t1) -> F2(C,t2) -> F2(C',t3) -> F1(H',t4)
+;
+;off resonance C=O pulse using shaped pulse
+;phase sensitive (t1)
+;phase sensitive (t2)
+;phase sensitive (t3)
+;using semi-constant time in t1
+;(use parameterset )
+;
+;(L.E. Kay, G.Y. Xu, A.U. Singer, D.R. Muhandiram & J. D. Forman-Kay
+;   J. Magn. Reson. B 101, 333 - 337 (1993))
+;
+;$CLASS=HighRes
+;$DIM=4D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+
+"d4=1.6m"
+"d21=1.1m"
+"d23=475u"
+"d24=3.6m"
+
+
+"p16=500u"
+"p19=2m"
+"p29=300u"
+"p30=5m"
+"p31=4.4m"
+
+"d16=150u"
+
+
+"d32=3u"
+"d33=3u"
+"d51=3u"
+"d31=d4"
+"d41=d4+p8+d51"
+
+"in31=inf1/2"
+"in32=inf2/2"
+"in33=inf3/2"
+
+"FACTOR1=d41*10000000*2/td1"
+"INCR1=FACTOR1/10000000"
+
+"if ( INCR1 > in31 ) { in41 = in31; } else { in41 = INCR1; }"
+"if ( INCR1 > in31 ) { in51 = 0; } else { in51=in31-INCR1; }"
+
+
+"DELTA1=d4-p16-d16-4u"
+"DELTA3=d23-p29-d16"
+"DELTA4=p22+p2+d32*2+4u"
+"DELTA5=d24-p29-d16-4u"
+"DELTA6=d21-p16-d16-4u"
+"DELTA7=d21+larger(p2,p22)+d33*2-p16-d16-4u"
+
+
+"d22=3.6m-d23*2-(in32*td2/4)"
+
+
+"spoffs5=bf2*(cnst21/1000000)-o2"
+"spoffs13=0"
+
+
+"cnst62=-(bf1*cnst20-(o1*1000000))"
+"cnst63=(bf1*cnst20-(o1*1000000))*(inf1/1000000)*360.0"
+
+
+"o1_F1=bf1*cnst20/1000000"
+
+
+"TAU9=abs(cnst62+cnst63)/100000"
+
+
+"acqt0=-p1*2/PI"
+
+
+1 d11 ze
+  d11 pl12:f2
+2 d11 do:f2
+3 d1
+  50u UNBLKGRAD
+  d12 pl1:f1 pl3:f3
+
+  (p1 ph3)
+  d31
+  (p8:sp13 ph1):f2
+  d51
+  (p2 ph1)
+  d41
+  (p1 ph2)
+
+  p19:gp3
+  d16 pl2:f2
+
+  (p3 ph4):f2
+  d32
+  (p22 ph1):f3
+  4u
+  p29:gp2
+  d16
+  DELTA3
+  (p14:sp5 ph1):f2
+  4u
+  p29:gp2
+  d16
+  DELTA3 pl2:f2
+  p2 ph1
+  d32
+  d22
+  (p4 ph1):f2
+  DELTA4
+  p29:gp2
+  d16
+  DELTA3
+  (p14:sp5 ph1):f2
+  4u
+  p29:gp2
+  d16
+  DELTA3 pl2:f2
+  d22
+
+  (p3 ph1):f2
+  4u
+  p29:gp2
+  d16
+  DELTA5
+  (p4 ph1):f2
+  4u
+  p29:gp2
+  d16
+  DELTA5 pl10:f1
+  (p3 ph2):f2
+
+  (p17 ph1)
+  (p17*2 ph2)
+  4u
+  p30:gp4
+  d16 pl1:f1
+  (p1 ph1)
+  4u
+  p31:gp4
+  d16
+
+  (p3 ph5):f2
+  4u
+  p16:gp1
+  d16
+  DELTA6 pl2:f2
+  d33
+  (center (p2 ph1) (p22 ph1):f3 )
+  d33
+  (p4 ph1):f2
+  4u
+  p16:gp1
+  d16
+  DELTA7
+  (p3 ph1):f2
+
+  (p1 ph1)
+  4u
+  p16:gp1
+  d16
+  DELTA1
+  (center (p2 ph1) (p4 ph1):f2 )
+  4u
+  p16:gp1
+  d16 pl12:f2 
+  DELTA1 BLKGRAD
+  (p1 ph1)
+  go=2 ph31 cpd2:f2
+  d11 do:f2 mc #0 to 2 
+     F1PH(calph(ph3, +90), caldel(d31, +in31) & caldel(d41, -in41) & caldel(d51, +in51) & calph(ph3, cnst63))
+     F2PH(calph(ph4, +90), caldel(d32, +in32))
+     F3PH(calph(ph5, +90), caldel(d33, +in33))
+
+TAU9
+exit
+
+
+ph1=0
+ph2=1
+ph3=0 2
+ph4=0 0 2 2
+ph5=1 1 1 1 3 3 3 3
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock (trim pulse)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp5: f2 channel - shaped pulse 180 degree   (C=O off resonance)
+;sp13: f2 channel - shaped pulse 180 degree  (adiabatic)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p8 : f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;p14: f2 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                         [500 usec]
+;p17: f1 channel - trim pulse                          [2.5 msec]
+;p19: gradient pulse 2                                 [2 msec]
+;p22: f3 channel - 180 degree high power pulse
+;p29: gradient pulse 3                                 [300 usec]
+;p30: gradient pulse 4                                 [5 msec]
+;p31: gradient pulse 5                                 [4.4 msec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(CH)) - tau a                               [1.6 msec]
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery            [150 usec]
+;d21: 1/(6J'(CH)) - tau c                              [1.1 msec]
+;d22: d22+d23*2+t2max*0.5 = 1/(4J(CC)) : 3.6m-d23*2-(in32*td2/4)
+;d23: tau b                                            [475 usec]
+;d24: 1/(4J(CC))                                       [3.6 msec]
+;d31: incremented delay (F1 in 3D) = d4
+;d32: incremented delay (F2 in 3D)                     [3 usec]
+;d33: incremented delay (F3 in 3D)                     [3 usec]
+;d41: decremented delay (F1 in 3D) = d4+p8+d51
+;d51: incremented delay (F1 in 3D)                     [3 usec]
+;cnst20: H(ali) chemical shift (offset, in ppm)
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst23: Caliphatic chemical shift (offset, in ppm)
+;cnst62: offset for Hali region (Hz)
+;cnst63: additional phase increment to center Hali region
+;o2p: Caliphatic chemical shift (cnst23)
+;inf1: 1/SW(Hali) = 2 * DW(Hali)
+;inf2: 1/SW(C) = 2 * DW(C)
+;inf3: 1/SW(C) = 2 * DW(C)
+;in31: 1/(2 * SW(Hali)) = DW(Hali)
+;in32: 1/(2 * SW(C)) = DW(C)
+;in33: 1/(2 * SW(C)) = DW(C)
+;in41: = k1 * in31
+;in51: = (1 - k1) * in31
+;ns: 8 * n
+;ds: 32
+;td1: number of experiments in F1
+;td2: number of experiments in F2
+;td3: number of experiments in F3
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;FnMODE: States-TPPI (or TPPI) in F3
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 16%
+;gpz2: 16%
+;gpz3: 30%
+;gpz4: 60%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.50
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+
+;$Id: $

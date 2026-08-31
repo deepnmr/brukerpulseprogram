@@ -1,0 +1,58 @@
+;selzg
+;avance-version (21/09/15)
+;1D sequence
+;selective excitation using a shaped pulse
+;
+;C.J. Bauer, R. Freeman, T. Frenkiel, J. Keeler & A.J. Shaka,
+;   J. Magn. Reson. 58, 442 (1984)
+;H. Kessler, H. Oschkinat, C. Griesinger & W. Bermel,
+;   J. Magn. Reson. 70, 106 (1986)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+#   ifdef CALC_SPOFFS
+"spoffs1=bf1*(cnst21/1000000)-o1"
+#   else
+#   endif /*CALC_SPOFFS*/
+
+
+1 ze
+2 30m
+  d1 
+  4u pl0:f1
+  p11:sp1:f1 ph1:r
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+
+ph1=0 2 2 0 1 3 3 1
+ph31=0 2 2 0 1 3 3 1
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;sp1: f1 channel - shaped pulse
+;p11: f1 channel -  90 (or 270) degree shaped pulse
+;d1 : relaxation delay; 1-5 * T1
+;cnst21: chemical shift for selective pulse (offset, in ppm)
+;ns: 1 * n, total number of scans: NS * TD0
+
+
+;phcor 1 : phasedifference between power levels sp1 and pl1 
+
+;choose p11 according to desired selectivity
+;the flip-angle is determined by the amplitude
+;set O1 on resonance on the multiplet to be excited or use spoffs
+
+
+
+;$Id: $

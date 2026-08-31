@@ -1,0 +1,64 @@
+;zgsl2d
+;avance-version (21/07/20)
+;pseudo-2D with slice selection
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=Relaxation
+;$SUBTYPE=
+;$COMMENT=preparation experiment for single-scan inversion recovery
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+
+
+define list<frequency> fqlist=<$FQ1LIST>
+
+
+"cnst31=0"
+"spw9=plw1*pow((p1*totrot9)/(p42*90.0*integfac9),2)"
+
+
+1 ze
+  d1
+  50u UNBLKGRAD
+
+2 2m
+3 1u fqlist:f1
+
+  "cnst31=-((2*d31)+de)*fqlist*360"
+  1u ip1+cnst31
+
+  2u gron0
+  (p42:sp9 ph1):f1
+  d31
+  d31 groff
+
+  go=2 ph31
+  1m wr #0 if #0 zd
+  1m fqlist.inc
+  lo to 3 times td1
+  4u BLKGRAD
+exit
+
+
+ph1= 0
+ph2= 0
+ph31=0
+
+
+;sp9 : f1 channel - shaped pulse  90 degree
+;spnam9 : shape for slice selection (selective excitation)
+;p42: f1 channel - slice selective 90 degree
+;d1     : pre-relaxation delay
+;d31: compensation delay
+;ns: 1
+;td1: number of experiments
+
+;fq1list: slice selection frequencies
+;sfo1   : channel 1 center frequency
+
+
+
+;$Id: $

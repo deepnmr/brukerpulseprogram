@@ -1,0 +1,18 @@
+;noH2Obio_prot.incl
+
+; Test the rf on-time for water suppression
+; 500 ms is maximum
+
+;$COMMENT=Protection against long on-time
+;$CLASS=BioSolids PROT
+
+
+if "d19<500.1m" goto Passd19
+1u
+print "Water suppression exceeds 500 msec limit!"
+goto HaltAcqu
+Passd19, 1m
+
+
+
+;$Id:$

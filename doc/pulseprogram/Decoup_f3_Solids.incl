@@ -1,0 +1,53 @@
+;Decoup_f3_Solids.incl
+
+;$CLASS=Solids INCL
+;$COMMENT= INCL for AVance NEO spectrometers
+
+#ifdef lpdec
+"cnst62=0.25*cnst31"
+#elif lpdec8
+"cnst62=0.125*cnst31"
+#elif diydec 
+						; set your own decoupling field
+#else
+"cnst62=cnst52"
+#endif
+
+"plw12=plw0*pow(((cnst62+cnst32)*4*p0/(1000000)),2)"
+
+#ifdef XiX
+"pcpd2=(l10*1s/cnst31)*(1+(cnst10/100))"
+#endif
+
+# ifdef pidec
+"TAU=1s/cnst31-1s/(2*cnst62)"
+# endif /* pidec */
+#ifdef lpdecf3
+"cnst49=0.25*cnst31"
+#elif lpdec8f3
+"cnst49=0.125*cnst31"
+#elif diydec 
+						; set your own decoupling field
+#else
+"cnst49=cnst61"
+#endif
+
+"plw13=plw37*pow(((cnst49+cnst37)/(10000)),2)"   ;1H heteronuclear decoupling
+
+
+
+#ifndef diydec
+
+"pcpd2=1s/(2*(cnst62))"
+
+"pcpd3=1s/(2*cnst49)"
+#endif
+#ifdef XiXf3
+
+"pcpd3=(l10*1s/cnst31)*(1+(cnst10/100))"
+#endif
+
+
+
+
+

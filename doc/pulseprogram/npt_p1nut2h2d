@@ -1,0 +1,37 @@
+;$Id:$
+;pulse program for pulse nutation on lockchannel
+;$CLASS=HighRes HWT
+;$HIDE=y
+
+#include <Avance.incl>
+
+"d11=30m"
+"d12=20u"
+"inf1=inp1"
+
+1 ze
+  d11 LOCKDEC_ON
+2 d1
+  d12
+  d20 H2_PULSE
+  p1 ph1
+  d12 H2_LOCK
+  go=2 ph31
+  d12 ipu1
+  d20
+  d1 mc #0 to 2 F1QF()
+  d11
+  d11 LOCKDEC_OFF
+exit
+
+ph1=0
+ph31=0
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;nd0: 1
+;NS: 1
+;DS: 4
+;td1: number of experiments
+;FnMODE: QF

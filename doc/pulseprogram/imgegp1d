@@ -1,0 +1,60 @@
+;imgegp1d
+;avance-version (16/07/18)
+;1D Gradient Echo for gradshim-procedure
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include<Avance.incl>
+#include<Grad.incl>
+#include<De.incl>
+
+
+"d11=30m"
+
+"p0=2u"
+
+"plw0=plw1/6.3095"
+
+
+1 ze
+  d11 UNBLKGRAD			
+2 d1
+  20u pl0:f1
+  p0:f1 ph1
+  d27 gron1
+  5u groff
+  d15
+  d21 gron2
+  ACQ_START(ph30,ph31)
+  aq DWELL_GEN:f1
+  5u groff
+  rcyc=2
+  400m wr #0
+  d11 BLKGRAD
+exit
+
+
+ph1=0
+ph30=0
+ph31=0
+
+
+;pl0: f1 channel : pl1+8dB
+;pl1 : f1 channel - power level for pulse (default)
+;p0 : f1 channel -  small flip angle                 [2 usec]
+;d1 : relaxation delay
+;d11: delay for disk I/O                             [30 msec]
+;d15: echo time
+;d21: gradient stabilisation delay
+;d27: length of dephasing gradient (phase encode time)
+;ns: 1
+;ds: 0
+
+
+
+;$Id:$

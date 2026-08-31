@@ -1,0 +1,97 @@
+;satrect1
+;avance-version (20/07/16)
+;
+;saturation recovery T1 experiment
+;pulse program is for 2D acquisition
+;establish suitable vd list
+;uses mc syntax, so that it can be used in 1D mode for set-up of 
+;saturation pulse train
+;
+;$CLASS=SolidsIcon
+;$DIM=pseudo 2D
+;$TYPE=direct excitation
+;$SUBTYPE=T1/T2
+;$COMMENT=saturation recovery T1 experiment
+
+
+prosol relations=<solids_ICON>
+
+
+define list<delay> vd_list=<$VDLIST>
+
+
+#ifdef dec 
+"plw12=plw30*pow(10,(2*log10(cnst52/(10000))))"
+"p31=1000000/(2*cnst52)"
+"pcpd2=p31"
+/*; for pi-pulse  decoupling*/
+"p22=p31"
+"d30=1s/cnst31-p22"
+#endif
+
+
+#ifdef dec
+"acqt0=-p1*2/PI-1u"
+#else
+"acqt0=-p1*2/PI"
+#endif /* dec */
+
+
+1 ze
+2 10m
+
+#ifdef dec
+  d1 do:f2		;recycle delay, decoupler off in go-loop
+
+#include <aq_prot.incl>	
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#else
+  d1
+#endif /* dec */
+
+3 d20
+  (p1 pl1 ph4):f1
+  lo to 3 times l20
+  vd_list			;recovery delay
+  (p1 pl1 ph1):f1
+
+#ifdef dec
+  1u cpds2:f2
+#endif /* dec */
+  go=2 ph31
+#ifdef dec
+  1m do:f2
+#endif /* dec */
+
+  10m mc #0 to 2 F1QF(calclist(vd_list, 1))
+HaltAcqu, 1m
+exit
+
+
+ph1= 1 3 2 0
+ph4= 0
+ph31= 0 2 1 3
+
+
+;Avance NEO version
+;parameters:
+;pl1 : X power level
+;pl2 : =0W, not used
+;pl12 : power level for H 90 and standard proton decoupling 
+;pl30 : 10kHz reference power level for decoupling
+;p1 : X 90 degree pulse
+;d1 : recycle delay
+;d20 : delay in saturation pulse train
+;l20 : number of pulses in saturation pulse train, 0 if undesired
+;cnst31  : MAS rate in Hz
+;cnst32  : decoupling power correction factor in %
+;vdlist : list containing tau delays
+;FnMODE: QF(no-frequency)
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2 : pulse length in decoupling sequence
+;ZGOPTNS : -Ddec can use pidec_12 decoupling for 19F 
+
+
+;$Id:$

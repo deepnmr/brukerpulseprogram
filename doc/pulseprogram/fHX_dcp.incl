@@ -1,0 +1,72 @@
+;fHX_cp.incl
+
+;$CLASS=Solids INCL
+;$COMMENT= INCL for AVance NEO spectrometers
+"d31=1s/cnst31"
+
+define loopcounter fieldXCP2_Hz
+define loopcounter fieldLCP1_Hz 
+define loopcounter fieldHCP1_Hz
+define loopcounter fieldHCP2_Hz
+define loopcounter fieldLCP1_corr
+define loopcounter fieldXCP2_corr
+define loopcounter fieldHCP2_corr
+
+#ifdef lgcp
+"cnst15=cnst50*0.9"
+#endif
+
+#ifdef fastMASDQ
+"cnst54=abs(trunc(cnst53)+1-cnst53)"
+"cnst58=abs(trunc(cnst57)+1-cnst57)"
+"fieldXCP2_Hz=(cnst53)*cnst31"
+"fieldLCP1_Hz=cnst57*cnst31"
+"fieldHCP1_Hz=cnst58*cnst31"
+"fieldHCP2_Hz=cnst54*cnst31"
+
+#elif fastMAS
+"cnst54=1+cnst53"
+"cnst58=1+cnst57"
+"fieldLCP1_Hz=cnst57*cnst31"
+"fieldHCP1_Hz=cnst58*cnst31"
+"fieldXCP2_Hz=(cnst53)*cnst31"
+"fieldHCP2_Hz=cnst54*cnst31"
+
+#elif diy			/* choose your own relation */
+;set your own power levels, start with prosol values and calculate
+
+#elif INVERSE
+"fieldHCP1_Hz=cnst55"
+"fieldLCP1_Hz=cnst55-cnst31"
+"fieldHCP2_Hz=cnst50-cnst31"
+"fieldXCP2_Hz=cnst50"
+#elif lgcp
+"cnst19=cnst15/sqrt(2)"		;cnst15=desired RF field in Hz
+"cnst18=-cnst15/sqrt(2)"	
+"cnst16=sqrt(cnst15*cnst15+cnst19*cnst19)"
+"fieldLCP1_Hz=cnst55"
+"fieldHCP1_Hz=cnst55+cnst31"
+"fieldXCP2_Hz=cnst16-cnst31"
+"fieldHCP2_Hz=cnst15"
+#else
+"fieldHCP1_Hz=cnst55+cnst31"
+"fieldLCP1_Hz=(cnst55)"
+"fieldHCP2_Hz=cnst50+cnst31"
+"fieldXCP2_Hz=cnst50"
+#endif
+
+#ifndef diy
+"fieldLCP1_corr=fieldLCP1_Hz+cnst33"
+"fieldHCP2_corr=fieldHCP2_Hz+cnst35"
+"fieldXCP2_corr=fieldXCP2_Hz+cnst34"
+
+"spw0=plw30*pow((fieldLCP1_corr/(10000*integfac0)),2)"		;F for F->H CP  no corr
+"spw3=plw37*pow((fieldHCP1_Hz/(10000*integfac3)),2)"		;H from F->H CP  corr cnst35
+"spw4=plw37*pow((fieldHCP2_corr/(10000*integfac4)),2)"	;H from H-> X CP  corr cnst33
+"spw1=plw31*pow((fieldXCP2_corr/(10000*integfac1)),2)"		;X from H->X CP   corr cnst34
+
+#endif
+
+"acqt0=0"
+
+

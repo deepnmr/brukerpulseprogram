@@ -1,0 +1,34 @@
+;$Id:$
+;pulse program for pulse nutation on f1 channel
+;$CLASS=Solids HWT
+;$DIM=2D
+;$HIDE=y
+
+prosol relations=<solids_default>
+
+#include <Avance.incl>
+
+"d11=30m"
+"d12=20u"
+
+"inf1=inp1"
+
+1 ze
+2 d1
+3 p1 ph1
+  go=2 ph31
+  d12 ipu1
+  d11 mc #0 to 2 F1QF()
+exit
+
+ph1=0
+ph31=0
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;nd0: 1
+;NS: 1
+;DS: 4
+;td1: number of experiments
+;FnMODE: QF

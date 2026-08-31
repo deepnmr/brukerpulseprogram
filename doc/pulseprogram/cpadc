@@ -1,0 +1,93 @@
+;cpadc 
+;avance-version (20/11/23)
+; 1D CP experiment with explicit programming of acquisition
+;
+; TopSpin 4.0
+;
+; written by GALT,  2018/01/25
+;  based on cpadc for Avance III/TopSpin 3
+;
+;Avance neo version
+;parameters
+;pl1 : f1 power level
+;pl2 : =0, not used
+;pl12 : f2 power level for H 90 and standard proton decoupling 
+;sp0 : f2 power level during contact
+;p3 : f2 90 degree pulse at pl12
+;p15 : contact time at pl1 (f1) and spw0 (f2)
+;cpdprg2 : cw, spinal64 (at plw12), or lgs, cwlg. cwlgs (LG-decoupling, here plw13 is used instead of pl12)
+;cnst21 : f2 on-resonance, set by pulse program
+;d1 : recycle delay
+;spnam0 : file name for variable amplitude CP
+;pcpd2 : pulse length in decoupling sequence (e.g. 180deg pulse)
+;zgoptns : -Dfslg, -Dlacq, -Dlcp15, or blank
+;
+;
+;$CLASS=Solids
+;$DIM=1D
+;$TYPE=cross polarisation
+;$SUBTYPE=explicit acquisition
+;$COMMENT=basic cp experiment
+
+prosol relations=<solids_cp>
+
+
+#include <Avance.incl>
+#include <Desolids.incl>
+
+; commands necessary for acquisition
+
+#ifdef fslg
+#include <lgcalc.incl>
+;cnst20 : RF field achieved at pl13
+;cnst22 : positive LG offset
+;cnst23 : negative LG offset
+;cnst24 : additional LG-offset
+;p5 : FSLG pulse duration
+#else
+"cnst21=0"			
+#endif /* fslg */
+
+"acqt0=0"															;defines t=0 for baseopt
+
+1 ze
+2 d1 do:f2
+
+#ifndef lcp15
+#include <p15_prot.incl>
+			;make sure p15 does not exceed 10 msec 
+			;let supervisor change this pulseprogram if 
+			;more is needed
+#endif
+#ifndef lacq		
+			;disable protection file for long acquisition change decoupling power !!! or you risk probe damage
+			;if you set the label lacq (ZGOPTNS -Dlacq), the protection is disabled
+
+#include <aq_prot.incl>	
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#endif
+
+  1u fq=cnst21:f2
+  (p3 pl12 ph1):f2
+  (p15 pl1 ph2):f1 (p15:sp0 ph10):f2
+  1u cpds2:f2
+  ACQ_START(ph30,ph31)  
+  aq DWELL_GEN:f1
+  1u do:f2
+  rcyc=2
+  wr #0
+HaltAcqu, 1m
+exit
+
+ph0= 0
+ph1= 1 3
+ph2= 0 0 2 2 1 1 3 3
+ph10=0
+ph30=0 
+ph31=0 2 2 0 1 3 3 1
+
+
+
+;$Id:$

@@ -1,0 +1,65 @@
+; mp3qzqf
+;
+; TS3 / 06.07.2011
+;
+;
+; 3Q MAS pulse program for half integer spin nuclei
+; experiment with zero quantum filter:
+; excitation - t1(3Q) - conversion -  tau(zqf) - 90sel - acquisition
+; 90 selective pulse should be determined first using Hahn-echo,
+; determination by single pulse excitation is also possible
+; then optimise p2 and finally p1, 2 or more iterations for p1 and p2 may be necessary
+; for processing shearing transformation may be required, 
+; use AU program xfshear
+; see also mp3q, mp3qzfil, mp3qdfs, mp3qfam, mp3qdfsz, mp3qfamz
+;
+;
+;Avance III version
+;parameters:
+;pl1 : = 0, not used
+;pl11 : power level for excitation and conversion pulses
+;pl21 : power level for selective pulse, ca. plw11 / 1024
+;p1 : excitation pulse at plw11
+;p2 : conversion pulse at plw11
+;p3 : 90 degree selective pulse at plw21
+;d0 : = 1u or longer
+;d1 : recycle delay
+;d4 : z-filter delay, usually = 20u
+;ns : 12 * n
+;in0 : 1 rotation period for synchronised experiment
+;td1 : number of t1-experiments
+;FnMODE: States
+;MC2 : States
+;
+;
+;$CLASS=Solids
+;$DIM=2D
+;$TYPE=half integer quadrupoles
+;$SUBTYPE=MQMAS
+;$COMMENT=3-pulse z-filter 3Q MAS
+
+prosol relations=<solids_mqmas>
+
+"acqt0=-p3/2" ;set cnst11 to determine baseopt t=0
+"in0=inf1"
+
+  ze
+1 d1
+  (p1 pl11 ph1):f1
+  d0
+  (p2 ph2):f1
+  d4
+  (p3 pl21 ph3):f1
+  go=1 ph31
+  d1 mc #0 to 1 F1PH(ip1,id0)
+exit
+
+ph1=(12) 0
+ph2=(6) 0 0 1 1 2 2 3 3 4 4 5 5 
+ph3=0 2
+ph0=0
+ph31=0 2 2 0
+
+
+
+;$Id:$

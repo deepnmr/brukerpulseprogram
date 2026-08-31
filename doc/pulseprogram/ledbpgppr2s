@@ -1,0 +1,142 @@
+;ledbpgppr2s
+;avance-version (21/09/21)
+;2D sequence for diffusion measurement using stimulated 
+;   echo and LED
+;using bipolar gradient pulses for diffusion
+;using 2 spoil gradients
+;with presaturation during relaxation delay
+;
+;D. Wu, A. Chen & C.S. Johnson Jr., 
+;   J. Magn. Reson. A 115, 260-264 (1995).
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<gradient> diff=<Difframp>
+
+
+"p2=p1*2"
+"d12=20u"
+
+
+"DELTA1=d20-p1*2-p2-p30*2-d16*2-p19-d16-d12-4u"
+"DELTA2=d21-p19-d16-d12-8u"
+
+
+"acqt0=-p1*2/3.1416"
+
+
+1 ze
+2 30m
+
+#   ifdef FLAG_BLK
+3 4u BLKGRAD
+#   else
+3 4u
+#   endif /*FLAG_BLK*/
+
+  d12 pl9:f1
+  d1 cw:f1 ph29
+  50u do:f1 UNBLKGRAD
+  d12 pl1:f1
+  p1 ph1
+  p30:gp6*diff
+  d16
+  p2 ph1
+  p30:gp6*-1*diff
+  d16
+  p1 ph2
+  p19:gp7
+  d16 pl9:f1
+  DELTA1 cw:f1 ph29
+  4u do:f1
+  d12 pl1:f1
+  p1 ph3
+  p30:gp6*diff
+  d16
+  p2 ph1
+  p30:gp6*-1*diff
+  d16
+  p1 ph4
+  p19:gp8
+  d16 pl9:f1
+  DELTA2 cw:f1 ph29
+  4u do:f1
+  d12 pl1:f1
+
+#   ifdef FLAG_BLK
+  4u
+#   else
+  4u BLKGRAD
+#   endif /*FLAG_BLK*/
+
+  p1 ph5
+  go=2 ph31
+  30m mc #0 to 2 F1QF(calgrad(diff))
+
+#   ifdef FLAG_BLK
+  4u BLKGRAD
+#   else
+  4u
+#   endif /*FLAG_BLK*/
+exit
+
+
+ph1= 0
+ph2= 0 0 2 2
+ph3= 0 0 0 0 2 2 2 2  1 1 1 1 3 3 3 3
+ph4= 0 2 0 2 2 0 2 0  1 3 1 3 3 1 3 1
+ph5= 0 0 0 0 2 2 2 2  1 1 1 1 3 3 3 3
+ph29=0
+ph31=0 2 2 0 2 0 0 2  3 1 1 3 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl9 : f1 channel - power level for presaturation
+;p1  : f1 channel -  90 degree high power pulse
+;p2  : f1 channel - 180 degree high power pulse
+;p19: gradient pulse 2 (spoil gradient)
+;p30: gradient pulse (little DELTA * 0.5)
+;d1  : relaxation delay; 1-5 * T1
+;d12: delay for power switching                      [20 usec]
+;d16: delay for gradient recovery
+;d20: diffusion time (big DELTA)
+;d21: eddy current delay (Te)                        [5 ms]
+;ns: 8 * n
+;ds: 4 * m
+;td1: number of experiments
+;FnMODE: QF(no-frequency)
+;        use xf2 and DOSY processing
+
+
+;use gradient ratio:    gp 6 : gp 7   : gp 8
+;                       100  : -17.13 : -13.17
+
+;for z-only gradients:
+;gpz6: 100%
+;gpz7: -17.13% (spoil)
+;gpz8: -13.17% (spoil)
+
+;use gradient files:   
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+;gpnam8: SMSQ10.100
+
+;use AU-program dosy to calculate gradient ramp-file Difframp
+                                          ;preprocessor-flags-start
+;FLAG_BLK: for BLKGRAD before d1 rather than before go
+;             option -DFLAG_BLK: (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: ledbpgppr2s,v 1.5 2019/02/11 14:04:14 ber Exp $

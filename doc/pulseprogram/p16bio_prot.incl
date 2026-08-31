@@ -1,0 +1,18 @@
+;p16_prot.incl
+
+; Test the rf on-time for NCa CP (w/H dec)
+; 10ms is maximum
+
+;$COMMENT=Protection against long NCa CP time
+;$CLASS=BioSolids PROT
+
+
+if "p16<10.1m" goto Passp16
+  1m 
+  print "NCa CP time p16 exceeds 10msec limit!"
+  goto HaltAcqu
+Passp16, 1m
+
+
+
+;$Id:$

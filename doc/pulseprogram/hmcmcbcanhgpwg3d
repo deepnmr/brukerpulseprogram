@@ -1,0 +1,362 @@
+;hmcmcbcanhgpwg3d
+;avance-version (21/09/15)
+;(Hme)Cme([C]CA)NH
+;3D sequence with
+;   inverse correlation for triple resonance using inept transfer steps 
+;
+;      F1(Hme) -> F2(Cme,t1) -> F2(C->->Ca) -> F3(N,t2) -> F1(H,t3)
+;
+;options:
+;   no option       all methyl groups
+;   LABEL_ALA       Cb methyl groups (Ala)
+;   LABEL_VAL       Cb and Cg methyl groups (Ala, Val, Ile Cg, (also Thr Cg) )
+;   LABEL_CG2       suppress Ile Cg2 methyl groups (for Ile Cd1 only)
+;                      use only when no other option is selected
+;on/off resonance Ca and C=O pulses using shaped pulse
+;phase sensitive (t1)
+;phase sensitive (t2)
+;using constant time in t1
+;using constant time in t2
+;water suppression using watergate sequence
+;(use parameterset )
+;
+;V. Tugarinov & L.E. Kay, J. Am. Chem. Soc. 125, 13868-13878 (2003)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include<Avance.incl>
+#include<Grad.incl>
+#include<Delay.incl>
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d12=20u"
+
+"d3=1.52m"
+"d4=1.8m"
+"d21=5.5m"
+"d22=2.7m"
+"d23=12.4m"
+"d24=7.0m"
+"d25=5.0m"
+"d26=2.3m"
+"d27=10.0m"
+
+
+"d0=d24-d3-p26-4u"
+"d10=d23/2-p14/2"
+"d20=d24"
+"d29=d23/2-p14/2-p26-d21-4u"
+"d30=d23/2-p14/2"
+
+"in0=inf1/2"
+"in10=inf2/4"
+
+"in20=in0"
+"in29=in10"
+"in30=in10"
+
+"td1=tdmax(td1,d20*2,in20)"
+"td2=tdmax(td2,d30*2,in30)"
+
+
+"DELTA1=d4-p16-d16-larger(p24,p40)/2"
+"DELTA2=d25/2-p24/2"
+"DELTA3=d27-d22"
+"DELTA4=d26-p16-d16-p11-12u"
+
+
+"spoffs2=0"
+"spoffs3=0"
+"spoffs5=bf2*((cnst21-cnst23)/1000000)"
+"spoffs8=0"
+"spoffs9=bf2*((cnst57-cnst23)/1000000)"
+"spoffs24=bf1*(cnst49/1000000)-o1"
+"spoffs33=bf2*((cnst35-cnst23)/1000000)"
+
+
+"cnst62=-spoffs9"
+"cnst63=(spoffs9/1000000)*(inf1/1000000)*360.0"
+
+"TAU9=abs(cnst62+cnst63)/100000"
+
+
+"o1_F1=bf2*cnst57/1000000"
+
+
+aqseq 321
+
+
+1 ze
+  d11 pl16:f3
+2 d11 do:f3
+3 d11
+  d1 
+  50u UNBLKGRAD
+  d12 pl1:f1 pl3:f3
+  d12 fq=cnst23(bf ppm):f2
+
+  (p1 ph1):f1
+  p16:gp1
+  d16
+  DELTA1
+  (center (p40:sp24 ph1):f1 (p24:sp9 ph1):f2 )
+  DELTA1
+  p16:gp1
+  d16 pl1:f1
+  (p1 ph2)
+
+  (p11:sp1 ph3):f1
+  p16:gp2
+  d16 pl19:f1
+
+  (p13:sp2 ph5):f2
+  d3
+  (p26 ph2):f1
+  4u cpds1:f1 ph1
+  d0
+  (p14:sp3 ph6):f2
+  d20
+  (p13:sp8 ph7):f2
+
+#   ifdef LABEL_ALA  
+
+  d22
+  (p24:sp9 ph1):f2
+  DELTA3
+  (center (p14:sp3 ph1):f2 (p22 ph1):f3 )
+  d27
+  (p24:sp9 ph1):f2
+  4u
+  (p13:sp2 ph2):f2
+
+#   else
+
+#   ifdef LABEL_VAL  
+
+  d25
+  (p14:sp3 ph1):f2
+  d25
+  (p13:sp2 ph9):f2
+
+  d22
+  (p24:sp33 ph1):f2
+  DELTA3
+  (center (p14:sp3 ph1):f2 (p22 ph1):f3 )
+  d27
+  (p24:sp33 ph1):f2
+  4u
+  (p13:sp8 ph2):f2
+
+#   else
+
+  d25
+  (p14:sp3 ph1):f2
+  d25
+  (p13:sp2 ph8):f2
+
+#   ifdef LABEL_CG2  
+  DELTA2
+  (p24:sp9 ph1):f2
+  DELTA2
+  (p14:sp3 ph1):f2
+  DELTA2
+  (p24:sp9 ph1):f2
+  DELTA2
+#   else
+  d25
+  (p14:sp3 ph1):f2
+  d25
+#   endif /*LABEL_CG2*/
+
+  (p13:sp8 ph9):f2
+  d22
+  (p24:sp33 ph1):f2
+  DELTA3
+  (center (p14:sp3 ph1):f2 (p22 ph1):f3 )
+  d27
+  (p24:sp33 ph1):f2
+  4u
+  (p13:sp2 ph2):f2
+
+#   endif /*LABEL_VAL*/
+#   endif /*LABEL_ALA*/
+
+  4u do:f1
+  (p26 ph4):f1
+  p16:gp3
+  d16
+  (p26 ph2):f1
+  20u cpds1:f1 ph1
+
+  (p21 ph10):f3
+  d30
+  (p14:sp5 ph1):f2
+  d30
+  (center (p14:sp3 ph1):f2 (p22 ph11):f3 )
+  d10
+  (p14:sp5 ph1):f2
+  d29
+  4u do:f1
+  (p26 ph4):f1
+  d21
+  (p21 ph1):f3
+
+  p16:gp4
+  d16
+  (p11:sp1 ph3):f1
+  4u
+  4u pl1:f1
+
+  (p1 ph1) 
+  4u
+  p16:gp5
+  d16
+  DELTA4
+  (p11:sp1 ph3):f1
+  4u
+  4u pl1:f1
+  (center (p2 ph1) (p22 ph1):f3 )
+  4u
+  (p11:sp1 ph3):f1
+  4u
+  DELTA4
+  p16:gp5
+  d16 pl16:f3
+  4u BLKGRAD
+  go=2 ph31 cpd3:f3
+  d11 do:f3 mc #0 to 2 
+     F1PH(calph(ph5, +90), caldel(d0, +in0) & caldel(d20, -in20) & calph(ph5, cnst63)) 
+     F2PH(calph(ph10, -90), caldel(d10, +in10) & caldel(d29, +in29) & caldel(d30, -in30))
+
+TAU9
+exit
+
+
+ph1=0
+ph2=1
+ph3=2
+ph4=3
+ph5=1
+ph6=0 0 1 1
+ph7=1 1 1 1 3 3 3 3
+ph8=1 1 1 1 1 1 1 1 3 3 3 3 3 3 3 3
+ph9=1 3
+ph10=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph11=0 0 2 2
+ph31=0 0 2 2 0 0 2 2 2 2 0 0 2 2 0 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;pl19: f1 channel - power level for CPD/BB decoupling
+;sp1: f1 channel - shaped pulse  90 degree  (H2O on resonance)
+;sp2: f2 channel - shaped pulse  90 degree  (on resonance)
+;sp3: f2 channel - shaped pulse 180 degree  (on resonance)
+;sp5: f2 channel - shaped pulse 180 degree  (C=O off resonance)
+;sp8: f2 channel - shaped pulse  90 degree  (on resonance)
+;                  for time reversed pulse
+;sp9: f2 channel - shaped pulse 180 degree  (Cme off resonance)
+;     sp9 requires higher selectivity than sp3
+;sp24: f1 channel - shaped pulse 180 degree  (Hme off resonance)
+;                   (Rsnob.1000)
+;sp33: f2 channel - shaped pulse 180 degree  (Cb off resonance)
+;      sp33 requires higher selectivity than sp3
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p11: f1 channel -  90 degree shaped pulse             [1 msec]
+;p13: f2 channel -  90 degree shaped pulse
+;p14: f2 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p24: f2 channel - 180 degree shaped pulse (sp9)
+;p26: f1 channel -  90 degree pulse at pl19
+;p40: f1 channel - 180 degree shaped pulse for refocussing
+;                      Rsnob.1000               (1.0ms at 600.13 MHz)
+;d0 : incremented delay (F1 in 3D) = d24-d3-p26-4u
+;d1 : relaxation delay; 1-5 * T1
+;d3 : 1/(6J'(CH))                                      [1.52 msec]
+;d4 : 1/(4J(CH))                                       [1.8 msec]
+;d10: incremented delay (F2 in 3D) = d23/2-p14/2
+;d11: delay for disk I/O                               [30 msec]
+;d12: delay for power switching                        [20 usec]
+;d16: delay for homospoil/gradient recovery
+;d20: decremented delay (F1 in 3D) = d24
+;d21: 1/(2J(NH)                                        [5.5 msec]
+;d22: 1/(8J'(CC))                                      [2.7 msec]
+;d23: 1/(4J(NCa)                                       [12.4 msec]
+;d24: 1/(4J(CmeC))                                     [7 msec]
+;d25: 1/(4J'(CC))                                      [5 msec]
+;d26: 1/(4J(NH)                                        [2.3 msec]
+;d27: 1/(4J'(NCa)                                      [10.0 msec]
+;d29: incremented delay (F2 in 3D) = d23/2-p14/2-p26-d21-4u
+;d30: decremented delay (F2 in 3D) = d23/2-p14/2
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst23: Caliphatic chemical shift (offset, in ppm)
+;cnst35: Cb chemical shift (offset, in ppm)            [35.0 ppm]
+;cnst49: Hme chemical shift (offset, in ppm)           [0.5 ppm]
+;cnst57: Cme chemical shift (offset, in ppm)           [15.5 ppm]
+;cnst62: offset for Cme region (Hz)
+;cnst63: additional phase increment to center Cme region
+;o2p: Caliphatic chemical shift (cnst23)
+;inf1: 1/SW(Cme) = 2 * DW(Cme)
+;inf2: 1/SW(N) = 2 * DW(N)
+;in0: 1/(2 * SW(Cme)) =  DW(Cme)
+;nd0: 2
+;in10: 1/(4 * SW(N)) = (1/2) DW(N)
+;nd10: 4
+;in20: = in0
+;in29: = in10
+;in30: = in10
+;ns: 8 * n
+;ds: >= 16
+;td1: number of experiments in F1       td1 max = 2 * d20 / in20
+;td2: number of experiments in F2       td2 max = 2 * d30 / in30
+;FnMODE: States-TPPI (or TPPI) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;cpds1: decoupling according to sequence defined by cpdprg1
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd1: f1 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 11%
+;gpz2: 50%
+;gpz3: 40%
+;gpz4: 60%
+;gpz5: 30%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;LABEL_ALA: one transfer step along sidechain: methyl groups in Cb position only
+;             option -DLABEL_ALA (eda: ZGOPTNS)
+;LABEL_VAL: two transfer steps along sidechain: methyl groups in Cg position only
+;             option -DLABEL_VAL (eda: ZGOPTNS)
+;LABEL_CG2: refocussing pulse for Ile Cg2 (depending on labelling scheme)
+;             option -DLABEL_CG2 (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: $

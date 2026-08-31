@@ -1,0 +1,131 @@
+;$Id:$
+;pseudo 2D sequence for decoupling test "pseudo 2D GARP"
+;with optional high power 180 degree pulses in f2 and f3
+;and different power level for decoupling
+;$CLASS=HighRes HWT
+;$DIM=2D
+;$HIDE=y
+
+#include <Avance.incl>
+#include <De.incl>
+
+#undef DEC_50_50
+#undef DELAY_BEFORE_ACQUISITION
+#ifdef F1_180
+#define DELAY_BEFORE_ACQUISITION
+#define DEC_50_50
+#endif
+#ifdef F2_180
+#define DELAY_BEFORE_ACQUISITION
+#define DEC_50_50
+#endif
+#ifdef F3_180
+#define DELAY_BEFORE_ACQUISITION
+#define DEC_50_50
+#endif
+#ifdef DEC_F2_F3
+#define DEC_50_50
+#endif
+
+"d12=20u"
+
+1 ze
+  d31
+
+#ifdef DEC_F2_F3
+2 d1 do:f2 do:f3
+#else
+2 d1 do:f2
+#endif
+
+#ifdef F1_180
+  2u pl1:f1
+#endif
+#ifdef F2_180
+  2u pl2:f2
+#endif
+#ifdef F3_180
+  2u pl3:f3
+#endif
+
+#ifdef F1_180
+  (p2 ph1):f1
+#ifdef F2_180
+  12u;
+  (p4 ph2):f2
+#endif
+#ifdef F3_180
+  12u;
+  (p22 ph3):f3
+#endif
+#else
+#ifdef F2_180
+#ifdef F3_180
+  (center (p4 ph2):f2 (p22 ph3):f3)
+#else
+  (p4 ph2):f2
+#endif
+#else
+#ifdef F3_180
+  (p22 ph3):f3
+#endif
+#endif
+#endif
+
+#ifdef DELAY_BEFORE_ACQUISITION
+  1m
+#endif
+  ACQ_START(ph30,ph31)
+  2u DWELL_GEN:f1
+
+#ifdef DEC_50_50
+#ifdef DEC_F2_F3
+  2u pl12:f2 pl16:f3
+  aq*0.5 cpd2:f2 cpd3:f3
+  2u do:f2 do:f3
+#else
+  2u pl12:f2
+  aq*0.5 cpd2:f2
+  2u do:f2
+#endif
+  aq*0.5
+#else
+  aq*0.25
+  2u pl12:f2
+  aq*0.5 cpd2:f2
+  2u do:f2
+  aq*0.25
+#endif
+
+  rcyc=2
+  d1 do:f2 mc #0 to 2 F1QF(id0)
+
+exit
+
+ph1=0
+ph2=0
+ph3=0
+ph30=0
+ph31=0
+
+;pl0 : f1 channel - power level for decoupling with no power
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - high power pulse
+;pl3 : f3 channel - high power pulse
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl16: f3 channel - power level for CPD/BB decoupling
+;p2 : f1 channel - 180 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d12: delay for power switching
+;d31: waiting delay prior start of AQ
+;DS : 0
+;NS : 1, total number of scans: NS * TD0
+;td1: number of experiments
+;FnMODE: QF
+;DEC_50_50: decoupling 50% pl12, 50% do, else 25% do, 50% pl12, 25% do
+;DEC_F2_F3: f2 and f3 channels - apply decoupling according to CPDPRG 2 and 3
+;F1_180: f1 channel - apply 180 degree high power pulse 
+;F2_180: f2 channel - apply 180 degree high power pulse 
+;F3_180: f3 channel - apply 180 degree high power pulse

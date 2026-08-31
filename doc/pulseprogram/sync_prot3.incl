@@ -1,0 +1,29 @@
+;sync_prot.incl
+; protection for MAS synchronization and RF cycle time length
+; protect against misset of choosen MASRATE/cnst31, rotation speed below 2000 Hz
+;
+;
+;$CLASS=Solids INCL
+;$COMMENT=protect against misset of MASRATE/cnst31, rotation speed below 2000 Hz
+
+
+1m
+  ;begin measure of MAS speed
+ "d31=0"
+masmeasure, 10u store_spinrate_d30 ; averaged measurement of MAS speed (150 times)
+  500u ; delay needed to be longer than one rotation period 
+  d31 ; wait one MAS period
+  "d31 += d30"
+  1u
+  lo to masmeasure times 10
+  1u 
+  "d31=d31/10" ; calculation of MAS speed
+if "d31<500u" goto Pass
+1u
+print "rotation period too long, spinrate is below 2000 Hz!"
+goto HaltAcqu
+Pass, 1m
+
+
+
+;$Id:$

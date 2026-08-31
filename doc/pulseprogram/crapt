@@ -1,0 +1,88 @@
+;crapt
+;avance-version (02/05/31)
+;attached proton test with J-compensation
+;using shaped pulses for all 180degree pulses on f1 - channel
+;for matched sweep adiabatic pulses
+;
+;S.L. Patt & J.N. Shoolery, J. Magn. Reson. 46, 535-539 (1982)
+;A.M. Torres, T.T. Nakashima & R.E.D. McClung, J. Magn. Reson. A101,
+;   285-294 (1993)
+;T.E. Burrow, D.C Burns, K. Krishnamurthy, and W.F. Reynolds, Magn. Reson. Chem.
+;   2014, 52, 195-201
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d2=1s/(cnst2*2)"
+"d11=30m"
+
+"p39=200u*600.13/bf2"
+"spnam4='Bip720,50,20.1'"
+"spw4=plw2*pow((p3*totrot4)/(p39*90.0*integfac4),2)"
+
+
+"DELTA1=d2-p39"
+
+1 ze
+  d11 pl12:f2 
+  d11 cpd2:f2
+2 30m
+  d1
+  4u do:f2
+  4u pl0:f2
+  4u pl1:f1
+  p0 ph1
+  (p39:sp4 ph3):f2
+  DELTA1
+  (p52:sp46 ph2):f1
+  (p39:sp4 ph3):f2
+  DELTA1 pl12:f2
+  (p52:sp46 ph2):f1
+  go=2 ph31 cpd2:f2
+  30m mc #0 to 2 F0(zd)
+  d11 do:f2
+exit
+
+
+ph1=0 1 2 3 
+ph2=0 
+ph3=0
+ph31=0 1 2 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp46: f1 channel - shaped pulse 180 degree (adiabatic matched sweep)
+;spnam46: Crp60_xfilt.2
+;sp4: f2 channel - shaped pulse 180 degree for inversion (BIP)
+;spnam4: Bip720,100,10.1
+;p0 : f1 channel - for any flip angle
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p39: f2 channel - 180 degree shaped pulse for inversion (BIP)
+;                      Bip720,100,10.1 (200us at 600.13 MHz)
+;p52: f1 channel - 180 degree shaped pulse for adiabatic matched sweep
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J(XH))
+;d11: delay for disk I/O                           [30 msec]
+;cnst2: = J(XH)
+;ns : 4 * n, total number of scans: NS * TD0
+;ds : 8
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+
+;$Id:

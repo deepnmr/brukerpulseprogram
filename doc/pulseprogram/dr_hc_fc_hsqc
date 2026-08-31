@@ -1,0 +1,171 @@
+;dr_hc_fc_hsqc
+;avance-version (17/02/10)
+;parent dataset:
+;H-C HMQC
+;
+;child dataset:
+;F-C HMQC
+;
+;F1: 1H, F2: 19F, F3: 13C
+;
+;E. Kupce, S. Cheatham & R. Freeman, Magn. Reson. Chem. 45, 378-380 (2007)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+#include <De.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"p22=p21*2"
+"d4=1s/(cnst2*4)"
+"d5=1s/(cnst5*4)"
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+
+"DELTA=d0*2+larger(p2,p4)"
+"DELTA1=d4-d5-p3"
+"DELTA2=d5-p22"
+"DELTA3=(d4-d5)/2-p4/2-2u"
+"DELTA4=(d4+d5)/2-p4/2-2u"
+
+
+"l3=td1/2"
+
+
+1 ze1
+  ze2 
+  20u pl1:f1 pl2:f2 pl16:f3
+2 6.012m do:f3
+3 3m
+4 50u  
+  p16:gp4
+  (p1 ph9):f1
+  (p3 ph9):f2 
+  p16:gp5
+  4u BLKGRAD
+  d1
+
+  (p1 ph1):f1
+  DELTA1
+  (p3 ph1):f2
+  d5 pl3:f3
+  (center (p2 ph2):f1 (p4 ph2):f2 ) 
+  (p22 ph9):f3 
+  DELTA2
+  (p3 ph3):f2 
+  DELTA1
+  (p1 ph3):f1 
+
+  50u UNBLKGRAD  
+  p16:gp3
+  d16
+
+  (p21 ph6):f3
+  d0
+  (center (p2 ph8):f1 (p4 ph8):f2 )
+  d0
+  (p22 ph7):f3
+  DELTA
+  (p21 ph7):f3
+
+  p16:gp3
+  d16
+
+  (p1 ph4):f1 
+  DELTA1  
+  (p3 ph4):f2 
+  d5
+  (center (p2 ph2):f1 (p22 ph5):f3 )
+  DELTA3  
+  (p4 ph2):f2
+  DELTA4 pl16:f3
+  4u cpd3:f3 
+
+  ACQ_START1(ph29,ph30) ACQ_START2(ph29,ph31)
+  0.1u DWELL_GEN1 DWELL_GEN2
+  (aq1) (aq2)  
+  eoscnp2			                	
+  rcyc=2 
+
+  4u do:f3
+  3m wr1 #0 if1 #0 zd1
+  3m wr2 #1 if2 #1 zd2
+
+  4u ip6 
+  4u ip9
+  lo to 3 times 2  
+  3m id0
+  lo to 4 times l3  
+
+exit 
+  
+
+ph1=0
+ph2=0
+ph3=1
+ph4=1
+ph5=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph6=0 2
+ph7=0 0 0 0 2 2 2 2
+ph8=0 0 2 2
+ph9=0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2
+ph29=0 2 0 2 2 0 2 0
+ph30=0
+ph31=0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse                         [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;d0 : incremented delay (2D)                           [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J)HC
+;d5 : 1/(4J)FC
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(HC)                                        [~170 Hz]
+;cnst5: = J(FC)                                        [~250 Hz]
+;l3 : loop for 2D experiment = td1/2
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;ns: 4 * n
+;ds: 32
+;td1: number of experiments
+;FnMODE: States-TPPI, TPPI, States or QSEQ
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz3: 32%
+;gpz4: 7%
+;gpz5: 11%
+
+;use gradient files:
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+
+;$Id:$

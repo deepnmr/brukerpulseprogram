@@ -1,0 +1,173 @@
+;ufhsqc
+;NEO-version 
+;UFHSQC with constant-time phase encoding
+
+;P. Giraudeau, S. Akoka, JMR, 205, 1, 2010, 171-176
+;Frydman, Lupulescu and Scherf, J. Am. Chem. Soc. 2003, 125, 9204-9217
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE= Ultrafast
+;$SUBTYPE=
+;$COMMENT= to be processed with proc_uf or xaup
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <De.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d4=1s/(cnst2*4)"
+"d10=p33"
+"d11=p33"
+"p15=(td*dw)/(2*l3)-d6"
+"p24=p15"
+"d2=3u"
+"in2=2*(p15+d6)/td1"
+"cnst27=1"
+
+1 ze
+  d11
+2 30m
+  1u reset:f1
+  100u 
+  30m pl2:f2
+  d1 pl1:f1
+  100u UNBLKGRAD
+
+;excitation
+
+  p1 ph0
+  d4 
+  (center (p2 ph1) (p4 ph4):f2 )
+  d4
+  p1 ph2 
+  (p3 ph3):f2
+  d10
+
+;spatial encoding
+
+  10u gron1*cnst27
+  p22:sp9:f2 ph1
+  10u groff
+  d11
+  p33:gp16
+  10u gron1*-1
+  p22:sp9:f2 ph1
+  10u groff
+  p33:gp16
+  10u
+
+  p2 ph1
+
+  10u
+  d10
+  10u gron1*cnst27
+  p22:sp9:f2 ph1
+  10u groff
+  d11
+  p33:gp16
+  10u gron1*-1
+  p22:sp9:f2 ph1
+  10u groff
+  p33:gp16
+
+;pre-mixing gradient
+  10u pl2:f2
+  p24:gp24
+  10u
+
+;mixing
+  p34:gp17
+  10u
+  (p3 ph5):f2
+  (p1 ph1)
+  d4
+  (center (p2 ph1) (p4 ph4):f2 )
+  10u
+  p37:gp17*-1
+  10u
+
+
+;post-mixing gradient
+  p24:gp25
+  10u pl12:f2
+  10u
+
+  10u cpds2:f2
+
+  d2
+  10u
+  ACQ_START(ph30,ph31)
+  1u DWELL_GEN:f1
+
+3 p15:gp15*cnst27
+  d6
+  p15:gp15*-1 
+  d6 ipp6
+  lo to 3 times l3
+  10u do:f2
+  100u BLKGRAD
+  rcyc=2
+  100u UNBLKGRAD
+  p35:gp18
+  100u BLKGRAD
+  30m mc #0 to 2 F1QF(id2)
+exit
+
+ph0=0
+ph1=0 
+ph2=1
+ph3=0
+ph4=0
+ph5=0 2
+ph6=0 2 0 0
+ph7=1
+ph8=3
+ph30=0
+ph31=0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;cnst2 : J(CH)
+;d1 : relaxation delay; 1-5 * T1
+;d6 : recovery delay (20 - 100 us)
+;l3: number of bipolar gradient pairs
+;sp9: chirp pulse power level
+;p1 : f1 channel - 90 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p22: chip pulse duration (Te/2)
+;p15: acquisition gradient duration (Ta)
+;p24: acquisition gradient duration (-Ta)
+;p33: spatial encoding coherence-selection gradients (1 ms)
+;p34: mixing coherence-selection gradient (2.585 ms)
+;p63: duration of decoupling element
+;p35: purge gradient (5 ms)
+;p37: mixing coherence-selection gradient (0.65 ms)
+;spnam1 : chip pulse shape
+;d4 : 1/(4J)CH
+;cnst27: gamma ratio
+;gpz1 : excitation encoding gradient (Ge)
+;gpz15 : acquisition encoding gradient [Ga]
+;gpz16 : coherence-selection gradients for spatial encoding (80%)
+;gpz17: coherence-selection gradients for mixing (80%)
+;gpz24: folding gradient (0%)
+;gpz25: pre-phasing gradients (-Ga/2)
+;gpz18: purge gradient (80%)
+;gpnam15: SMSQ10.100
+;gpnam16: SINE.100
+;gpnam17: SINE.100
+;gpnam24: SMSQ10.100
+;gpnam25: SMSQ10.100
+;gpnam18: SINE.100
+;NS: 1 (or more if necessary)
+;cpdprg2: bi_p5m4sp_4sp.2
+;spnam14: high-power decoupling shape
+;spnam31: low-power decoupling shape
+;sp14: high-power decoupling 
+;sp31: low-power decoupling 
+

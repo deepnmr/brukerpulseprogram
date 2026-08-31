@@ -1,0 +1,232 @@
+;noah2_SC
+;avance-version (19/02/19)
+;NOAH-2 (SC): me-HSQC + COSY
+;with optional multiplicity editing in HSQC
+;WaveMaker supported
+;
+;E. Kupce & T. Claridge, Angew. Chem. Int. Ed. Eng. 56, 11779-11783 (2017)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl> 
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"   ;JCOMP
+"d4=1s/(cnst2*4)"
+
+
+"d0=3u"
+"d10=3u"
+
+"in0=inf1/2"
+"cnst10=2*dw/inf1"
+"in10=inf1*cnst10"
+
+"l3=td1/4"
+
+
+"DELTA=p16+d16+p2/2+d0-p3*2/PI+4u"  
+"DELTA1=d4-p14/2"
+"DELTA2=d4+p14/2"
+"DELTA3=d2+p3+p2/2"
+"DELTA4=DELTA+p3-p2/2"
+"DELTA5=DELTA2-p16-d16-p3-de+p1*2/PI-12u"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+1 ze
+  30m pl2:f2
+2 30m 
+3 7m do:f2 
+4 50u UNBLKGRAD
+
+  4u pl1:f1
+  p16:gp3*-1
+  d16
+  (p1 ph1)
+  4u
+  p16:gp0*1.37
+  d16
+  4u BLKGRAD
+  d1 st0
+
+; HSQC
+
+  (p1 ph1)
+  DELTA1 
+  (p14:sp3 ph6):f2 
+  (p2 ph1):f1 
+  DELTA2 pl2:f2
+  (p1 ph2):f1 
+  (p3 ph3):f2
+  DELTA UNBLKGRAD
+
+#ifdef EDIT
+  (p31:sp18 ph1):f2
+#else
+  (p14:sp3 ph6):f2 
+#endif /*EDIT*/
+
+  4u
+  p16:gp1*EA
+  d16
+  d0 
+  (p2 ph4)
+  d0 
+  4u
+  p16:gp1*EA
+  d16
+
+#ifdef EDIT
+  DELTA3           
+  (p31:sp18 ph6):f2
+  DELTA4  
+  (p2 ph2):f1
+  d2 pl2:f2
+#else
+  (p14:sp3 ph6):f2 
+  DELTA pl2:f2
+#endif /*EDIT*/
+
+  (p3 ph5):f2
+  (p1 ph1):f1 
+  DELTA1 
+  (p14:sp3 ph6):f2 
+  (p2 ph2):f1 
+  4u
+  p16:gp2
+  d16
+  DELTA5 pl2:f2
+  4u BLKGRAD
+  (p3 ph1):f2
+  4u pl12:f2
+  goscnp ph31 cpd2:f2
+
+; COSY
+
+  4u do:f2
+  50u UNBLKGRAD
+  p16:gp0
+  2m st
+  (p1 ph7)
+  4u
+  p16:gp3*EA
+  d16
+  d10
+  (p1 ph1)
+  4u
+  p16:gp3
+  d16
+  4u BLKGRAD
+  go=2 ph30
+
+  30m wr #0 if #0 zd igrad EA 
+
+  lo to 3 times 2 
+
+  1m id0
+  1m id10
+  1m ip3*2
+  1m ip7*2
+  1m ip30*2
+  1m ip31*2
+
+  lo to 4 times l3  
+
+exit
+
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 0 0 2 2 2 2
+ph5=0 0 2 2
+ph6=0
+ph7=0 2
+ph30=0 2 
+ph31=0 2 2 0 
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp3: f2 channel - shaped pulse 180 degree
+;sp18: f2 channel - 180 degree J-compensated adiabatic inversion pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse for inversion
+;p16: homospoil/gradient pulse
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay
+;d2 : 1/(2J)XH
+;d4 : 1/(4J)XH
+;d10: incremented delay (2D)                         [3 usec]
+;d16: delay for homospoil/gradient recovery
+;p31: f2 channel - 180 degree shaped pulse for adiabatic matched sweep
+;aq: acquisition time
+;cnst2: = 1J(XH)
+;cnst10: scling factor SW(X)/SW(H)for COSY
+;l3 : loop for 2D experiment = td1/4
+;inf1: 1/SW(X) = 2 * DW(X)
+;in0: 1/(2 * SW(X)) = DW(X)
+;nd0: 2
+;in10: = inf1*cnst10
+;nbl: 2
+;ns: 1 * n
+;ds: >= 16
+;td1: number of experiments - multiple of NBL
+;FnMODE: echo-antiecho
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz0: 17.13%
+;gpz1: 80%
+;gpz2: 40.2% for C-13, 16.2% for N-15
+;gpz3: 15%
+
+;use gradient files:
+;gpnam0: SMSQ10.100   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;EDIT: for C-13 multiplicity editing start experiment with 
+;         option -DEDIT (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;WaveMaker shapes (optional)
+;use 'wvm -a' command to create the necessary shape files
+;sp18:wvm:wu180Jcomp: cawurst-40(280 ppm; Jcomp, L2H)
+;sp3:wvm:wu180C13: cawurst-20(60 kHz, 0.5 ms; L2H)
+;cpd2:wvm:wudec: cawurst_d-20(220 ppm, 1.4 ms; L2H)
+
+
+;Processing
+;use splitx_au au-program to split the data
+;define user processing au programs (USERP1...P2) for automatic processing
+;   of all data sets 
+;   userP1: noah_hsqc
+;   userP2: noah_cosy
+
+
+
+;$Id:$

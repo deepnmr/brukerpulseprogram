@@ -1,0 +1,53 @@
+;secsyqf
+;avance-version (12/01/11)
+;2D homonuclear spin-echo shift correlation
+;
+;K. Nagayama et al., J. Magn. Reson. 40, 321 (1980)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"in0=inf1/2"
+
+"d0=3u"
+
+
+1 ze
+2 d1
+3 p1 ph1
+  d0
+  p0 ph2
+  d0
+  go=2 ph31
+  d1 mc #0 to 2 F1QF(caldel(d0, +in0))
+exit
+
+
+ph1=0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
+ph2=0 2 1 3 1 3 2 0 1 3 2 0 2 0 3 1
+ph31=0 0 2 2 1 1 3 3
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p0 : f1 channel -  90 degree high power pulse
+;p1 : f1 channel -  90 degree high power pulse
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;inf1: 1/d, d > max. shift difference of coupled spins
+;in0: 1/(2 * d), d > max. shift difference of coupled spins
+;nd0: 2
+;ns: 4 * n
+;ds: 16
+;td1: number of experiments
+;FnMODE: QF
+
+
+
+;$Id:$

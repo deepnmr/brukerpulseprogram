@@ -1,0 +1,33 @@
+;systurnon
+;avance-version (05/11/22)
+;2D sequence
+;rise time test
+;to have steps of 12.5ns calculated on TCU
+;
+;$CLASS=HighRes HWT
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+
+
+#include <Avance.incl>
+
+
+1 ze
+2 d1
+3 d12
+  p1*0.25 ph1
+  go=2 ph31
+  d1 wr #0 if #0 ipu1 zd
+  lo to 3 times td1
+exit
+
+
+ph1=0 2 2 0 1 3 3 1
+ph31=0 2 2 0 1 3 3 1
+
+
+
+;$Id:$

@@ -1,0 +1,76 @@
+;dazzg
+;avance-version (12/01/11)
+;1D sequence
+;selective excitation using a 2-2-6-2-2 Dante-z pulse
+;
+;D. Boudat, D. Canet, J. Brondeau & J.C. Boubel, J. Magn. Reson. 83,
+;   428 (1989)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Daz.incl>
+
+
+"d12=20u"
+
+
+"P_TOTAL=DZ_180c"
+
+
+1 ze
+2 30m
+  d1
+  4u pl20:f1
+;  DAZ22622(ph27,ph28)
+
+1021 (DZ_TAU3) (DZ_THE3 ph27):f1
+     (DZ_TAU3) (DZ_THE3 ph28):f1
+     lo to 1021 times DZ_LC4      
+1022 (DZ_TAU3) (DZ_THE2 ph27):f1
+     (DZ_TAU3) (DZ_THE2 ph28):f1
+     lo to 1022 times DZ_LC4      
+1023 (DZ_TAU3) (DZ_THET ph27):f1
+     (DZ_TAU3) (DZ_THET ph28):f1
+     lo to 1023 times DZ_LC5      
+1024 (DZ_TAU3) (DZ_THE2 ph27):f1
+     (DZ_TAU3) (DZ_THE2 ph28):f1
+     lo to 1024 times DZ_LC4      
+1025 (DZ_TAU3) (DZ_THE3 ph27):f1
+     (DZ_TAU3) (DZ_THE3 ph28):f1
+     lo to 1025 times DZ_LC4            
+
+
+  d12 pl1:f1
+  p1 ph1
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+ph1=0 0 2 2 1 1 3 3
+ph27=0
+ph28=0 2
+ph31=0 2 2 0 1 3 3 1
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl20: f1 channel - power level for Dante-z pulse
+;p1 : f1 channel -  high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d12: delay for power switching                      [20 usec]
+;cnst8 : bandwidth of excitation for Dante-z pulse
+;ns: 2 * n, total number of scans: NS * TD0
+
+
+;choose pl20 to make P_TOTAL a 180 degree pulse at this power level
+
+;choose cnst8 according to the bandwith of excitation required
+
+
+
+;$Id:$

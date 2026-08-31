@@ -1,0 +1,61 @@
+; dfs90sel
+;
+; TS3 / 06.07.2011
+;
+; double frequency sweep followed by a selective excitation pulse
+; this pulse program can be used to selectively invert satellites of spin = n/2 
+; nuclei for signal enhancement
+; to optimise a sweep for further use in MQMAS, set duration of sweep to 1/4 of a 
+; rotor period, and width of sweep to about 1 MHz, then optimise RF power 
+; starting at low amplitude and increase up to below RF power of excitation pulse
+; use the value found for the maximum signal in mp3qdfs or mp3qdfsz for further refinement
+; use aunm:zg_dfs to calculate the dfs shape
+;
+;Avance III
+;parameters:
+;pl1 : = 0W, not used
+;pl21 : power level for selective 90 degree pulse
+;sp1 : power for frequency sweep
+;p2 : duration of sweep
+;p3 : 90 degree pulse, selective, at plw21
+;p25 : dummy pulse, used for calculations only
+;d1 : recycle delay
+;d4 : short delay between sweep and read out pulse
+;ns : 2 * n
+;spnam1 : dfs
+;cnst1 : (in kHz) Startfrequency of sweep
+;cnst2 : (in kHz) Endfrequency of sweep
+;cnst3 : (in ns) timing resolution of sweep, down to 25 ns
+;cnst31 : spinning frequency
+;cnst0 : to define sweep as fraction or multiples of rotor period
+;
+;
+;$CLASS=Solids
+;$DIM=1D
+;$TYPE=half integer quadrupoles
+;$SUBTYPE=simple 1D
+;$COMMENT=selective CT excitation with double frequency sweep (DFS) enhancement
+
+prosol relations=<solids_mqmas>
+
+
+"p25=(1u*cnst1/(cnst3+cnst2))+1u"
+"p2=1s/(cnst31*cnst0)"
+"acqt0=0"
+
+1 ze
+2 d1
+  (p2:sp1 ph1):f1
+  d4
+  (p3 pl21 ph2):f1
+  go=2 ph31
+  wr #0 
+exit
+
+ph1= 0 2 1 3
+ph2= 0 2 1 3
+ph31=0 2 1 3
+
+
+
+;$Id:$

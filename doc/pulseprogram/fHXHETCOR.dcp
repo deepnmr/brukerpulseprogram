@@ -1,0 +1,169 @@
+;fHXHETCOR.dcp
+
+;version: 1.0/ TS4.1.4 05/09/2021
+; JOS
+
+;###############################################################
+;#                                                             #
+;#  F->H CP followed by H->X CP Cross Polarization Experiment  #
+;#  with H FSLG decoupling during t1	F and H hetero dec t2    #								
+;#  19F:F2, 1H:F3, X:F1                                        #
+;#  The Hartman-Hahn CP condidition is B1(F)=B1(H)+1           #
+;#  sp0: 19F  linear or tangenial amplitude modulated pulse 	 #
+;#  sp1: X    usually constant amplitude pulse	F-X CP		     #
+;#	sp3: 1H  usually constant amplitude pulse	H->F CP          #
+;#  sp4: 1H  linear or tangenial amplitude modulated pulse	   #
+;#  p15, p16: usually between 200-10000 us (sample-dependent)  #
+;#                                                             #
+;###############################################################
+
+;$CLASS=SolidsIcon
+;$DIM=2D 
+;$TYPE=CPMAS
+;$SUBTYPE= double CP FHX
+;$COMMENT=
+
+prosol relations=<solids_ICON>
+
+#include <trigg.incl>
+        ; definition of external trigger output$
+#include <Delay.incl>
+#include <fHX_dcp.incl>
+#include <Decoup_fh_Solids.incl>
+"d31=1s/cnst31"
+
+#ifdef WISE
+"d0=0"
+"l0=0"
+"l1=1"
+"inf1=1s/(l3*cnst31)"
+"in0=inf1"
+#else
+"plw23=plw37*pow(((cnst61+cnst38)/(10000)),2)"	 ;1H homonuclear decoupling
+"l0=0"
+define pulse pma
+"pma=(p21*547)/900"
+"cnst20 = cnst61"
+#include<lgcalc.incl>
+"inf1=(0.578*l3*4*p5)"
+"in0=inf1"
+#endif /* fslg */
+"acqt0=-1.0u"
+ 
+Prepare, ze
+d31
+#ifndef lacq
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#endif
+#ifndef longp15
+#include <p15_prot.incl>
+        ;p15 max. 10 ms
+#endif
+
+Start, 30m do:f2 do:f3
+  d1
+  trigg
+ 
+
+  (p3 pl2 ph1):f2
+  (p15:sp3 ph2):f3  (p15:sp0 ph0):f2
+#ifdef WISE
+ if "l0==1"{
+"d0=in0"
+}
+if "l0>0"{
+  (center (d0) (p3*2 pl2 ph11):f2) 
+}
+#else
+  (pma pl21 ph5):f3
+  1u fq=cnst24:f3
+5 (p5 pl23 fq=cnst22 ph13):f3
+  (p5 fq=cnst23 ph14):f3
+  (p5 fq=cnst22 ph13):f3
+  (p5 fq=cnst23 ph14):f3
+  lo to 5 times l0
+  (pma ph7 pl21 fq=cnst21):f3
+#endif
+  (p16:sp4 ph3):f3 (p16:sp1 ph4):f1 (p16 pl44 ph1):f2
+   0.1u fq=0.0:f3 fq=0.0:f2
+   0.1u pl12:f3 pl13:f2
+   0.8u cpds2:f2 cpds3:f3
+  go=Start ph31 finally do:f3 do:f2
+
+  30m mc #0 to Start 
+  F1PH(calph(ph2, +90), caldel(d0, +in0) & calclc(l0,3))
+
+HaltAcqu, 1m
+Exit, exit
+
+ph0 = 0                ; H CP spin lock
+ph1 = 1 3              ; H hard pulse
+ph2 = 0   
+ph3 = 0 0 2 2
+ph4 = 0 0 1 1 2 2 3 3
+ph5= 1
+ph7 =3
+ph10 = 2 
+ph11=0
+ph13= 0
+ph14= 2
+ph31= 3 1 2 0 1 3 0 2  ; receiver
+
+;#######################################################
+
+
+;basic HFX dcp experiment
+
+;Avance NEO / AVIII (?) version
+;parameters:
+;p1      : X 90 at pl1(acqt0-calculation & -DX90)
+;p3      : 19F 90 at pl2
+;p21		 : 1H 90 F3 at pl21
+;p15     : HF CP at sp3 (f3,F) and sp0 (f2,H)
+;p16  	 : FC CP at sp4 (f3,F) and sp1 (f1,X)
+;pl1     : X 90 at pl1
+;pl2     : H pulse power
+;pl12    : H dec power
+;pl13	 : F dec power
+;pl15	 : X GARP decoupling during t1 evol
+;pl21  : H 90 pulse
+;pl37	 : H  10 kHz spinlock field
+;pl31	 : X for 10kHz spinlock field
+;pl30	 : F decoupling 10 kHz reference power for decoupling
+;sp0   : F CP power H-F CP
+;sp1   : X CP power
+;sp3	 : H CP power F->H CP
+;sp4	 : H CP power H->X CP
+;cnst31  : MAS rate in Hz
+;cnst33 : 19F spinlock amplitude correction term in Hz
+;cnst34 : 1H-X CP X spinlock amplitude correction term in Hz
+;cnst35 : 1H-X CP 1H spinlock amplitude correction term in Hz
+;cnst37 : 1H heteronuclear amplitude correction term in Hz
+;cnst38 : 1H homonuclear decoupling correction term
+;cnst50	 : desired spinlock field in Hz for CP X (n-0.5)*MASR  for F (n+0.5)*MASR
+;cnst51  : 1H decoupling field in Hz for pl12 decoupling 
+;cnst52  : 1H heteronuclear decoupling in Hz pl12 decoupling
+;cnst53  : fast MAS CP condition not equals n*cnst53*MASR condition for C and n*(cnst53+1) for H (ZQ) or n*(1-cnst53) for DQ
+;cnst54	 : calculated  cnst54=cnst53+1 or cnst54=1-cnst53
+;cnst55  : f3 (1H specified CP spinlock field) for F->H CP
+;cnst56  : f1 decoupling during t1 evol 5kHz
+;cnst61	 : f3 decoupling field in Hz for pl12 decoupling  
+;d1      : recycle delay; 1 to 5 times T1
+;pcpd1	 : GARP decoupling 90 50us
+;pcpd2   : pulse length in decoupling sequence cpdprg2
+;pcpd3	 : p33 pi pulse 19F 
+;cpdprg1 : X low power decoupling GARP or Waltz 50us 90 (5kHz)
+;cpdprg2 : swftppm_12 or similar  (1H decoupling)
+;cpdprg3 : pidec_13 (19F pi decoupling)
+;spnam0 : f2 (H or F) amplitude modulated pulse variable amplitude CP
+;spnam1 : C ramp use e.g. square.100 for square pulse CP 
+;spnam3 : F amplitude modulated pulse variable amplitude CP
+;spnam4 : F amplitude modulated pulse variable amplitude CP
+;ZGOPTNS :  -Dpidec (pi-decouping for 19F)-DCP for basic experiment
+;			-DfastMASDQ  or -DfastmasZQ for double or zero quantum CP at fast MAS >60 kHz
+;          -Dlacq : aq is longer than 50 ms
+;          -Ddiy - set your own power levels
+;		   -Ddiydec - set your own decoupling power and pulses
+
+;$Id: fHXHETCOR.dcp,v 1.2                    Exp $

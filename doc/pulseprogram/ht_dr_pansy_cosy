@@ -1,0 +1,133 @@
+;HT_dr_pansy_cosy
+;avance-version (17/08/18)
+;Hadamard PANSY-COSY
+;2D Hadamard encoded parallel COSY with simultaneous H-1 and C-13 detection
+;using gradient pulses for coherence selection
+;with suppression of steady state magnetization
+;
+;E. Kupce & R. Freeman, J. Magn. Reson. 162, 300-310 (2003)
+;E. Kupce, R. Freeman & B. John, J. Am. Chem. Soc. 128, 9606-9607 (2006)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;
+;Experiment Setup:
+;(1) use had_pl au-program to get the peak list
+;(2) execute the 'wvm -a' command
+;(3) start the experiment
+;(4) use proc_had au-program for processing
+;the J(HH) and J(CH) evolution happens during Hadamard encoding pulse
+;reduce cnst22 to enhance long-range J(HH) and J(CH) correlations
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+#include <De.incl>
+
+
+define list<shape> SPL=<$VALIST>
+
+
+"l3=td1"
+
+
+1 30m ze1
+  30m ze2 
+  4u pl1:f1 pl2:f2
+2 9m
+3 50u UNBLKGRAD  
+  p16:gp4
+  d16
+  (p1 ph2):f1
+  p16:gp5
+  d16
+  4u BLKGRAD
+
+  d1
+  (p33:SPL ph29):f1
+  4u pl1:f1
+
+  50u UNBLKGRAD
+  p16:gp1
+  d16 
+  (p1 ph3):f1 
+  p16:gp2
+  d16
+  (p3 ph3):f2 
+  p16:gp3
+  d16 
+  4u BLKGRAD
+
+  ACQ_START1(ph29,ph30)
+  ACQ_START2(ph29,ph31)
+  0.1u DWELL_GEN1 1u DWELL_GEN2
+  (aq1) (aq2)  
+  eoscnp2			                	
+  rcyc=2
+  3m wr1 #0 if1 #0 zd1
+  3m wr2 #1 if2 #1 zd2
+  
+  3m SPL.inc
+  lo to 3 times l3
+exit
+
+
+ph2=0 
+ph3=0 0 2 2
+ph29=0 2
+ph30=0
+ph31=0 
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse
+;p33: f1 channel - 90 degree shaped pulse for Hadamard experiment
+;d1 : relaxation delay; 1-5 * T1
+;d16 : gradient blanking delay [50 us]
+;cnst22: bandwidth for Hadamard encoding
+;ns: 1 * n
+;ds: 4
+;td1: size of Hadamard matrix, power of 2 (> # of peaks);
+;FnMODE: QF
+
+
+;for z-only gradients:
+;gpz3/(gpz1-gpz6) = 4 : 1
+;(gpz1  gpz6) = (gpz3 + gpz4) 
+
+;gpz1: 10%  
+;gpz2: -30%
+;gpz3: 40%
+;gpz4: 7%
+;gpz5: 11%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+
+;H-H COSY, parent dataset: 
+;Processing: wdw=(sin, no), ssb=(0, 0), PH_mod=(mc, no)
+;H-C COSY, child dataset:
+;Processing: wdw=(qsin, no), ssb=(2, 0), PH_mod=(mc, no)
+
+
+;WaveMaker shapes
+;use 'wvm -a' command to create the necessary shape files
+;SPL:wvm:sinc50: gaus90(cnst22 Hz, PL, had) 
+;gp1:xxx:gwurst.100: wurst_g(5 G/cm, 1 ms)
+
+
+
+;$Id:$

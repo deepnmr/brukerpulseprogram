@@ -1,0 +1,248 @@
+;hsqcccf3gpphwg3d
+;avance-version (22/07/30)
+;for measuring 15N(CSA)/1H-15N(dipole-dipole) cross-correlation rate
+;using symmetrical reconversion for enhanced accuracy
+;water suppression using watergate sequence
+;as pseudo3D
+;(use parameterset HSQCCCF3GPPHWG3D)
+
+; records 4 separate spectra (td1=4) in which different combinations of
+; 15N inphase (IP) and 15N/1H antiphase (AP) magentization are prepared
+; and detected: 1. AP/AP (preparation/detection), 2. AP/IP, 3. IP/AP,
+; 4. IP/IP. The cross-correlation rate Rcc is obtained from the peak 
+; intensitites in spectra 1-4 (I1-I4) via the equation 
+; sqrt((I2*I3)/(I1*I4)=|tanh(Rcc*T)| with T=cross-correlation delay d20
+; see publication for details:
+;P. Pelupessy, G. M. Espallargas & G. Bodenhausen,
+;   J. Magn. Reson. 161, 258-264 (2003)
+
+prosol relations=<triple>
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+"td1=4"
+"p2=p1*2"
+"p22=p21*2"
+
+"d4=1s/(cnst2*4)"
+"d11 = 30m"
+"d10 = 3u"
+"DELTA1=d4-p16-d16"
+"DELTA2=d4-p16-d16-4u-p11"
+#   ifdef LABEL_CN
+"DELTA3 = d4-p8-d10-p1"
+"DELTA4 = d4+d10+p1"
+"DELTA5 = p8+d10*2"
+#   else
+"DELTA3 = d4-p1-d10"
+"DELTA4 = d4+p1+d10"
+"DELTA5 = p2+d10*2"
+#   endif /*LABEL_CN*/
+"DELTA6 = d20/2-p16-d16-p21-p21*2/PI"
+"DELTA7 = (DELTA6+p16+d16-p8)/2"
+"DELTA8 = DELTA7-p16-d16"
+
+"l5=0"
+"in10=inf2/2"
+
+aqseq 312
+1 ze
+2 d11 do:f3
+3 d1 pl1:f1 pl3:f3 
+  (p21 ph1):f3
+  4u UNBLKGRAD
+  p16:gp0
+  d16
+  (p1 ph1):f1 
+  p16:gp1
+  d16  
+  DELTA1
+  (center (p2 ph3):f1 (p22 ph1):f3)
+  DELTA1
+  p16:gp1
+  d16
+  (p1 ph5):f1  
+  p16:gp2
+  d16
+
+ if "l5 %4 <= 1"
+{
+  p16:gp5
+  d16
+  (p1 ph1):f1
+  (p1 ph12):f1
+  }
+else
+{
+  (p21 ph1):f3
+  d4
+  (center (p2 ph1):f1 (p22 ph13):f3)
+  d4
+  (p21 ph4):f3
+  p16:gp5
+  d16
+  (p1 ph1):f1
+}
+
+(p21 ph7):f3
+
+#   ifdef LABEL_CN
+   DELTA7
+   (p8:sp13 ph1):f2
+   DELTA8
+   p16:gp6
+   d16
+   (p22 ph1):f3
+   p16:gp6
+   d16
+   DELTA8
+   (p8:sp13 ph1):f2
+   DELTA7
+#   else
+  DELTA6
+  p16:gp6
+  d16 
+  (p22 ph1):f3
+  p16:gp6
+  d16
+  DELTA6
+#   endif /*LABEL_CN*/
+
+  (p21 ph8):f3
+
+ if "l5 %2 == 0"
+{
+  (p1 ph1):f1
+  (p1 ph9):f1
+  p16:gp7
+  d16
+  (p21 ph6):f3
+  d10
+
+#   ifdef LABEL_CN
+  (lalign (p8:sp13 ph1):f2 (p2 ph1):f1 )
+#   else
+  (p2 ph1):f1
+#   endif /*LABEL_CN*/
+
+  d10
+  (p22 ph1):f3
+  DELTA5
+  (p21 ph1):f3
+}
+else
+{
+  (p1 ph1):f1
+  p16:gp7
+  d16
+  (p21 ph6):f3
+  DELTA4
+  (p22 ph11):f3
+  d10  
+  (p2 ph2):f1
+  DELTA3
+#   ifdef LABEL_CN
+  (p8:sp13 ph1):f2
+#   endif /*LABEL_CN*/
+  d10
+  (p21 ph4):f3
+}
+
+  p16:gp3
+  d16
+  (p1 ph1):f1  
+  p16:gp4
+  d16
+  DELTA2
+  (p11:sp1 ph10:r):f1
+  4u pl1:f1
+  (center (p2 ph2):f1 (p22 ph1):f3)
+  (p11:sp1 ph10:r):f1
+  p16:gp4
+  d16 
+  DELTA2 pl16:f3
+  4u BLKGRAD
+  go=2 ph31 cpds3:f3
+  d11 do:f3 mc #0 to 2
+     F1QF(calclc(l5,1))
+     F2PH(calph(ph6, +90) & calph(ph11, +90), caldel(d10, +in10))
+  d11 do:f3
+exit
+
+ph1= 0 
+ph2= 1
+ph3= 2
+ph4= 3
+ph5= 1 1 1 1 1 1 1 1 3 3 3 3 3 3 3 3
+ph6= 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ph7= 0 2 
+ph8= 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 
+ph9= 0 0 2 2 
+ph10=3
+ph11=0 0 1 1
+ph12=0 0 0 0 2 2 2 2 
+ph13=0 0 0 0 1 1 1 1
+ph31=0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0 2 0 0 2 0 2 2 0 0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0 0 2 2 0 2 0 0 2 0 2 2 0 2 0 0 2 2 0 0 2 0 2 2 0
+     
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;sp1 : f1 channel - shaped pulse (H2O on-resonance)
+;sp13: f2 channel - shaped pulse 180 degree  (Ca and C=O, adiabatic)
+
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p8 : f2 channel - 180 degree shaped pulse
+;p11: f1 channel -  90 degree shaped pulse
+;p16: homospoil/gradient pulse
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+;cpd3: decoupling according to sequence defined by cpdprg3
+
+;d1 : relaxation delay; 1-5 * T1
+;d4: 1/(4*J(NH)
+;d10 : incremented delay                             [6 usec]
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery          [200 usec]
+;d20: total cross-correlation delay
+;cnst2: = J(NH)
+
+;in10: 1/(2 * SW(X)) = DW(X)
+;nd10: 2
+;ns: 16 * n
+;ds: >= 16
+
+;td1: td1 = 4
+;FnMODE: QF(no frequency) in F1
+;FnMODE: STATES-TPPI in F2
+
+
+;for z-only gradients:
+;gpz0: 40%
+;gpz1: 30%
+;gpz2: 70%
+;gpz3: 7%
+;gpz4: -25%
+;gpz5: -11%
+;gpz6: 29%
+;gpz7: 21%
+
+;gpnam0: SMSQ10.100
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with 
+;             option -DLABEL_CN (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+

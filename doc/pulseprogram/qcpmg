@@ -1,0 +1,106 @@
+;qcpmg (TopSpin 4.0)
+;avance-version (20/11/23)
+;
+; TS4 / 2018/01/26
+;
+; Avance Neo version 
+; written by GALT, based on AV III version written by Stefan Steuernagel
+; pulse program for quadrupolar CPMG sequence
+; samples continuously, including ALL pulses and ringdown delays
+; may be used with digmod digital
+; calculates number of echos according to aq
+;
+;
+;parameters:
+;pl1 : =0W - not used
+;pl21 : RF power level
+;pl22 : =pl21 usually, =120 dB if 180s are not desired
+;p3 : 90 degree pulse
+;p4 : 180 degree pulse
+;p9 : time to allow pulse ringdown, entered as pulse to make it useconds 10 to 100 us
+;p25 : dummy pulse, not used for acq.
+;ns : 16 * n
+;d1 : recycle delay
+;d6 : enter expected rise/fall time of half echo
+;l22 : # of echos to be acquired
+;cnst1 : set td to number of acquired complex data points
+;cnst31 : MAS frequency  if ZGOPTNS= -Drot
+;ZGOPTNS : -Drot for MAS synchronization
+;
+;
+;$CLASS=Solids
+;$DIM=1D
+;$TYPE=half integer quadrupoles
+;$SUBTYPE=simple 1D
+;$COMMENT=QCPMG sequence, synchronised to spinning frequency, number of echoes calculated from aq
+
+prosol relations=<solids_default>
+
+
+#include <Avance.incl>
+#include <De.incl>
+
+
+;for digmod=baseopt
+"acqt0=0"
+
+
+define delay echo1
+define delay echo2
+define delay dead
+define delay rest
+define delay data 
+define loopcounter echoes
+
+"data=d6"
+"d3=p9"
+"p4=p3*2"
+#ifdef rot
+"d31=1s/cnst31"
+"l3=(data+p9+p4/2)/d31 +0.5"
+"echo1=d31*l3-p3/2-p4/2-dw-d3"
+"echo2=l3*d31-p4/2"
+#else 
+"echo1=1u"
+"echo2=d6+p9"
+#endif 
+"dead=echo2-data" 
+"echoes=(aq-data)/(2*data+2*dead+p4)-0.5"
+"rest=aq-echoes*(2*data+2*dead+p4)-data"
+
+1 ze
+2 d1
+  ACQ_START(ph30,ph31)
+  1u REC_BLK
+  (p3 pl21 ph1):f1
+  echo1
+  0.025u
+  d3
+  dw
+  (p4 ph2):f1
+  echo1
+  d3
+  0.025u START_NEXT_SCAN
+3 data REC_UNBLK
+  dead REC_BLK
+  (p4 pl22 ph3):f1
+  dead
+  data REC_UNBLK
+  lo to 3 times echoes
+  data
+  rest REC_BLK
+  1u 
+  rcyc=2
+  10m wr #0
+exit
+
+ph0=0
+ph1=0 2
+ph2=1 1 3 3
+ph3=1 1 1 1 3 3 3 3
+ph30=0
+ph31=2 0
+
+
+
+;$Id:$

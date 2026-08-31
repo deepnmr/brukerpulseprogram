@@ -1,0 +1,31 @@
+;sysglitch
+;avance-version (00/06/30)
+;2D sequence
+;glitch test
+;
+;$CLASS=HighRes HWT
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+
+
+#include <Avance.incl>
+
+
+1 ze
+2 d1
+3 d12
+  go=2 ph31
+  d1 wr #0 if #0 zd
+  lo to 3 times td1
+exit
+
+
+ph1=0
+ph31=0
+
+
+
+;$Id:$

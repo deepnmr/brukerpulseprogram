@@ -1,0 +1,277 @@
+;hsqct2etf3gptcwg3d
+;avance-version (21/09/15)
+;3D H-1/X correlation via double inept transfer
+;for measuring N-15 T2 relaxation times
+;phase sensitive
+;with decoupling during acquisition
+;using f3 - channel
+;water suppression using watergate sequence
+;using flip-back pulse
+;as pseudo3D
+;with temperature compensation
+;(use parameterset )
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<loopcounter> cpmglist=<$VCLIST>
+
+define loopcounter vc_max
+
+define loopcounter COUNTER1
+define loopcounter COUNTER2
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d11=30m"
+"d25=1s/(cnst4*cnst12)"
+"d26=1s/(cnst4*4)"
+
+"d21=450u"
+
+"d31=(p30*16+d21*32)"
+
+		
+"d10=3u"
+
+"in10=inf2/2"
+
+
+"DELTA=d25-larger(p22,p44)/2"
+"DELTA2=d21-p44/2"
+"DELTA3=d26-p16-d16-p11-p1*2/PI-8u"
+"DELTA4=d26-p16-d16-p11-de-8u"
+
+#   ifdef LABEL_CN
+"DELTA1=d25-larger(p8,p44)-d10*2-p21*4/PI"
+#   else
+"DELTA1=d25-p44-d10*2-p21*4/PI"
+#   endif /*LABEL_CN*/
+
+
+"l3=td1"
+"l11=0"
+"l31=0"
+
+
+"spoffs1=0"
+"spoffs13=bf2*((cnst21+cnst22)/2000000)-o2"
+"spoffs30=0"
+
+
+"acqt0=0"
+baseopt_echo
+
+
+aqseq 312
+
+
+1 ze
+  d11 pl16:f3
+
+  "vc_max = 0"
+
+9 20u
+  if "cpmglist > vc_max"
+     {
+     20u
+     "vc_max=cpmglist"
+     }
+  
+  3m cpmglist.inc
+  lo to 9 times l3
+
+  3m cpmglist.res
+
+2 d11 do:f3 
+
+  20u
+  "l31=cpmglist[l11]"
+  20u
+  "COUNTER1=l31"
+  20u
+  "COUNTER2=vc_max-l31"
+
+  20u pl23:f3
+
+8 d21
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f3
+  DELTA2
+  (p44:sp30 ph1)
+  DELTA2
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f3
+  d21*2
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f3
+  DELTA2
+  (p44:sp30 ph8)
+  DELTA2
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f3
+  d21
+  lo to 8 times COUNTER2
+
+  d1 pl1:f1
+
+  (p1 ph1)
+  d26 pl3:f3
+  (center (p2 ph1) (p22 ph1):f3 )
+  d26 UNBLKGRAD
+  (p1 ph2)
+
+  4u
+  (p11:sp1 ph1:r):f1
+  4u
+  p16:gp1
+  d16
+
+  (p21 ph3):f3
+  DELTA 
+  (center (p44:sp30 ph1) (p22 ph6):f3 )
+  DELTA pl23:f3
+
+6 d21
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f3
+  DELTA2
+  (p44:sp30 ph1)
+  DELTA2
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f3
+  d21*2
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f3
+  DELTA2
+  (p44:sp30 ph8)
+  DELTA2
+  (p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6 d21*2 p30 ph6):f3
+  d21
+  lo to 6 times COUNTER1
+
+  d25 pl3:f3
+  (p22 ph6):f3
+  d10 
+
+#   ifdef LABEL_CN
+  (center (p44:sp30 ph7) (p8:sp13 ph1):f2 )
+#   else
+  (p44:sp30 ph7)
+#   endif /*LABEL_CN*/
+
+  d10
+  DELTA1
+  (p21 ph4):f3
+
+  p16:gp3
+  d16
+  (p11:sp1 ph5):f1
+  2u
+  2u pl1:f1
+
+  (p1 ph1) 
+  4u
+  p16:gp4
+  d16
+  DELTA3
+  (p11:sp1 ph5):f1
+  2u
+  2u pl1:f1
+  (center (p2 ph1) (p22 ph1):f3 )
+  4u
+  (p11:sp1 ph5):f1
+  DELTA4
+  p16:gp4
+  d16 pl16:f3
+  4u BLKGRAD
+  go=2 ph31 cpd3:f3
+  
+  d11 do:f3 mc #0 to 2
+     F1QF(calclc(l11, 1))
+     F2PH(calph(ph4, -90), caldel(d10, +in10))
+
+  d31
+exit
+   
+
+ph0=0 
+ph1=0 
+ph2=1
+ph3=0 2 
+ph4=0 0 2 2
+ph5=2
+ph6=0 0 0 0 2 2 2 2
+ph7=0 0 2 2
+ph8=2
+ph31=0 2 2 0
+  
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;pl23: f3 channel - power level for TOCSY-spinlock
+;sp1 : f1 channel - shaped pulse  90 degree
+;sp13: f2 channel - shaped pulse 180 degree  (Ca and C=O, adiabatic)
+;sp30: f1 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p8 : f2 channel - 180 degree shaped pulse for inversion (adiabatic)
+;p11: f1 channel -  90 degree shaped pulse
+;p16: homospoil/gradient pulse
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p30: f3 channel - 180 degree pulse at pl23
+;p44: f1 channel - 180 degree shaped pulse
+;d1 : relaxation delay; 1-5 * T1
+;d10 : incremented delay                             [3 usec]
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;d21: echo delay                                     [450 usec]
+;d25: 1/(4J)YH for YH
+;     1/(8J)YH for all multiplicities
+;d26: 1/(4J(YH))
+;d31: length of single cpmg loop
+;cnst4: = J(YH)
+;cnst12: for multiplicity selection = 4 for NH, 8 for all multiplicities
+;cnst21: CO chemical shift (offset, in ppm)
+;cnst22: Calpha chemical shift (offset, in ppm)
+;vc : variable loop-coounter for T2 delay, taken from vc-list
+;inf2: 1/SW(X) = 2 * DW(X)
+;in10: 1/(2 * SW(X)) = DW(X)
+;nd10: 2
+;ns: 8 * n
+;ds: >= 16
+;td1: number of delays in vc-list
+;td2: number of experiments in F2
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: States-TPPI (or TPPI) in F2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 50%
+;gpz3: 60%
+;gpz4: 30%
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for C-13 and N-15 labeled samples start experiment with 
+;             option -DLABEL_CN (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: $

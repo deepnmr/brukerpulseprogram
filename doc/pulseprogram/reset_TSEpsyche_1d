@@ -1,0 +1,152 @@
+;pseudo 2D sequence
+;broadband homodecoupling using the TSE psyche method
+
+;References:
+; Foroozandeh M., Adams R.W., Kiraly P., Nilsson M., Morris G.A. Chem.Commun. 2015, 15410-15413.
+; Foroozandeh M.,  Morris G.A., Nilsson M. Chem.Eur.J. 2018, 24, 13988-14000.
+
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl> 
+#include <De.incl>
+
+
+define delay tauJ
+define delay tau
+define delay BETA
+define delay SWi
+define pulse P_in
+
+
+"p2=p1*2"
+
+
+"l31=d24/(2*dw)" 
+"in0=dw*l31"
+"d0=0"
+"tauJ=in0/2"
+"DELTA=d24*td1"
+"tau=(dw*2*l30)"
+
+"SWi=1000000/(l31*2*dw)"
+
+"d11=30m+1s/(1+cnst52)"
+"d11=30m+1s/(1+cnst53)"
+"d11=30m"
+
+"cnst62=(cnst61/360)*sqrt((2*cnst60)/(p49/2000000))"
+"P_in = 1000000.0 / (cnst62*4)"
+"BETA = cnst62 / (2.27 * 2) "
+"cnst63= (P_in/p1) * (P_in/p1)"
+"spw37=plw1/cnst63"
+
+create_shape(sp45, cawurst, powerIndex=80, name= TSEad1, length=$cnst53 ms, stepSize= 2.0 us, bandwidth= $cnst52 kHz, Q=11, sweepDirection=highToLow)  
+create_shape(sp44, cawurst, powerIndex=80, name= TSEad2, length=$cnst53 ms, stepSize= 2.0 us, bandwidth= $cnst52 kHz, Q=11, sweepDirection=lowToHigh)  
+
+"acqt0=0"
+baseopt_echo
+
+1 ze
+2 d1 pl1:f1
+3 p1 ph1
+
+  tauJ UNBLKGRAD
+  p16:gp1           
+  d16 pl0:f1
+  d16
+  (p45:sp45 ph2):f1 (p45:gp11)
+  d16
+  p16:gp1            
+  d16
+  tauJ
+
+  d0    
+                  
+  p16:gp2           
+  d16
+  d16 
+  (p49:sp37 ph3):f1 (p49:gp10)
+  d16
+  p16:gp2           
+  d16  
+  tau
+
+  p16:gp3           
+  d16
+  d16
+  (p44:sp44 ph4):f1 (p44:gp11)
+  d16 pl1:f1
+  p16:gp3            
+  d16 BLKGRAD  
+
+  d0                   	
+  go=2 ph31
+  DELTA
+  d1 mc #0 to 2 F1QF(caldel(d0, +in0))
+
+exit
+
+ph1= 0 2 0 2 0 2 0 2			
+ph2= 0 0 0 0 1 1 1 1  		
+ph3= 0 0 1 1 0 0 1 1			
+ph4= 0 0 0 0 0 0 0 0			
+ph31=0 2 2 0 2 0 0 2 			
+
+
+
+;pl1 : high power (dB) 
+;p1  : 90 degree high power pulse
+;p16 : duration of CTP gradients [200us-1m]
+;p45: 180 degree shaped pulse (adiabatic)     [20-40 msec]
+;p44: 180 degree shaped pulse (adiabatic)    [20-40 msec]
+;p49: 180 degree shaped pulse for psyche element  [30 msec]
+;                      Crp_psyche.20
+;d0  : incremented delay
+;d1  : relaxation delay
+;d16 : recovery delay for gradients [200u-1m]
+;d24: chunk duration [10-25 ms]
+;DELTA: total duration of reconstructed FID
+;sp45: power level for shaped pulse (adiabatic)
+;sp44: power level for shaped pulse (adiabatic)
+;cnst60: sweepwidth of single chirp element in Crp_psyche.20 in Hz [10000]
+;cnst61: desired flip angle in degree (ca. 20)
+;cnst62: gammaB1/2PI value for p49:sp37 (in Hz)
+;cnst63: scaling factor for power (sp37)
+;cnst52: sweep-width of the adiabatic 180 refocusing pulse in kHz [5-10]
+;cnst53: duration of the adiabatic 180 refocusing pulse in ms [20-60]
+;l30: number of complex points at the beginning not to be included 
+;        in reconstruction
+;l31: number of complex points along the acquisition dimension per block
+;        block length (DELTA2) about 8 to 10ms (kappa)
+;BETA: flip angle (ca. 20 degree)
+;SWi: sweep width in the pseudo dimension 
+;        should be 2 to 3 times the width of the widest multiplett
+;td1 : number of chunks
+;FnMODE: QF
+;ns : 8*n
+;ds: 4
+
+;use gradient files:
+;gpz1: 31%   (CTP gradient)
+;gpz2: 47%   (CTP gradient)
+;gpz3: 73%   (CTP gradient)
+;gpz10:  1%   (weak gradient during psyche pulse [1-3%])
+;gpz11:  1%   (weak gradient during adiabatic 180 pulse [1-3%])
+
+;use gradient files:
+;gpnam1: SINE.100 
+;gpnam2: SINE.100 
+;gpnam3: SINE.100
+;gpnam10: RECT.1
+;gpnam11: RECT.1
+
+; run wvm -q before zg or launch with xaua
+;use AU-program proc_reset or xaup to process data

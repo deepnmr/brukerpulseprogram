@@ -1,0 +1,12 @@
+# Bruker raw data
+fid
+ser
+acqu*
+proc*
+pdata/
+*.dx
+
+# scratch
+__pycache__/
+*.pyc
+.DS_Store

@@ -1,0 +1,18 @@
+;p25_prot.incl
+
+; Test the rf on-time for H-N CP 
+; 10ms is maximum
+
+;$COMMENT=Protection against long HN CP time
+;$CLASS=BioSolids PROT
+
+
+if "p25<10.1m" goto Passp25
+1u
+print "HN CP time p25 exceeds 10msec limit!"
+goto HaltAcqu
+Passp25, 1m
+
+
+
+;$Id:$

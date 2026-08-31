@@ -1,0 +1,249 @@
+;stepnoesyzs
+;avance-version (21/09/15)
+;1D selective TOCSY-NOESY (stepNOESY)
+;   homonuclear Hartman-Hahn transfer using 
+;   DIPSI2 sequence for mixing
+;   using selective refocussing with a shaped pulse
+;with zero quantum suppression
+;
+;H. Kessler, H. Oschkinat, C. Griesinger & W. Bermel,
+;   J. Magn. Reson. 70, 106 (1986)
+;J. Stonehouse, P. Adell, J. Keeler & A.J. Shaka, J. Am. Chem. Soc 116, 6037 (1994)
+;K. Stott, J. Stonehouse, J. Keeler, T.L. Hwang & A.J. Shaka,
+;   J. Am. Chem. Soc 117, 4199-4200 (1995)
+;M.J. Thrippleton & J. Keeler, Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+;H. Hu, S.A. Bradley & K. Krishnamurthy, J. Magn. Reson. 171, 201-206 (2004)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+#   ifdef NO_NOE
+"d31=0"
+#   else
+
+"if (d8 > p44*2+d16*4+p16*4 ) {d20 = d8-p44*2-d16*4-p16*4;} \
+                         else {d20 = 3u;}"
+
+"if (d8 > p44*2+d16*4+p16*4 ) {d31 = d8;} \
+                         else {d31 = p44*2+d16*4+p16*4+3u;}"
+
+#   endif /*NO_NOE*/
+
+
+"FACTOR1=(d9/(p6*115.112))/2"
+"l1=FACTOR1*2"
+
+"d30=l1*p6*115.112"
+
+
+"spoffs29=0"
+
+
+#   ifdef CALC_SPOFFS
+"spoffs2=bf1*(cnst21/1000000)-o1"
+"spoffs40=bf1*(cnst22/1000000)-o1"
+#   else
+#   endif /*CALC_SPOFFS*/
+
+
+"acqt0=-p1*2/PI"
+
+
+1 ze
+2 30m
+  20u pl1:f1 BLKGRAD
+  d1
+  50u UNBLKGRAD
+  (p1 ph1):f1
+  3u
+  p16:gp1
+  d16 pl0:f1
+  p12:sp2:f1 ph2:r
+  3u
+  p16:gp1
+  d16 pl1:f1
+
+  p1 ph3
+  10u gron0
+  (p32:sp29 ph3):f1
+  20u groff
+  d16 pl10:f1
+
+						;begin DIPSI2
+4 p6*3.556 ph23
+  p6*4.556 ph25
+  p6*3.222 ph23
+  p6*3.167 ph25
+  p6*0.333 ph23
+  p6*2.722 ph25
+  p6*4.167 ph23
+  p6*2.944 ph25
+  p6*4.111 ph23
+  
+  p6*3.556 ph25
+  p6*4.556 ph23
+  p6*3.222 ph25
+  p6*3.167 ph23
+  p6*0.333 ph25
+  p6*2.722 ph23
+  p6*4.167 ph25
+  p6*2.944 ph23
+  p6*4.111 ph25
+
+  p6*3.556 ph25
+  p6*4.556 ph23
+  p6*3.222 ph25
+  p6*3.167 ph23
+  p6*0.333 ph25
+  p6*2.722 ph23
+  p6*4.167 ph25
+  p6*2.944 ph23
+  p6*4.111 ph25
+
+  p6*3.556 ph23
+  p6*4.556 ph25
+  p6*3.222 ph23
+  p6*3.167 ph25
+  p6*0.333 ph23
+  p6*2.722 ph25
+  p6*4.167 ph23
+  p6*2.944 ph25
+  p6*4.111 ph23
+  lo to 4 times l1
+						;end DIPSI2
+
+  p16:gp2
+  d16
+  10u gron0*1.333
+  (p32*0.75:sp29 ph3):f1
+  20u groff
+
+  d16 pl1:f1
+  p1 ph3
+
+  3u
+  p16:gp3
+  d16 pl0:f1
+  p50:sp40:f1 ph6:r
+  3u
+  p16:gp3
+  d16 pl1:f1
+
+#   ifdef NO_NOE
+#   else
+  (p1 ph7):f1
+  d20*0.31
+  p16:gp4
+  d16 pl0:f1
+  (p44:sp30 ph7):f1
+  p16:gp4*-1
+  d16
+  d20*0.49
+  p16:gp5*-1
+  d16
+  (p44:sp30 ph7):f1
+  p16:gp5
+  d16 pl1:f1
+  d20*0.2
+  (p1 ph9):f1
+#   endif /*NO_NOE*/
+  
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+  d31 BLKGRAD
+  d30
+exit
+
+
+
+ph1=0 0 0 0  2 2 2 2
+ph2=0 1 0 1  0 1 0 1  2 3 2 3  2 3 2 3   ;tocsy selection
+ph3=0
+ph6=0 0 1 1  0 0 1 1  0 0 1 1  0 0 1 1 
+    2 2 3 3  2 2 3 3  2 2 3 3  2 2 3 3   ;noesy selection
+ph7=0
+ph8=1
+ph9=0
+ph23=3
+ph25=1
+ph31=0 2 2 0  2 0 0 2  
+
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;sp2: f1 channel - shaped pulse for TOCSY selection
+;sp29: f1 channel - shaped pulse (adiabatic)
+;sp30: f1 channel - shaped pulse for broadband inversion
+;sp40: f1 channel - shaped pulse for NOESY selection
+;p1 : f1 channel -  90 degree high power pulse
+;p6 : f1 channel -  90 degree low power pulse
+;p12: f1 channel - 180 degree shaped pulse for TOCSY selection
+;p16: homospoil/gradient pulse                       [1 msec]
+;p32: f1 channel - 180 degree shaped pulse (adiabatic)    [20 msec]
+;     smoothed chirp (sweepwidth, 20% smoothing, 10000 points)
+;p44: f1 channel - 180 degree shaped pulse for broadband inversion
+;p50: f1 channel - 180 degree shaped pulse for NOESY selection
+;d1 : relaxation delay; 1-5 * T1
+;d8 : NOESY mixing time
+;d9 : TOCSY mixing time
+;d16: delay for homospoil/gradient recovery
+;d30: TOCSY mixing time as used
+;d31: NOESY mixing time as used
+;cnst21: chemical shift for TOCSY selective pulse (offset, in ppm)
+;cnst22: chemical shift for NOESY selective pulse (offset, in ppm)
+;l1: loop for DIPSI cycle: ((p6*115.112) * l1) = mixing time
+;ns: 8 * n, total number of scans: NS * TD0
+;ds: 4
+
+
+;phcor 2 : phasedifference between power levels sp2 and pl1
+;phcor 6 : phasedifference between power levels sp40 and pl1
+
+;choose p12 and p50 according to desired selectivity
+;the flip-angle is determined by the amplitude
+;set O1 on resonance on the multiplet to be excited or use spoffs
+
+
+;for z-only gradients:
+;gpz0: ca. 11%
+;gpz1: 13.17%
+;gpz2: 31%
+;gpz3: -17.13%
+;gpz4: 23
+;gpz5: 37%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+
+
+
+;for sweepwidth of adiabatic shape and adjusting gpz0
+;   see supplementary material of M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+
+
+
+                                          ;preprocessor-flags-start
+;CALC_SPOFFS: automatically calcuate spoffs for selective pulses
+;             start experiment with option -DCALC_SPOFFS (eda: ZGOPTNS)
+;NO_NOE: skip NOE step for optimizing TOCSY mixing time
+;             start experiment with option -DNO_NOE (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: $

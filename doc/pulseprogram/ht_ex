@@ -1,0 +1,62 @@
+;ht_ex
+;avance-version (17/08/18)
+;2D Hadamard sequence
+;Hadamard Encoding test using selective excitation pulse
+;based on selzg
+;
+;E. Kupce & R. Freeman, J. Magn. Reson. 162, 300-310 (2003)
+;C.J. Bauer, R. Freeman, T. Frenkiel, J. Keeler & A.J. Shaka,
+;   J. Magn. Reson. 58, 442 (1984)
+;H. Kessler, H. Oschkinat, C. Griesinger & W. Bermel,
+;   J. Magn. Reson. 70, 106 (1986)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;
+;Experiment Setup:
+;(1) use had_pl au-program to get the peak list
+;(2) execute the 'wvm -a' command
+;(3) start the experiment
+;(4) use proc_had au-program for processing
+;J-evolution may occur during selective pulses
+
+
+#include <Avance.incl>
+
+
+define list<shape> SPL=<$VALIST>
+
+
+1 ze
+2 30m
+  d1 
+  (p33:SPL ph31):f1
+  go=2 ph31
+  30m mc #0 to 2 F1QF(SPL.inc)
+exit
+
+
+ph31=0 2 1 3
+
+
+;pl1: f1 channel - power level for pulse (default)
+;p1:  f1 channel - 90 degree hard pulse duration 
+;p33: f1 channel - 90 degree shaped pulse for Hadamard experiment
+;cnst22: bandwidth for Hadamard encoding pulses
+;d1:  relaxation delay; 1-5 * T1
+;ns: 1 * n
+;ds: 4
+;td1: size of Hadamard matrix, power of 2 (> # of peaks);
+
+
+
+;WaveMaker shapes
+;use 'wvm -a' command to create the necessary shape files
+;SPL:wvm:HTex: eburp1(cnst22 Hz, PL, had)  
+
+
+
+;$Id:$

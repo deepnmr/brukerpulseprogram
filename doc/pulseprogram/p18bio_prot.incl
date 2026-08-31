@@ -1,0 +1,18 @@
+;p18bio_prot.incl
+
+; Test the rf on-time for the H to Ca CP in 1H detection
+; 10 ms is maximum
+
+;$COMMENT=Protection against long CP time
+;$CLASS=BioSolids PROT
+
+
+if "p18<10.m" goto Passp18
+1u
+print "H-Ca CP contact time p18 exceeds 10 msec limit!"
+goto HaltAcqu
+Passp18, 1m
+
+
+
+;$Id:$

@@ -1,0 +1,56 @@
+;dec180
+;avance-version (12/01/11)
+;calibration of 180 degree pulse on f2 channel
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"d2=1s/(cnst2*2)"
+
+
+"DELTA=d2-p3*3-3u"
+
+
+1 ze 
+2 30m
+  d1
+  p1 ph1
+  d2
+  p2 ph1
+  p3:f2 ph2
+  3u
+  p3*2:f2 ph1
+  DELTA
+  go=2 ph31 
+  30m mc #0 to 2 F0(zd)
+exit 
+  
+
+ph1=0 
+ph2=0 2 
+ph31=0 2
+
+  
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J(XH))
+;cnst2: = J(XH)
+;ns: 2 * n, total number of scans: NS * TD0
+;ds: 2
+
+
+
+;$Id:$

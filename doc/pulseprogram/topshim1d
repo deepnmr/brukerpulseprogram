@@ -1,0 +1,295 @@
+;topshim1d
+;avance-version (20/05/08)
+;
+;field mapping sequence for 1D TopShim
+;
+;- zg options:
+;  * observe nucleus: TOPSHIM_NUC1H for 1H (default), TOPSHIM_NUC2H for 2H and TOPSHIM_NUC19F for 19F
+;  * pulse: TOPSHIM_SEL for selective excitation, else hard pulse
+;  * preparation: TOPSHIM_SKIP_NOISE to avoid initial collection of noise data
+;  * convection: TOPSHIM_CONVCOMP compensates dephasing due to convection
+;- requires:
+;  * avance spectrometer
+;  * probehead Z or XYZ gradient
+;- pseudo 2D for two echoes
+;- autosuspend in order to use zg only once
+;- data is overwritten after each loop
+;
+;wem.ch
+;
+;$CLASS=HighRes HWT
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+;$OWNER=
+
+
+#include<Avance.incl>
+#include<Grad.incl>
+#include<De.incl>
+#include<Sysconf.incl>
+
+
+; *** DEFINITIONS ***
+
+
+"d28 = d29+d31"
+
+; workaround for GCU/GAB error (Bug 5470)
+define delay daq
+define delay dgcte
+define delay dgc30
+"daq = d21+de+d22+aq"
+"dgc30 = d30+d20"
+
+
+; define variable parts
+
+
+; default nucleus
+#ifndef TOPSHIM_NUC1H
+#ifndef TOPSHIM_NUC2H
+#ifndef TOPSHIM_NUC19F
+#define TOPSHIM_NUC1H
+#endif
+#endif
+#endif
+
+
+#ifdef TOPSHIM_NUC1H
+
+; channel
+#define TOPSHIM_CHANNEL f1
+
+; empty definitions
+#define TOPSHIM_LOCKCHAN_PULSE 
+#define TOPSHIM_LOCKCHAN_LOCK  
+
+#define TOPSHIM_LOCKDEC_ON  
+#define TOPSHIM_LOCKDEC_OFF 
+
+#endif
+
+
+#ifdef TOPSHIM_NUC2H
+
+; channel
+#define TOPSHIM_CHANNEL D
+
+; lockswitch
+; - the 2H-TX must be set back to the LOCK mode after the excitation pulse to switch off the amplifier and avoid overheating
+; - TOPSHIM_H2_PULSE must be placed between ACQ_START and DWELL_GEN to avoid a spike appearing at the begin of the FID
+; - H2_PULSE/LOCK are not used to avoid interleave_incr that does not work with RCU
+; - LOCKDEC_ON/OFF is only needed for the lockswitch board but does not disturb 2H-TX
+#define TOPSHIM_LOCKCHAN_PULSE H2_PULSE
+#define TOPSHIM_LOCKCHAN_LOCK  H2_LOCK
+
+#define TOPSHIM_LOCKDEC_ON  LOCKDEC_ON
+#define TOPSHIM_LOCKDEC_OFF LOCKDEC_OFF
+
+#endif
+
+
+#ifdef TOPSHIM_NUC19F
+
+; channel
+#define TOPSHIM_CHANNEL F
+
+; lockswitch
+; - the 2H-TX must be set back to the LOCK mode after the excitation pulse to switch off the amplifier and avoid overheating
+; - TOPSHIM_H2_PULSE must be placed between ACQ_START and DWELL_GEN to avoid a spike appearing at the begin of the FID
+; - H2_PULSE/LOCK are not used to avoid interleave_incr that does not work with RCU
+; - LOCKDEC_ON/OFF is only needed for the lockswitch board but does not disturb 2H-TX
+#define TOPSHIM_LOCKCHAN_PULSE F19_PULSE
+#define TOPSHIM_LOCKCHAN_LOCK  F19_LOCK
+
+#define TOPSHIM_LOCKDEC_ON  FLOCKDEC_ON
+#define TOPSHIM_LOCKDEC_OFF FLOCKDEC_OFF
+
+#endif
+
+
+; pulse
+#ifndef TOPSHIM_SEL
+3u pl0:TOPSHIM_CHANNEL
+#define TOPSHIM_PULSE (p0 ph1):TOPSHIM_CHANNEL
+#endif
+#ifdef TOPSHIM_SEL
+#define TOPSHIM_PULSE (p0:sp0 ph1):TOPSHIM_CHANNEL
+#endif
+
+
+; dephasing
+; - with or without convection compensation
+; - the timing in- and outside the gc_control loop used below must run synchronously
+;   (d27 is part of the gc_control command)
+; - blanking the gradient amplifier reduces residual gradients due to offsets
+
+;replace gc_control for both cases
+
+#ifndef TOPSHIM_CONVCOMP
+#define TOPSHIM_ECHO(te)  "dgcte = te-2*d20"     \n\
+                           d27    gron1          \n\
+                           d20    groff          \n\
+                           dgcte  BLKGRAMP       \n\
+                           d20    UNBLKGRAMP
+#endif
+#ifdef TOPSHIM_CONVCOMP
+#define TOPSHIM_ECHO(te) "dgcte = te*0.5-2*d20" \n\
+                         d27    gron1 * -1      \n\
+                         d20    groff           \n\
+                         dgcte  BLKGRAMP        \n\
+                         d20    UNBLKGRAMP      \n\
+                         d27*2  gron1           \n\
+                         d20    groff           \n\
+                         dgcte  BLKGRAMP        \n\
+                         d20    UNBLKGRAMP     
+#endif
+
+
+; *** START OF PULSE PROGRAM ***
+
+  wrmode replace
+
+; spoil residual magnetisation
+  d20 UNBLKGRAMP
+  d9  gron3
+  d20 groff
+  d20 BLKGRAMP
+
+; *** preparation: noise ***
+
+#ifndef TOPSHIM_SKIP_NOISE
+
+; assess the noise level by acquiring data without pulsing
+
+  d12 zd
+
+  d12 st0
+8 d10
+  ACQ_START(ph30,ph31)
+  aq DWELL_GEN:f1
+  d12 rcyc=8
+
+  d12 st
+9 d10
+  ACQ_START(ph30,ph31)
+  aq DWELL_GEN:f1
+  d12 rcyc=9
+
+; assess the carrier offset by acquiring a signal
+
+  d20 UNBLKGRAMP
+  d12 st
+  d22 TOPSHIM_LOCKCHAN_PULSE
+  TOPSHIM_PULSE
+  ACQ_START(ph30,ph31)
+  d22 TOPSHIM_LOCKCHAN_LOCK
+  aq DWELL_GEN:f1
+  d30 gron3
+  d20 groff
+  d12 eoscnp
+  d20 BLKGRAMP
+
+; write the data to disk
+
+  d11 wr #0
+
+  autosuspend
+
+#endif
+
+; *** actual scan ***
+
+d22 TOPSHIM_LOCKDEC_ON
+
+1 d12 ze UNBLKGRAMP
+  d12 rppall
+
+; first echo (long TE)
+
+  d12 st0
+2 d1
+  d22 TOPSHIM_LOCKCHAN_PULSE
+  TOPSHIM_PULSE
+  TOPSHIM_ECHO(d28)
+  d21 gron2
+  ACQ_START(ph30,ph31)
+  d22 TOPSHIM_LOCKCHAN_LOCK
+  aq DWELL_GEN:f1
+  d30 gron3
+  d20 groff
+  d12 rcyc=2
+
+; second echo (short TE)
+
+  d12 st
+3 d1
+  d22 TOPSHIM_LOCKCHAN_PULSE
+  TOPSHIM_PULSE
+  TOPSHIM_ECHO(d29)
+  d21 gron2
+  ACQ_START(ph30,ph31)
+  d22 TOPSHIM_LOCKCHAN_LOCK
+  aq DWELL_GEN:f1
+  d30 gron3
+  d20 groff
+  d31
+  d12 rcyc=3
+
+; assess the carrier offset by acquiring a signal
+
+  d12 st
+  d22 TOPSHIM_LOCKCHAN_PULSE
+  TOPSHIM_PULSE
+  ACQ_START(ph30,ph31)
+  d22 TOPSHIM_LOCKCHAN_LOCK
+  aq DWELL_GEN:f1
+  d30 gron3
+  d20 groff
+  d12 eoscnp
+
+  d11 wr #0 BLKGRAMP
+
+  autosuspend
+
+  lo to 1 times l0
+	
+d22 TOPSHIM_LOCKDEC_OFF
+
+exit
+
+
+ph1  = 0 2
+ph30 = 0
+ph31 = 0 2
+
+
+;pl0:    power level of hard pulse
+;pl1:    power level of 90 deg hard pulse
+;sp0:    power level of shaped pulse
+;p0 :    pulse duration
+;p1 :    duration of 90 deg hard pulse
+;d1 :    relaxation
+;d9 :    spoiling gradient for residual magnetisation    [20 msec]
+;d10:    buffer I/O                                      [10 usec]
+;d11:    disk I/O                                        [30 msec]
+;d12:    rcyc/eosc/ze/zd                                 [3 msec]
+;d20:    gradient switching & blanking                   [50 usec]
+;d21:    gradient stabilisation delay                    [1 ms]
+;d22:    lockswitch                                      [1 ms]
+;d27:    dephasing gradient
+;d29:    short 'echo time'
+;d30:    spoiling gradient
+;d31:    echo time difference
+;l0 :    large number = 'infinite' scan
+;td1:    2
+;NBL:    2
+;DS:     0
+;NS:     2,4,6,... for DC offset correction
+
+
+
+;$Id:$

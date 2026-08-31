@@ -1,0 +1,117 @@
+;cpredor (TopSpin 3.0)
+;
+;TS3 / 09.08.2011
+;
+;checked by SEWE 09.08.2011
+;
+;2D REDOR  experiment 
+;
+;written by STE 26.11.2002
+;
+;
+;Avance III version
+;parameters: 
+;pl1 : X power level for CP
+;sp0 : proton power level during contact
+;pl2 : =0W, not used
+;pl3 : Y power level (for H to Y CP)
+;pl11 : power level for X pulses
+;pl12 : power level for H 90 and standard proton decoupling 
+;pl13 : e.g. used in spinal64_13
+;p2 : X 180 degree pulse
+;p3 : H 90 degree pulse
+;p12 : Y 180 degree pulse
+;p15 : contact time
+;d1 : recycle delay
+;d31 : =1s/cnst31, 1 rotor period
+;d20 : delay in saturation pulse train
+;pcpd2 : pulse length in decoupling sequence
+;spnam0 : file name for variable amplitude CP
+;l0 : =1, must be odd for rotor sync
+;l20 : number of pulses in saturation pulse train, 0 if undesired
+;cnst31 : spinning frequency
+;cpdprg2 : sequence used for decoupling (tppm15, cw, etc.)
+;FnMODE: QF
+;zgoptns : -Dlacq, -Dlcp15, or blank to disable protection
+;
+;
+;$CLASS=Solids
+;$DIM=pseudo 2D
+;$TYPE=cross polarisation
+;$SUBTYPE=heteronuclear recoupling
+;$COMMENT=REDOR  experiment, cp for excitation
+
+prosol relations=<solids_cp>
+
+
+define delay del25 ;calculate sync. delays
+"del25=(0.25s/cnst31)"
+define delay del26
+"del26=(0.25s/cnst31)-(p12/2)"
+define delay del27
+"del27=(0.25s/cnst31)-(p2)"
+"p1=p2/2"
+"d31=1s/cnst31"			;allow protection for misset cnst31 
+"acqt0=0"
+
+1 ze
+  d31
+2 10m do:f2
+saturate, d20
+  (p3 ph1):f2
+  lo to saturate times l20
+  d1
+#ifndef lcp15
+#include <p15_prot.incl>
+			;make sure p15 does not exceed 10 msec 
+			;let supervisor change this pulseprogram if 
+			;more is needed
+#endif
+
+#ifndef lacq		
+			;disable protection file for long acquisition change decoupling power !!! or you risk probe damage
+			;if you set the label lacq (ZGOPTNS -Dlacq), the protection is disabled
+
+#include <aq_prot.incl>	
+			;allows max. 50 msec acquisition time, supervisor
+			;may change  to max. 1s at less than 5 % duty cycle
+			;and reduced decoupling field
+#endif
+#include <rot_prot.incl> 
+  2u rpp9
+  2u rpp8
+  (p3 pl12 ph1):f2
+  (p15 pl1 ph2):f1 (p15:sp0 ph10):f2
+  del25  cpds2:f2
+3 del26 
+  (p12 pl3 ph8^):f3
+  del26
+  lo to 3 times l0
+  del27
+  (p1 pl11 ph4):f1
+  (p2  ph5):f1
+  (p1 ph4):f1
+  del27
+4 del26
+  (p12 ph9^):f3
+  del26
+  lo to 4 times l0
+  del25 
+  go=2 ph31
+  1m do:f2
+  10m mc #0 to 2 F1QF(1m iu0 & 1m iu0)
+HaltAcqu, 1m
+exit
+
+ph1= 3 1 ; 3 1 to be phase compatible to cpredori
+ph2= 0 0 1 1 2 2 3 3
+ph4= 0 0 1 1 0 0 1 1
+ph5= 1 1 2 2 1 1 2 2
+ph8= 0 1 0 1 1 0 1 0
+ph9= 0 1 0 1 1 0 1 0
+ph10= 0
+ph31= 0 2 1 3 2 0 3 1
+
+
+
+;$Id:$

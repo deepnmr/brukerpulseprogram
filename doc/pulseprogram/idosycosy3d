@@ -1,0 +1,95 @@
+;idosycosy3d
+;avance-version (19/02/11)
+;iDOSY-COSY 3D
+;3D sequence with
+;   diffusion measurement using spin echo
+;   homonuclear shift correlation
+;diffusion dimension in F1
+;
+;M. Nilsson, A. M. Gil, I. Delgadillo & G. A. Morris, 
+;   Chem. Commun., 1737-1739 (2005)
+;
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+ 
+
+define list<gradient> diff=<Difframp>
+
+
+"in0=inf2"
+
+"d0=3u"
+
+
+"DELTA=d20/2-p0/2-p30/2" 
+
+
+aqseq 321
+
+
+1 ze
+2 d1
+3 p1 ph1
+  d0
+  d16 UNBLKGRAD
+  p30:gp6*diff
+  DELTA
+  p0 ph2
+  DELTA
+  p30:gp6*diff
+  d16
+  4u BLKGRAD
+  go=2 ph31
+  d1 mc #0 to 2 
+     F1QF(calgrad(diff))
+     F2QF(caldel(d0, +in0))      
+exit
+
+
+ph1=0 2								
+ph2=0 0 2 2
+ph31=0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p0 : f1 channel -  20 to 90 degree high power pulse
+;p1 : f1 channel -  90 degree high power pulse
+;p30: gradient pulse (little DELTA)
+;d0 : incremented delay (2D)                         [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;d20: diffusion time (big DELTA)
+;inf2: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;ns: 1 * n
+;ds: 16
+;td1: number of experiments in F1
+;td2: number of experiments in F2
+;FnMODE: QF(no-frequency) in F1 
+;FnMODE: QF in F2
+
+
+;for z-only gradients:
+;gpz6: 100%
+
+;use gradient files:   
+;gpnam6: SMSQ10.100
+
+
+
+;Processing
+
+;use tf3, tf2 and DOSY processing
+
+
+
+;$Id:$

@@ -1,0 +1,17 @@
+;Delayssolids.incl
+;avance-version (18/01/29)
+;
+;$CLASS=Solids INCL
+;$COMMENT=preacquisition delays for windowed sequences
+
+
+
+  "de=1.5u"
+  "de1=1.35u"
+  "depa=.8u"
+  "derx=.8u"
+  "deadc=0.7u"
+
+
+
+;$Id:$

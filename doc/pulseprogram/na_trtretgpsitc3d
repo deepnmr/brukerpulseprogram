@@ -1,0 +1,352 @@
+;na_trtretgpsitc3d
+;avance-version (21/09/15)
+;2D 1H/13C correlation via TROSY
+;   using sensitivity improvement
+;for measuring 13C T1rho relaxation rates
+;phase sensitive using Echo/Antiecho gradient selection
+;as pseudo3D
+;with temperature compensation
+;(use parameterset NA_TRTRETGPSITC3D)
+;
+;
+;T1rho relaxation delays are set via a vd list. For 15N decoupling start with ZG option 
+;LABEL_CN and set o3p to 190 ppm for C2/C6/C8 or 150 ppm for C1' measurements 
+;(15N decoupling is not needed for C5).  
+;For measurements of C5 the duration of p14 should be divided by 2 and the
+;powerlevels spw3/spw5 adjusted accordingly to achieve good decoupling of C4/C6.
+;
+;Alignment of 13C magentization to the spinlock axis is achieved by adiabtic half 
+;passages (spnam19/20). For positive spinlock offsets (cnst30>0) set spnam19/20 to
+;Gaussramp+down.1/Gaussramp+up.1. For negative  spinlock offsets (cnst30<0) set 
+;spnam19/20 to Gaussramp-down.1/Gaussramp-up.1 for spnam19/20.
+;
+;The following settings were used by Hansen et al. for the measurement of
+; C2/C6/C8, C5 and C1' T1rho rates:
+;
+;                                                                               C2/C6/C8       C5              C1'
+;/o2p (ppm)                                                                 140            100            90
+;/cnst28 (off-resonance decoupling offset, ppm)        105            150            60
+;/cnst30 (T1rho spinlock offset, Hz)                         positive     negative       positive
+;                                                                            ~ +2500       ~ -2000     ~ +2000	
+;
+;A. L. Hansen & H. M. Al-Hashimi, J. Am. Chem. Soc. 129, 16072-16082 (2007)
+
+;$CLASS=HighRes
+;$DIM=3D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+prosol relations=<triple_na>
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+define list<delay> vd_list=<$VDLIST>
+
+define delay vd_max
+
+define loopcounter COUNTER1
+define loopcounter COUNTER2
+
+
+"p2=p1*2"
+"p22=p21*2"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+
+"d31=0"
+
+"cnst29=0"
+
+"p25=0"
+"p52=0"
+
+"d10=3u"
+"in10=inf2/2"
+
+"DELTA1=d4-p16-d16-4u"
+"DELTA2=d4-p1-p16-d16-4u"
+"DELTA3=d4-p19*1.5-d16*1.5-8u"
+"DELTA4=d4-p19-d16-4u+p14/2"
+"DELTA5=d4-p3-p19-d16-8u-de"
+
+#   ifdef LABEL_CN
+"DELTA=d10*2+larger(p14,p22)-p14+p3*4/PI+4u"
+#   else
+"DELTA=d10*2+p3*4/PI+4u"
+#   endif /*LABEL_CN*/
+
+"l3=td1"
+"l11=0"
+
+"plw26=pow(cnst27*p3/250000,2)*plw2"
+
+"spoffs3=0"
+"spoffs5=bf2*(cnst28/1000000)-o2"
+"spoffs19=0"
+"spoffs20=0"
+
+"acqt0=0"
+baseopt_echo
+
+aqseq 312
+
+1 ze
+
+  if "td1 != vd_list.len" 
+     {
+     2u
+     print "Warning: td1 is not equal to the number of vd list entries"
+     }
+
+  "vd_max = 0"
+
+9 20u
+  if "vd_list > vd_max"
+     {
+     20u
+     "vd_max = vd_list"
+     }
+
+  3m vd_list.inc
+  lo to 9 times l3
+
+  3m vd_list.res
+
+#   ifdef LABEL_CN
+2 d11 do:f3
+  20u pl2:f2 pl3:f3
+#   else
+2 d11
+  20u pl2:f2
+#   endif /*LABEL_CN*/
+
+  20u
+  "d31=vd_list[l11]"
+  20u
+  "p25=d31"
+  20u
+  "DELTA6=(d31/2-p2)"
+  20u
+  "p52=vd_max-d31"
+  20u
+  "TAU=d1-d31"
+
+  if "d31 < vd_max"
+     {
+     4u pl26:f2
+     (p52 ph1):f2
+     4u
+     }
+
+3 TAU pl1:f1 pl2:f2
+  50u UNBLKGRAD
+
+#   ifdef LABEL_CN
+  (p21 ph1):f3
+#   endif /*LABEL_CN*/
+
+  (p3 ph1):f2
+  p16:gp8
+  d16
+  (p1 ph1)
+  4u
+  p16:gp1
+  d16
+  DELTA1
+  (center (p2 ph1) (p14:sp3 ph4):f2 )
+  4u
+  DELTA1 pl2:f2
+  p16:gp1
+  d16
+  (p1 ph2)
+  p16:gp6
+  d16
+  (p3 ph4):f2
+  4u  
+  p16:gp7
+  d16 
+  DELTA1
+  (center (p2 ph1) (p14:sp3 ph4):f2 )
+  4u  
+  DELTA1 pl2:f2
+  p16:gp7
+  d16 
+  (p3 ph8):f2  
+ 
+  4u
+  p19:gp9
+  d16 fq=cnst30(sfo hz):f2
+  2u pl26:f2
+
+  (p39:sp19(currentpower) ph1):f2
+  (center (p2 ph1 DELTA6 p2 ph1):f1 (p25 ph1):f2 )
+  (p39:sp20(currentpower) ph1):f2
+  
+  4u
+  p19:gp9
+  d16 fq=cnst29(sfo hz):f2
+  2u pl2:f2
+
+  (p3 ph5):f2
+
+#   ifdef LABEL_CN
+  d10
+  (center (p14:sp5 ph1):f2 (p22 ph1):f3)
+  d10
+#   else
+  d10
+  (p14:sp5 ph1):f2
+  d10
+#   endif /*LABEL_CN*/
+
+  4u 
+  p19:gp2*EA
+  d16
+  (p14:sp3 ph1):f2
+
+  DELTA
+  (p14:sp5 ph1):f2
+
+  p19:gp2*-1*EA
+  d16
+
+  (p1 ph6)
+  4u
+  p16:gp3
+  d16
+  DELTA2 pl1:f1
+  (center (p2 ph1) (p14:sp3 ph1):f2 )
+  4u
+  DELTA1 pl2:f2
+  p16:gp3
+  d16
+  (center (p1 ph1) (p3 ph2):f2 )
+
+  4u
+  p16:gp4
+  d16
+  (lalign (DELTA4 p2 ph1):f1 (DELTA3 p14:sp3 ph1 DELTA3):f2)
+  4u
+  p16:gp4
+  d16 pl2:f2
+  (p3 ph7):f2
+
+  4u
+  p19:gp5
+#   ifdef LABEL_CN
+  d16 pl16:f3
+  4u BLKGRAD
+  
+  go=2 ph31 cpd3:f3
+  d11 do:f3 mc #0 to 2
+#   else
+  d16
+  4u BLKGRAD
+
+  go=2 ph31
+  d11 mc #0 to 2
+#   endif /*LABEL_CN*/
+     F1QF(calclc(l11, 1))
+     F2EA(calgrad(EA) & calph(ph6, +180) & calph(ph7, +180), caldel(d10, +in10) & calph(ph5, +180) & calph(ph31, +180))
+exit 
+  
+
+ph1=0
+ph2=1
+ph3=2
+ph4=0 2
+ph5=0 0 2 2
+ph6=3
+ph7=2
+ph8=1 1 1 1 3 3 3 3
+ph10=2
+ph31=0 2 2 0 2 0 0 2
+
+
+;pl1: f1 channel - power level for pulse (default)
+;pl2: f3 channel - power level for pulse (default)
+;pl3: f3 channel - power level for pulse (default)
+;pl16: f3 channel - power level for CPD/BB decoupling
+;plw26: power level for 13C spinlock, calculated from spinlock freq. (cnst27) and 13C pulse (p3/plw2)
+;sp3 : f2 channel - shaped pulse 180 degree (on resonance)
+;spnam3 : f2 channel - shaped pulse 180 degree (on resonance)
+;sp5 : f2 channel - shaped pulse 180 degree for decoupling (off resonance)
+;spnam5 : f2 channel - shaped pulse 180 degree for decoupling (off resonance)
+;sp19: f2 channel - shaped pulse for adiabatic ramp down
+;spnam19: Gaussramp+down.1/Gaussramp-down.1 for positive/negative spinlock offsets (cnst30)
+;sp20: f2 channel - shaped pulse for adiabatic ramp up
+;spnam20: Gaussramp+up.1/Gaussramp-up.1 for positive/negative spinlock offsets (cnst30)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p14: f2 channel - 180 degree shaped pulse
+;p16: homospoil/gradient pulse                       [1 msec]
+;p19: gradient pulse 2                               [600 usec]
+;p21: f3 channel -  90 degree high power pulse
+;p22: f3 channel - 180 degree high power pulse
+;p39: f3 channel - shaped pulse for adiabatic ramp   [2.5 msec]
+;p25: internally calculated
+;p52: internally calculated
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J)CH
+;d10: incremented delay                              [3 usec]
+;d11: delay for disk I/O                             [30 msec]
+;d16: delay for homospoil/gradient recovery
+;cnst2: = J(CH) (205 for C2/6/8, 180 for C5, 170 for C'1)
+;cnst27: T1rho spinlock field strength in Hz (at pl26)
+;cnst28: off-resonance decoupling chemical shift (offset, ppm)
+;cnst29: 13C on resonance frequency (in Hz)    [0]
+;cnst30: T1rho spinlock offset (in Hz)
+;o2p: Carbon chemical shift offset
+;o3p: 190 ppm for C2/C6/C8, 150 ppm for C1'
+;inf2: 1/SW(C) = 2 * DW(C)
+;in10: 1/(2 * SW(C)) = DW(C)
+;nd10: 2
+;ns: 4 * n
+;ds: >= 64
+;td1: number of delays in vd-list
+;td2: number of experiments in F2
+;FnMODE: QF(no-frequency) in F1
+;FnMODE: echo-antiecho in F2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 30%
+;gpz2: 80%
+;gpz3: 15%
+;gpz4: 50%
+;gpz5: 40.2%
+;gpz6: 20%
+;gpz7: 27%
+;gpz8: 47%
+;gpz9: 55%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.50
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.50
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+;gpnam8: SMSQ10.100
+;gpnam9: SMSQ10.100
+
+
+
+                                          ;preprocessor-flags-start
+;LABEL_CN: for 13C and 15N labeled samples start experiment with
+;             option -DLABEL_CN (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+
+;$Id: $

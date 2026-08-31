@@ -1,0 +1,87 @@
+;indecobird1d
+;avance-version (12/01/11)
+;inverse dept-cosy
+;1D proton detected dept-based editing (DEPT-HMQC) via
+;   heteronuclear zero and double quantum coherence
+;   using BIRD sequence
+;with decoupling during acquisition
+;
+;H. Kessler, P. Schmieder & M. Kurz, J. Magn. Reson 85, 400-405 (1989)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d2=1s/(cnst2*2)"
+
+
+1 ze
+2 30m do:f2
+  d1
+  (p1 ph1)
+  d2 pl2:f2
+  (center (p2 ph1) (p4 ph7):f2 )
+  d2
+  (p1 ph2)
+  d7
+  (p3 ph8):f2 
+  (p1 ph3)
+  d2
+  (p2 ph4) (p3 ph9):f2
+  d2
+  (p0 ph5) (p4 ph10):f2
+  d2
+  (p2 ph6) (p3 ph11):f2
+  d2 pl12:f2
+  go=2 ph31 cpd2:f2
+  30m do:f2 mc #0 to 2 F0(zd)
+exit
+
+
+ph1=0
+ph2=2
+ph3=0
+ph4=1
+ph5=1
+ph6=0
+ph7=0
+ph8=0 0 0 0 2 2 2 2
+ph9=0 2
+ph10=1
+ph11=0 0 2 2
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;p0 : f1 channel -  60, 90, 120 or 180 degree high power pulse
+;                   60 degree - XH positive, XH2, XH3 negative
+;                   90 degree - XH2 only
+;                  120 degree - XH3 positive, XH, XH2 negative
+;                  180 degree - XH2 positive, XH, XH3 negative
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d2 : 1/(2J)
+;d7 : delay for inversion recovery
+;     optimize to give null for protons bound to C-12
+;cnst2: = J(XH)
+;ns: 4 * n, total number of scans: NS * TD0
+;ds: 16
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+
+
+
+;$Id:$

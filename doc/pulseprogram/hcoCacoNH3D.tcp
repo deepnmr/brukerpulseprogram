@@ -1,0 +1,383 @@
+;hcoCacoNH3D.tcp
+;
+;version: 1.0/ TS3.5 /2015/07/21
+;version: 1.1/ TS3.5 /2016/01/11
+;
+;written: Veda 2015/07/21
+;checked: Veda 2015/August
+;modified: Vdec 2016/January: mc loop and offset setting 
+;
+;1D-3D 13Ca-15N-1H Triple CP experiment using out-and-back transfer
+;to ensure to ONLY have Ca polarized, but no third spins as Cb
+;H-CO CP, CO-Ca INEPT (out), Ca-CO INEPT (back), specific CO-N CP,
+;N-H CP, and 1H-detection
+;optimize selective 180 and 90 degree pulses in 'hCOH1D.dcp' and 'hCaH1D.dcp'
+;
+;programmed with mc command: run either 'pseudo 2Ds' (Parmode=3D,
+;TD of unwanted Dim=1, FT with 'xfb')
+;or select dimension under Parmode to run 'real nD':
+;1D: H, 2D: Ca-H, 3D: Ca-N-H
+;processing of Ca dim. needs referencing --> read descriptions for 'o3' and 'cnst42'
+;
+;$CLASS=BioSolids
+;$DIM=1D, 2D, 3D
+;$TYPE=H detection
+;$SUBTYPE=TCP, Heteronuclear
+;$COMMENT=hcoCacoNH
+
+
+;Avance III version
+;Parameters:
+;f1 : H
+;f2 : N
+;f3 : C 
+;o1 : H offset, on resonance with water peak (~ 5 ppm, water suppression!)
+;o2 : N offset center of 15N signal (~ 119 ppm)
+;o3 : C offset center of CO-Ca signal (set to value of cnst26, ~115 ppm)
+;     NOTE: receiver phase is shifted to the Ca offset (cnst22) automatically 
+;           for the use of a small SW in the indirect Ca dimension
+;p1 : C 90 at pl1
+;p2 : C 180 at pl1
+;p3 : H 90 at pl2
+;p17 : CON CP at sp6 (N) and sp51 (C), (~3 to 10 ms)
+;p19 : HCO CP at sp53 (C) and sp39 (H), (~2 to 6 ms)
+;p21 : N 90 at pl21
+;p22 : N 180 at pl21
+;p23 : CO selective 180 pulse at sp23 (~256 to 275 us at 600 MHz --> is linearly
+;      proportional to 1/B0! --> adjust length to B0 used)
+;p24 : Ca selective 180 pulse at sp24 (~600 to 700 us at 600 MHz (needs to be very
+;      selective, bec. of Cb) --> is linearly proportional to 1/B0! 
+;      --> adjust length to B0 used)
+;p45 : NH CP at sp46 (H) and sp47 (N), (~400 to 800 us)
+;pl1 : C pulse power
+;pl2 : H pulse power
+;pl3 : not used
+;pl12 : H dec power (e.g. 'sltppm_12nofq' at RF=1/4*MAS rate --> ~15 kHz)
+;pl13 : H dec power during H2O suppression (~15 kHz, 'cwX_13nofq', 'cwY_13nofq')
+;pl16 : N dec power (e.g. 'waltz16_16nofq' at 10 kHz)
+;pl18 : C dec power (e.g. 'waltz16_18nofq' at 10 kHz)
+;sp6 : N CON CP power (25 kHz RF recommended at 60 kHz MAS)
+;sp23 : CO selective 180 power
+;       (open the shape in the shapetool>stdisp and go to >Analysis>
+;       Integrate Shape and enter:"length of p23, '180.0', length of p1"
+;       --> result will tell by how much pl1 needs to be changed for sp23)
+;sp24 : Ca selective 180 power 
+;       (open the shape in the shapetool>stdisp and go to >Analysis>
+;       Integrate Shape and enter:"length of p24, '180.0', length of p1"
+;       --> result will tell by how much pl1 needs to be changed for sp24)
+;sp39 : H HCO CP power (50 kHz RF recommended at 60 kHz MAS)
+;sp46 : H NH CP power (50 kHz RF recommended at 60 kHz MAS)
+;sp47 : N NH CP power (10 kHz RF recommended at 60 kHz MAS)
+;sp51 : CO CON CP power (35 kHz RF recommended at 60 kHz MAS)
+;sp53 : CO HCO CP power (10 kHz RF recommended at 60 kHz MAS)
+;d0 : incremented delay (t1)
+;d1 : recycle delay; 1 to 5 times T1 (~1 s)
+;d10 : incremented delay (t2)
+;d19 : delay for water suppression (~100 to 300 ms)
+;d22 : 1/(4J), 1st CO-Ca J-evolution (~53 Hz), (~4.7 ms)
+;d25 : 1/(4J), 2nd Ca-CO J-evolution (~4.7 ms, but can be
+;     decreased in case of short T2'(Ca))
+;d29 : extra time (-DCDC3D)(t2)
+;d30 : extra time (-DCDC2D/3D)(t1) 
+;cpdprg1 : H dec (e.g. 'sltppm_12nofq' at pl12 (15 kHz))
+;cpdprg2 : N dec (e.g. 'waltz16_16nofq' at pl16 (10 kHz))
+;cpdprg3 : C dec (e.g. 'waltz16_18nofq' at pl18 (10 kHz))
+;cpdprg4 : H Water suppression (e.g. 'cwX_13nofq' at pl13 (15 kHz))
+;cpdprg5 : H Water suppression (e.g. 'cwY_13nofq' at pl13 (15 kHz))
+;pcpd1 : H dec pulse: 33.33 us (e.g. 15kHz)
+;pcpd2 : N dec pulse: 25 us (e.g. 10 kHz)
+;pcpd3 : C dec pulse: 25 us (e.g. 10 kHz)
+;spnam6 : N ramp (for CON CP, e.g. 'tacn80')
+;spnam23 : CO shape (e.g. 'Q3.2000')
+;spnam24 : Ca shape (e.g. 'Q3.2000')
+;spnam39 : H shape (ramp up for HCO CP, e.g. 'ramp90100.1000')
+;spnam46 : H shape (ramp down for NH CP, e.g. 'ramp10090.1000')
+;spnam47 : N shape (for NH CP, e.g. 'square.1000' (=no shape))
+;spnam51 : CO ramp (for CON CP, e.g. 'square.1000' (=no shape))
+;spnam53 : CO shape (for HCO CP, e.g. 'square.1000' (=no shape))
+;cnst21 : frequency offset for CO (~175 ppm)
+;cnst22 : frequency offset for Ca (~55 ppm)
+;cnst26 : frequency offset for Ca-CO center (~115 ppm, is set)
+;cnst29 : expected td2 (-DCDC3D)
+;cnst30 : expected td1 (-DCDC2D/3D)
+;cnst42 : add value (in Hz) to SR-value for processing of Ca dim.(2D and 3D)
+;cnst63 : ph31 phase shift
+;inf1 : 1/SW(Ca) = 2 * DW(Ca)
+;inf2 : 1/SW(N) = 2 * DW(N)
+;in0 : = inf1/2
+;in10 : = inf2
+;in29 : = inf2(-DCDC3D)
+;in30 : = inf1 (-DCDC2D/3D)
+;l10 : loopcounter for F2 (-DCDC3D)
+;ZGOPTNS: -DCDC3D : for constant duty cycle with PARMODE = 3D
+;         -DCDC2D : for constant duty cycle with PARMODE = 2D
+;         -Dlacq : acquisition times > 50ms
+;         or blank
+;FnMODE : States-TPPI !
+;ns := min. 16
+;ds := 2 or 4
+;aq : ~20 ms
+
+;######################################################
+;#                                                    #
+;# hcoCacoNH3D.tcp                                    #
+;#                                                    #
+;# Barbet-Massin et al., J. Biomol. NMR               #
+;# 2013, 56, 379-386.                                 #
+;#                                                    #
+;######################################################
+
+
+prosol relations=<biosolHNC>
+
+
+#include <HNC_defs.incl>
+        ; defines which channel corresponds to which nucleus
+
+"cnst26=(cnst21+cnst22)/2"                   ; center of CO and Ca signal
+
+"p2=p1*2"
+"p22=p21*2"
+
+"acqt0=-(p1*2/3.1416)-0.5u"                  ; baseopt correction
+
+"spoffs6=0.0"                                ;##########################
+"spoffs23=bf3*((cnst21-cnst26)/1000000)"     ;#                        #
+"spoffs24=bf3*((cnst22-cnst26)/1000000)"     ;#                        #
+"spoffs39=0.0"                               ;# calc. of shape offsets #
+"spoffs46=0.0"                               ;#                        #
+"spoffs47=0.0"                               ;#                        #
+"spoffs51=bf3*((cnst21-cnst26)/1000000)"     ;#                        #
+"spoffs53=bf3*((cnst21-cnst26)/1000000)"     ;#                        #
+"spoal23=0.5"                                ;#  & shape phase alignm. #
+"spoal24=0.5"                                ;#                        #
+"spoal53=1"                                  ;#                        #
+"spoal51=0"                                  ;##########################
+
+"in0=inf1/2"                                 ;##########################
+"d0=1u"                                      ;#    t1_init => 0, 0     #
+"in30=inf1"                                  ;#                        #
+"d30=1u"                                     ;##########################
+
+define delay DELTA
+"DELTA=d0*2+larger(p22,p23)-p23"             ; symmetry delay
+
+"in10=inf2"                                  ;##########################
+"d10=1u"                                     ;#                        #
+"in29=inf2"                                  ;#     t2_init => 0, 0    #
+"l10=0"                                      ;#                        #
+"d29=1u"                                     ;##########################
+
+define delay ONTIME                          ;##########################
+define loopcounter T1evo                     ;#   Constant Duty Cycle  #
+define loopcounter T2evo                     ;#           2D           #
+                                             ;##########################
+#ifdef CDC2D
+"T1evo=larger(td1,cnst30)"
+"d30=T1evo*(in30+1u)/2"
+#endif                                       /* CDC2D */
+
+
+#ifdef CDC3D
+"T1evo=larger(td1,cnst30)"                   ;##########################
+"d30=T1evo*(in30+1u)/2"                      ;#   Constant Duty Cycle  #
+"T2evo=larger(td2,cnst29)"                   ;#           3D           #
+"d29=T2evo*(in29+1u)/2"                      ;##########################
+#endif                                       /* CDC3D */
+
+
+"cnst42=bf3*(cnst26-cnst22)"                 ; diff. betw. 13C carrier and Ca offset
+"cnst63=-((+1*cnst42)*(inf1/1000000))*360.0" ; ph31 phase shift
+
+
+aqseq 321
+
+                                         ;##########################
+;$EXTERN                                 ;# python insertion point #
+                                         ;##########################
+
+"ONTIME=aq+d0+d30+d29+d19+p19+p17+p23*2+p24+p45" 
+
+Prepare, ze
+
+;##########################################################
+;#               Protections: Pre-Check                   #
+;##########################################################
+
+#ifdef lacq
+#else
+#include <acq_prot.incl>
+        ;Max. 50 ms acquisition time
+#include <ONTIME_prot.incl>
+        ;total RF deposition restriction
+#endif                 /* end of lacq */
+
+#include <p17bio_prot.incl>
+        ;p17 max. 10 ms
+#include <p19bio_prot.incl>
+        ;p19 max. 10 ms
+#include <p2324bio_prot.incl>
+        ;p23 & p24 max. 1 ms each
+#include <p45bio_prot.incl>
+        ;p45 max. 10 ms
+#include <noH2Obio_prot.incl>
+        ;d19 max. 500 ms
+
+;########################################################
+;#           Start of Active Pulse Program              #
+;########################################################
+
+Start, 30m do:N do:C
+  d1
+
+  0.5u fq=cnst26(bf ppm):C                     ; Ca freq.
+
+if "l10>0"
+{
+  "d52=d10-1u"
+}
+
+;########################################################
+;#           Initial excitation & HCO CP                #
+;########################################################
+
+  (p3 pl2 ph1):H 
+  (p19:sp53 ph2):C (p19:sp39 ph0):H            ; CO freq.
+
+;########################################################
+;#              CO-Ca out transfer via                  #
+;#             INEPT (using J-coupling)                 #
+;########################################################
+
+  0.5u pl12:H
+
+  d22 cpds1:H
+  (p2 pl1 ph11):C
+  d22
+  0.5u
+  (p1 pl1 ph7):C                      ; CO to z, Ca to xy
+
+;########################################################
+;#                   t1 evolution                       #
+;#       Polarization is on Ca, CO inversed             #
+;########################################################
+
+  d0
+  (center (p22 pl21 ph20):N (p23:sp23 ph20):C) ; CO freq.
+  d0
+
+  (p24:sp24 ph20):C           ; Ca freq., symmetry center
+
+  DELTA                                  ; symmetry delay
+  (p23:sp23 ph20):C       ; CO freq., Bloch-Siegert comp.
+
+;########################################################
+;#             Ca-CO back transfer via                  #
+;#             INEPT (using J-coupling)                 #
+;########################################################
+
+  (p1 pl1 ph8):C                      ; Ca to z, CO to xy
+  0.5u
+  d25
+  (p2 pl1 ph20):C
+  d25
+
+  0.5u do:H
+
+;########################################################
+;#            CO-N CP Period (SPECIFIC)                 #
+;#             and t2 evolution (N)                     #
+;########################################################
+
+  (p17:sp51 ph9):C (p17:sp6 ph10):N            ; Co freq.
+
+if "l10>0"
+{
+  0.5u cpds1:H
+  (center (d52) (p2 pl1 ph20):C)
+  0.5u do:H 
+}
+
+;########################################################
+;#             Water suppression                        #
+;########################################################
+
+  (p21 pl21 ph3):N                    ; brings magn. to z
+
+  0.5u cpds4:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds5:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds4:H
+  d19*0.25
+  0.5u do:H
+
+  0.5u cpds5:H
+  d19*0.25
+  0.5u do:H
+
+  (p21 pl21 ph4):N                 ; brings magn. to xy
+
+;######################################################
+;#                     N-H CP                         #
+;######################################################
+
+  (p45:sp47 ph5):N (p45:sp46 ph6):H
+
+;######################################################
+;#                     Acquisition                    #
+;######################################################
+
+  0.5u pl16:N  pl18:C
+  0.5u cpds2:N cpds3:C
+
+  gosc ph31
+
+#ifdef CDC2D
+  d30
+#endif                                /* end of CDC2D */
+
+#ifdef CDC3D
+  d30
+  d29
+#endif                                /* end of CDC3D */
+
+1m do:N  do:C
+lo to Start times ns
+  
+30m mc #0 to Start
+  F1PH(calph(ph2, +90) & calph(ph7, +90) & calph(ph11, +90), caldel(d0, +in0) & caldel(d30, -in30) & calph(ph2, cnst63) & calph(ph11, cnst63) & calph(ph7, cnst63))
+  F2PH(calph(ph10, +90), caldel(d10, +in10) & caldel(d29, -in29) & calclc(l10, 1))
+
+HaltAcqu, 1m
+exit
+
+;#####################################
+;#             Phase Cycle           #
+;#####################################
+
+ph0 = 0                                  ; H HCO CP Spin lock
+ph1 = 1 3                                ; H 90 hard pulse
+ph2 = 1 1 3 3                            ; C HCO CP Spin lock
+ph3 = 3                                  ; N 1st 90 hard pulse (flip to z)
+ph4 = 1                                  ; N 2nd 90 hard pulse (flip back)
+ph5 = 0                                  ; N NH CP Spin lock
+ph6 = 0                                  ; H NH CP Spin lock
+ph7 = 1                                  ; 1st INEPT C 90 pulse
+ph8 = 1                                  ; 2nd INEPT C 90 pulse
+ph9 = 1 1 1 1  3 3 3 3                   ; C CON CP Spin lock
+ph10= 0 0 0 0  0 0 0 0  2 2 2 2  2 2 2 2 ; N CON CP Spin lock
+ph11= 0                                  ; 1st INEPT C 180 pulse
+ph20= 0                                  ; C / N 180 hard and soft pulses
+
+ph31= 0 2 2 0  2 0 0 2  2 0 0 2  0 2 2 0 ; receiver
+
+;#################################################
+
+
+
+;$Id: $

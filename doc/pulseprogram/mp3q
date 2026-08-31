@@ -1,0 +1,81 @@
+; mp3q
+;
+; TS3 /4.7.2011
+;
+; 3Q MAS pulse program for half integer spin nuclei
+; 3-pulse experiment with full echo acquisition:
+; excitation - t1(3Q) - conversion - opt.t1(1Q) - tau - 180sel - acquisition
+; uses split-t1 mode with whole echo acquisition
+; for split-t1 set increments as follows:
+; for 3/2 nuclei set: in10 = in0*7/9, in11 = 0
+; for 5/2 nuclei set: in10 = 0, in11 = in0*19/12
+; for 7/2 nuclei set: in10 = 0, in11 = in0*101/45
+; for 9/2 nuclei set: in10 = 0, in11 = in0*91/36
+; or in10 = in11 = 0, if no split-t1 is desired
+; 180 selective pulse should be determined first using Hahn-echo, this may
+; also be used to check that full echo can be obtained from sample of
+; interest. If no full echo can be obtained from sample, use mp3qzfil
+; instead.
+; then optimise p2 and finally p1, 2 or more iterations for p1 and p2 may be necessary
+; see also mp3qzqf, mp3qdfs, mp3qfam, mp3qdfsz, mp3qfamz
+;
+;Avance III version
+;parameters:
+;
+;pl1 : =0, not used
+;pl11 : power level for excitation and conversion pulse
+;pl21 : power level for selective pulse, ca. plW11 / 1024
+;p1 : excitation pulse at plw11
+;p2 : conversion pulse at plw11
+;p4 : 180 degree selective pulse at plw21
+;cnst31 : MAS spin rate
+;d6 : to allow full echo to build up
+;l1 : number of rotor cycles for whole echo
+;ns : 48 * n (extension of ph2 can be considered if more scans are acquired)
+;d1 : recycle delay
+;d10 : =0
+;d11 : =0
+;d0 : =1u or longer
+;in0 : 1 rotor period for synchronised experiment
+;in10 : =in0*7/9 for 3/2, =0 for 5/2 and higher
+;in11 : =in0*19/12 for 5/2, in0*101/45 for 7/2
+;td1 : number of t1-experiments
+;FnMODE: QF
+;MC2 : QF
+;
+;$CLASS=Solids
+;$DIM=2D
+;$TYPE=half integer quadrupoles
+;$SUBTYPE=MQMAS
+;$COMMENT=shifted echo split-t1 3QMAS
+
+prosol relations=<solids_mqmas>
+
+
+"d6=((1s*l1)/cnst31)-(p2/2)-(p4/2)"
+"acqt0=1u*cnst11"
+"in0=inf1"
+
+  ze
+1 d1
+  (p1 pl11 ph1):f1
+  d0
+  (p2 ph2):f1
+  d10
+  d6
+  (p4 pl21 ph3):f1
+  d11
+  go=1 ph31
+  d1 mc #0 to 1 F1QF(id0&id10&id11)
+exit
+
+ph1=(12) 0 1 2 3 4 5 6 7 8 9 10 11
+ph2= 0
+ph3= 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 
+     2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 3 3 3 3
+ph0= 0
+ph31=0 3 2 1 0 3 2 1 0 3 2 1 2 1 0 3 2 1 0 3 2 1 0 3
+
+
+
+;$Id:$

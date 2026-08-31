@@ -1,0 +1,192 @@
+;na_pfidsetgpsi
+;avance-version (20/03/03)
+;P-FIDS
+;determination of HP and CP coupling constants
+;2D H-1/X correlation via double inept transfer
+;   using sensitivity improvement
+;phase sensitive using Echo/Antiecho-TPPI gradient selection
+;with decoupling during acquisition
+;using trim pulses in inept transfer
+;constant time
+;(use parameterset NA_PFIDSETGPSI)
+;
+;H. Schwalbe, W. Samstag, J.W. Engels, W. Bermel & C.Griesinger,
+;   J. Biomol. NMR 3, 479 - 486 (1993)
+;H. Schwalbe, J.P. Marino, G.C. King, R. Wechselberger, W. Bermel &
+;   C. Griesinger, J. Biomol. NMR 4, 631 - 644 (1994)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"p2=p1*2"
+"p4=p3*2"
+"d4=1s/(cnst2*4)"
+"d11=30m"
+"d12=20u"
+"d24=1s/(cnst2*cnst11)"
+
+
+"d0=3u"
+
+"in0=inf1/2"
+
+"in20=in0"
+
+"td1=tdmax(td1,d20*2,in20)"
+
+
+"DELTA=d20-p16-d16-p2-d0-p21*2-4u"
+"DELTA1=d12+p16+d16+8u"
+
+
+"l0=1"
+
+
+1 ze
+  d11 pl12:f2 pl16:f3
+2 d11 do:f2 do:f3
+3 d1 pl2:f2 pl3:f3
+  (p1 ph1)
+  d4 UNBLKGRAD
+  (center (p2 ph1) (p4 ph6):f2 )
+  d4       
+
+#   ifdef TRIMP
+  p28 ph1
+#   endif /* TRIMP */
+
+  (p1 ph2) 
+
+  4u
+  p16:gp1
+  d16
+
+  (p3 ph3):f2
+  d0 
+  p2 ph1
+  (p21 ph1):f3
+  4u
+  (p21 ph8):f3
+  DELTA
+  p16:gp2*EA
+  d16
+  (p4 ph4):f2
+  d20
+  
+  (center (p1 ph1) (p3 ph4):f2 )
+  d24
+  (center (p2 ph1) (p4 ph1):f2 )
+  d24
+  (center (p1 ph2) (p3 ph5):f2 )
+  d4
+  (center (p2 ph1) (p4 ph1):f2 )
+  d4  
+  (p1 ph1)
+  DELTA1
+  (p2 ph1)
+  4u
+  p16:gp3
+  d16 pl12:f2 
+
+  if "l0 %2 == 1"
+     {
+     d12 pl0:f3 
+     }
+  else
+     {
+     d12 pl16:f3 
+     }
+
+  4u BLKGRAD
+  
+  go=2 ph31 cpd2:f2 cpd3:f3
+  d11 do:f2 do:f3 mc #0 to 2
+     F1I(ip8*2 & iu0, 2)
+     F1EA(calgrad(EA) & calph(ph5, +180), caldel(d0, +in0) & caldel(d20, -in20) & calph(ph3, +180) & calph(ph6, +180) & calph(ph31, +180))
+exit
+   
+
+ph1=0 
+ph2=1
+ph3=0 2
+ph4=0 0 2 2
+ph5=1 1 3 3
+ph6=0
+ph8=0
+ph31=0 2 2 0
+  
+
+;pl0 : 0W
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl16: f3 channel - power level for CPD/BB decoupling
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse
+;p4 : f2 channel - 180 degree high power pulse
+;p16: homospoil/gradient pulse
+;p21: f3 channel - 90 degree high power pulse
+;p28: f1 channel - trim pulse			     [1 ms]
+;d0 : incremented delay (2D)                         [3 us]
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J)HC
+;d11: delay for disk I/O                             [30 ms]
+;d12: delay for power switching                      [20 us]
+;d16: delay for homospoil/gradient recovery
+;d20: decremented delay (2D) and constant time delay 
+;        T  = 1/(2J(CC))                              [12.5 ms]
+;        or = 3/(2J(CC))                              [37.5 ms]
+;        depending on required resolution in F1
+;d24: 1/(4J)HC for CH
+;     1/(8J)HC for all multiplicities
+;cnst2: = J(HC)
+;cnst11: for multiplicity selection = 4 for CH, 8 for all multiplicities
+;inf1: 1/SW(C) = 2 * DW(C)
+;in0: 1/(2 * SW(C)) = DW(C)
+;nd0: 2
+;in20: = in0
+;ns: 4 * n
+;ds: >= 32
+;td1: total number of experiments
+;        = number of experiments for each 2D * 2
+;        td1 max = (2 * d20 / in20) * 2
+;FnMODE: echo-antiecho
+;cpd2: decoupling according to sequence defined by cpdprg2
+;cpd3: decoupling according to sequence defined by cpdprg3
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;pcpd3: f3 channel - 90 degree pulse for decoupling sequence
+
+
+;for z-only gradients:
+;gpz1: 35%
+;gpz2: 80%
+;gpz3: 20.1% 
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+
+
+                                          ;preprocessor-flags-start
+;TRIMP: to use trimpulse p28@pl1 start experiment with
+;          option -DTRIMP (eda: ZGOPTNS)
+                                          ;preprocessor-flags-end
+
+
+;use AU-program split [2] to create separate datasets
+
+
+
+;$Id:$

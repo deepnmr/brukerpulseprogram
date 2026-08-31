@@ -1,0 +1,250 @@
+;hsqcgpsppr
+;avance-version (23/12/05)
+;  HSQC for 13C labeled molecules, optional 15N decoupling
+;2D 1H/13C correlation via double INEPT transfer
+;using cnst23 as center of 13C dimension (F1 dimension). but o2p as transmitter frequency
+;   allows for aliasing of aromatic signals into aliphatic spectral region, while keeping the 
+;   transmitter frequecy in the center of both regions (~75 ppm)
+;optimized for large 13C bandwidth (broadband shaped pulses for all purposes on 13C)
+;optional presaturation and trim pulse for water suppression. Trim pulse leads to weak COSY
+;   artifacts, e.g. crosspeaks between HN/Ca due to HN/Ha coupling, omit for samples in D2O.
+;sampling is delayed by 0.5-1 increments depending on spectral width in F1, see end of file 
+;   for processing parameters.
+;for adiabatic decoupling set CDPRG2 to bi_p5m4sp_4sp.2 and execute getprosol (ns should be 
+;   at least 4 to suppress decoupling sidebands).
+;(use parameterset HSQCGPSPPR)
+;
+; S. Asami, W. Kallies, J.C. Guenther, M. Stavropoulou, S.J. Glaser & M. Sattler,
+;   Angew. Chem. Int. Ed. Engl. 57(44), 14498-14502 (2018)
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+prosol relations=<triple>
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+require "TopSpin 4.1.0"
+
+"p2=p1*2"
+
+"p13=30u"
+"spnam2='Ram-COOP1_100.300'"
+"if ( (p3*totrot2)/(p13*90.0*integfac2) > 1 ) { spw2 = plw2; p13 = (p3*totrot2)/(90*integfac2); } else { spw2=plw2*pow((p3*totrot2)/(p13*90.0*integfac2),2);}"
+"spoffs2=0"
+"spoal2=1"
+
+"spnam8='Ram-COOP2_100.300'"
+"spw8=spw2"
+"spoffs8=0"
+"spoal8=0"
+
+
+"d4=1s/(cnst2*4)"
+"d11=30m"
+"d12=20u"
+
+"DELTA1=d4-p16-d16-p35/2-4u"
+"DELTA2=d4-p16-d16-p35/2-p1*2/PI-4u"
+
+"in0=inf1/2"
+
+"cnst63=(bf2*cnst23-(o2*1000000))*(inf1/1000000)*360.0"
+"if ( in0/2 >= p13*0.529 ) { d0 = in0/2-(p13*0.529); } else { d0 = in0-(p13*0.529); }"
+"if ( in0/2 >= p13*0.529 ) { cnst61=(90.0+cnst63/2)*-1; } else { cnst61=cnst63*-1; }"
+"if ( in0/2 >= p13*0.529 ) { cnst60=0.5; } else { cnst60=1; } "
+
+#ifdef LABEL_CN
+"DELTA5=larger(larger(p44,p56)/2-p13-d0,0)"
+#else
+"DELTA5=larger(p44/2-p13-d0,0)"
+#endif /*LABEL_CN*/
+
+"o1_F1=bf2*cnst23/1000000"
+"DELTA8=10u*cnst60"
+
+
+"spoffs15=bf2*(cnst21/1000000)-o2"
+"spoal15=0.5"
+"spoffs30=0"
+"spoal30=0.5"
+"spoffs39=0"
+"spoal39=0.5"
+"spoffs41=0"
+"spoal41=0.5"
+
+"acqt0=0"
+
+#ifdef TRIMP
+"DELTA3=d4-p16-d16-p35/2-4u"
+"p28=1m"
+#else
+"DELTA3=d4-p16-d16-p35/2-4u-de"
+baseopt_echo
+#endif /*TRIMP*/
+
+1 ze
+  d11 pl12:f2
+  1u ip9+cnst61
+2 d11 do:f2 
+ 4u BLKGRAD
+#ifdef presat
+3 d12 pl32:f1
+  d1 cw:f1 ph1
+  4u do:f1
+#else
+3 d12
+  d1 
+#endif /*presat*/
+  
+  d12 pl1:f1 
+  50u UNBLKGRAD
+ 
+  (p13:sp2 ph1):f2
+  
+  p16:gp1
+  d16
+
+  (p1 ph1)
+  4u
+  p16:gp3
+  d16
+  DELTA1
+  (center (p2 ph1):f1 (p35:sp41 ph1):f2)
+  DELTA1
+  4u
+  p16:gp3
+  d16
+  (p1 ph2)
+
+  4u 
+  p16:gp4
+  d16 pl2:f2
+
+#ifdef LABEL_CN
+  (center (DELTA5 p13:sp2 ph4 d0 d0 p13:sp8 ph9 DELTA5):f2 (p44:sp30 ph5):f1 (p56:sp39 ph1):f3)
+#else /*LABEL_CN*/
+  (center (DELTA5 p13:sp2 ph4 d0 d0 p13:sp8 ph9 DELTA5):f2 (p44:sp30 ph5):f1)
+#endif /*LABEL_CN*/
+
+  p16:gp5
+  d16 pl1:f1
+
+  (p1 ph2)
+  4u 
+  p16:gp6
+  d16 
+  DELTA2
+  (center (p2 ph1):f1 (p35:sp41 ph1):f2 )
+  DELTA3
+  4u
+  p16:gp6
+  d16 pl12:f2
+
+#ifdef TRIMP
+  (p28 ph2)
+#endif /*TRIMP*/
+
+  go=2 ph31 cpd2:f2
+  d11 do:f2 mc #0 to 2 
+     F1PH(calph(ph4, +90), caldel(d0, +in0) & calph(ph4, cnst63))
+  DELTA8
+exit
+   
+ph1=0 
+ph2=1
+ph4=0 2
+ph5=0 0 0 0 2 2 2 2
+ph9=0 0 2 2
+ph31=2 0 0 2 2 0 0 2
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl2 : f2 channel - power level for pulse (default)
+;pl3 : f3 channel - power level for pulse (default)
+;pl12: f2 channel - power level for CPD/BB decoupling
+;pl32: f1 channel - power level for weak presaturation
+;sp2 : f2 channel - shaped pulse 90 degree (Ram-COOP1)
+;sp8 : f2 channel - shaped pulse 90 degree (Ram-COOP2)
+;sp14: f2 channel - short pulse for bi-level adiabatic decoupling 
+;spnam15: Q3.1000
+;sp31: f2 channel - long pulse for bi-level adiabatic decoupling 
+;sp30: f1 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;sp39: f3 channel - shaped pulse 180 degree (Bip720,50,20.1)
+;sp41: f2 channel - shaped pulse 180 degree (Bip720,100,10.1)
+;spnam41: Bip720,100,10.1
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;p3 : f2 channel -  90 degree high power pulse (used for calculation of sp2/sp8)
+;p13: f2 channel - 90 degree shaped pulse (broadband)
+;p16: homospoil/gradient pulse                       [1 msec]
+;p21: f3 channel -  90 degree high power pulse
+;p28: f1 channel - trim pulse                        [1 msec]
+;p35: f2 channel - 180 degree shaped pulse (adiab. inv.)
+;p44: f1 channel - 180 degree shaped pulse (adiab. inv.)
+;p56: f3 channel - 180 degree shaped pulse (adiab. inv.)
+;p63: f2 channel - pulse for bi-level adiabatic decoupling 
+;d0 : incremented delay (F1 in 2D) 
+;d1 : relaxation delay; 1-5 * T1
+;d4 : 1/(4J(CH))
+;d11: delay for disk I/O                             [30 msec]
+;d12: delay for power switching                      [20 usec]
+;d16: delay for homospoil/gradient recovery
+; 
+;cnst2: = J(CH) (~150 for proteins, ~170 for nucleic acids)
+;       these values are a compromise between aromatic and aliphatic coupling constants
+;cnst23: Center for carbon dimension (F1)
+;cnst60: Sampling in F1 is delayed by cnst60 increments
+;cnst63: TPPI phase increment to shift center of 13C dimension relative to carrier
+;inf1: 1/SW(H) = 2 * DW(C)
+;in0: 1/SW(H) = 2 * DW(C)
+;
+;ns: 4 * n
+;ds: >= 64
+;td1: number of experiments in F1
+;FnMODE: States-TPPI in F1
+;cpd2: decoupling according to sequence defined by cpdprg2
+;pcpd2: f2 channel - 90 degree pulse for decoupling sequence
+;cpdprg2: garp4 composite or bi_p5m4sp_4sp.2 for adiabatic decoupling 
+
+
+;for z-only gradients:
+;gpz1: 40%
+;gpz2: 15%
+;gpz3: 19%
+;gpz4: -25%
+;gpz5: 70%
+;gpz6: 30%
+
+
+;use gradient files:   
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+;gpnam5: SMSQ10.100
+;gpnam6: SMSQ10.100
+
+                                          ;preprocessor-flags-start
+;the following options are available (eda: ZGOPTNS)
+;presat: to use presaturation for water suppression use option -Dpresat
+;LABEL_CN: to enable 15N decoupling for 15N/13C labeled molecules use option -DLABEL_CN
+;TRIMP: to use trim pulse for water suppression use option -DTRIMP
+
+                                          ;preprocessor-flags-end
+
+;Processing
+
+;Processing in F1 depends on cnst60:
+;  If cnst60=0.5 sampling is delayed by 0.5 increment in F1:
+;    Set: PHC0(F1) 0, PHC1(F1) -180, FCOR(F1) 1, ME_mod(F1) no, TDoff(F1) 0, NCOEFF(F1) 0
+
+;  If cnst60=1 sampling is delayed by 1 increment in F1 and the first point needs to be backpredicted:
+;    Set: PHC0(F1) 0, PHC1(F1) 0, FCOR(F1) 0.5, ME_mod(F1) LPbc, TDoff(F1) -2, NCOEFF(F1) 64
+;
+
+;$Id: $

@@ -1,0 +1,166 @@
+;noesygpphzs_dpe
+;avance-version (21/09/15)
+;2D homonuclear correlation via dipolar coupling 
+;dipolar coupling may be due to noe or chemical exchange.
+;phase sensitive
+;with gradient/rf spoil pulse in mixing time
+;using double perfect echo
+;
+;P. Sakhaii, B. Bohorc, U. Schliedermann, H. Bertold & W. Bermel,
+; J. Magn. Reson. 315, 106753 (2020)
+;B. Baishya & A. Verma, J. Magn. Reson. 252, 41-48 (2015)
+;M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+;(J. Jeener, B.H. Meier, P. Bachmann & R.R. Ernst, J. Chem. Phys. 71, 
+;   4546-4553 (1979) )
+;(R. Wagner & S. Berger, J. Magn. Reson. 123 A, 119-121 (1996) )
+
+;
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Delay.incl>
+#include <Grad.incl>
+
+
+"p31=5m"
+
+
+"d0=3u"
+"d20=3u"
+
+"in0=inf1"
+
+"in20=in0/4"
+
+
+"TAU=d8-p32-p31-d16-84u"
+
+
+"spoffs29=0"
+
+
+"acqt0=-p1*2/PI"
+
+
+1 ze
+2 d1
+  20u pl1:f1
+  50u UNBLKGRAD
+
+  4u
+  p16:gp1
+  d16
+
+  (p1 ph3):f1
+  4u
+  (p44:sp30 ph1):f1
+  d20
+  8u
+  p16:gp2
+  d16
+  (p44:sp30 ph1):f1
+  4u
+  p16:gp2
+  d16 pl1:f1
+  d20
+  (p1 ph2):f1
+
+  d0
+
+  (p17 pl10 ph4):f1
+  (p1 pl1 ph5):f1
+  d20
+  4u
+  p16:gp3
+  d16
+  (p44:sp30 ph1):f1
+  8u
+  p16:gp3
+  d16
+  d20
+  (p44:sp30 ph1):f1
+  4u
+  (p1 pl1 ph7):f1
+
+  10u gron0
+  (p32:sp29 ph1):f1
+  20u groff
+  p31:gp4
+
+  d16 pl1:f1
+  4u BLKGRAD
+  TAU
+  (p1 ph1):f1
+  go=2 ph31
+
+  d1 mc #0 to 2
+     F1PH(calph(ph4, -90) & calph(ph5, -90) & calph(ph7, -90), caldel(d0, +in0) & caldel(d20, +in20))
+ 
+exit
+
+
+ph1=0
+ph2=1
+ph3=0 2
+ph4=1 1 3 3
+ph5=1 1 3 3
+ph7=0 0 2 2
+ph31=0 2 2 0
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;sp29: f1 channel - shaped pulse (adiabatic)
+;sp30: f1 channel - shaped pulse for broadband inversion
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse                              [1 msec]
+;p17: f1 channel - trim pulse                               [2.5 msec]
+;p31: gradient pulse 5                                      [5 msec]
+;p32: f1 channel - 180 degree shaped pulse (adiabatic)      [20 msec]
+;     smoothed chirp (sweepwidth, 20% smoothing, 10000 points)
+;p44: f1 channel - 180 degree shaped pulse for broadband inversion
+;d0 : incremented delay (2D)                                [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d8 : mixing time
+;d16: delay for homospoil/gradient recovery
+;d20: incremented delay (2D)                                [3 usec]
+;l1: loop for DIPSI cycle: ((p6*115.112) * l1) = mixing time
+;inf1: 1/SW = 2 * DW
+;in0: 1/(1 * SW) = 2 * DW
+;nd0: 1
+;in20: = in0/4
+;ns: 4 * n
+;ds: 32
+;td1: number of experiments
+;FnMODE: States-TPPI
+
+
+;for z-only gradients:
+;gpz0: ca. 11%
+;gpz1: 80%
+;gpz2: 51%
+;gpz3: 31%
+;gpz4: 41%
+
+;use gradient files:
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+;gpnam3: SMSQ10.100
+;gpnam4: SMSQ10.100
+
+
+
+;for sweepwidth of adiabatic shape and adjusting gpz0
+;   see supplementary material of M.J. Thrippleton & J. Keeler,
+;   Angew. Chem. Int. Ed. 42, 3938-3941 (2003)
+
+
+
+
+;$Id: $

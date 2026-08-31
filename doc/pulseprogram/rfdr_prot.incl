@@ -1,0 +1,19 @@
+;rfdr_prot.incl
+; Test the rf on-time and duty cycle
+; protect against misset cnst31, rotation speed below 1000 Hz and too long a mixing period
+;
+;
+;$CLASS=Solids INCL
+;$COMMENT=protect against mixing time  >100 msec
+
+
+1m
+if "mix<101m" goto Passmix
+1u
+print "error: RFDR mixing time exceeds 100 msec"
+goto HaltAcqu
+Passmix, 1m
+
+
+
+;$Id:$

@@ -1,0 +1,128 @@
+;ufcosy
+;NEO-version 
+;UFCOSY with constant-time phase encoding
+
+;P. Giraudeau, S. Akoka, JMR, 205, 1, 2010, 171-176
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE= Ultrafast
+;$SUBTYPE=
+;$COMMENT= to be processed with proc_uf or xaup
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <De.incl>
+#include <Delay.incl>
+
+
+"d0=3u"
+"d11=30m"
+"p15=(td*dw/(2*l3))-d6"
+"p24=p15"
+"d2=3u"
+"in2=2*(p15+d6)/td1"
+"cnst27=1"
+
+
+
+1 ze
+  d11
+2 30m
+  d1
+  100u UNBLKGRAD
+  20u pl1:f1
+
+;excitation
+
+  p1 ph1
+  d10
+
+;spatial encoding
+
+  10u gron1*cnst27
+  p10:sp3:f1 ph1
+  10u groff
+  p33:gp16
+
+  10u gron1*-1
+  p10:sp3:f1 ph2
+  10u groff
+  p33:gp16
+
+;pre-mixing gradient
+  10u
+  p24:gp24
+  10u
+
+;mixing
+  p34:gp17
+  10u
+  5u pl1:f1
+  p1 ph1
+  10u
+  p34:gp17*-1
+  
+;post-mixing gradient
+  10u
+  p24:gp25
+  10u
+
+  d2
+
+;acquisition
+  ACQ_START(ph30,ph31)
+  1u DWELL_GEN:f1
+3 p15:gp15*cnst27
+  d6 
+  p15:gp15*-1
+  d6
+  lo to 3 times l3
+  100u BLKGRAD
+  rcyc=2
+  100u UNBLKGRAD
+  p35:gp18
+  100u BLKGRAD
+  30m mc #0 to 2 F1QF(id2) 
+exit
+
+ph1=0 
+ph2=0 1
+ph3=0
+ph29=0
+ph30=0
+ph31=0 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp1: chirp pulse power level
+;p1 : f1 channel - 90 degree high power pulse
+;p10: chip pulse duration (Te/2)
+;p15: acquisition gradient duration (Ta)
+;p24: acquisition gradient duration (-Ta)
+;p33: spatial encoding coherence-selection gradients (1 ms)
+;p34: mixing coherence-selection gradient (1 ms)
+;p35: purge gradient (5 ms)
+;spnam3 : chip pulse shape
+;d1 : relaxation delay; 1-5 * T1
+;d6 : recovery delay (20 - 100 us)
+;cnst27: gamma ratio
+;l3 : number of bipolar gradient pairs
+;gpz1 : excitation encoding gradient (Ge)
+;gpz15 : acquisition encoding gradient [Ga]
+;gpz16 : coherence-selection gradients for spatial encoding (80%)
+;gpz17: coherence-selection gradients for mixing (80%)
+;gpz18: purge gradient (80%)
+;gpz24: folding gradient (0%)
+;gpz25: pre-phasing gradients (-Ga/2)
+;gpnam15: RECT.1
+;gpnam16: SINE.100
+;gpnam17: SINE.100
+;gpnam18: SINE.100
+;gpnam24: SMSQ10.100
+;gpnam25: SMSQ10.100
+
+;NS: 1 (or more if necessary)
+
+;$Id: zgselgs,v 1.1 2006/05/26 12:17:01 ber Exp $

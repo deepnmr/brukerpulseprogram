@@ -1,0 +1,28 @@
+;$Id:$
+;1D spin echo
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$HIDE=y
+
+#include <Avance.incl>
+
+1 ze
+2 30m
+  d1
+  p1 ph1
+  d20
+  p2 ph2
+  d20
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+ph1=0 0 1 1 2 2 3 3
+ph2=1 3
+ph31=0 0 3 3 2 2 1 1
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1 : f1 channel -  90 degree high power pulse
+;p2 : f1 channel - 180 degree high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;NS: 1 * n, total number of scans: NS * TD0

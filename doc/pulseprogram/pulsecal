@@ -1,0 +1,104 @@
+;pulsecal
+;avance-version (17/01/04)
+;for single scan pulse calibration
+;with optional f2 decoupling
+;
+;P.S.C.Wu & G. Otting, J. Magn. Reson. 176, 115-119 (2005)
+;
+;$CLASS=HighRes HWT
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+;$HIDE=y
+
+
+#include <Avance.incl>
+#include <De.incl>
+
+
+define delay dwdel1
+define delay dwdel2
+define delay dwdel3
+define delay dwdel4
+define delay dwdel5
+
+define pulse dwpul
+
+define loopcounter tdcount
+
+
+"d12=20u"
+
+
+"dwdel1=1u"
+"dwdel2=5u"
+"dwdel5=0.25u"
+"dwpul=dw*2*cnst31/100"
+
+"dwdel3=larger(de1,depa)+dwdel5"
+"dwdel4=dw*2-dwpul-dwdel1-dwdel2-dwdel3"
+
+
+"tdcount = td/2+2"
+
+
+1 ze
+
+#   ifdef FLAG_DEC
+  d12 pl29:f1 pl12:f2
+
+2 30m do:f2
+  4u pl13:f2
+  d1 cpd2:f2
+  4u do:f2
+  4u pl12:f2
+  20u cpd2:f2
+#   else
+  d12 pl29:f1
+2 30m
+  d1
+  32u
+#   endif /*FLAG_DEC*/
+
+  ACQ_START(ph30,ph31)
+
+  0.1u REC_UNBLK
+  0.1u START_NEXT_SCAN
+  	
+4 dwdel1 REC_BLK
+  dwdel2
+  (dwpul ph1):f1
+  dwdel3
+  dwdel4 REC_UNBLK
+  lo to 4 times tdcount
+
+  dwdel1 REC_BLK
+
+  rcyc=2
+
+#   ifdef FLAG_DEC
+  4u do:f2
+#   else
+  4u
+#   endif /*FLAG_DEC*/
+  
+  wr #0
+exit
+
+
+ph1=0
+ph30=0
+ph31=0 
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;pl24: f2 channel - power level for hd/hc decoupling
+;p1 : f1 channel -  high power pulse
+;d1 : relaxation delay; 1-5 * T1
+;d12: delay for power switching                      [20 usec]
+;NS: 1 * n, total number of scans: NS * TD0
+
+
+
+;$Id:$

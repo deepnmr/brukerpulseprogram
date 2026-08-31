@@ -1,0 +1,107 @@
+;reset_ZS_1d.3
+;pseudo 2D sequence
+;broadband homodecoupling using a Zangger-Sterk element
+;with gradient calculations to recover sensitivity lost through convection
+
+;K. Zangger & H. Sterk, J. Magn. Reson. 124, 486-489 (1997)
+;J.A. Aguilar, S. Faulkner, M. Nilsson & G.A. Morris, Angew. Chem. Int. Ed. 49, 3901-3903 (2010)
+;E. Caytan, H. M. Foster, L. Castañar, R. W. Adams, M. Nilsson and  G. A. Morris,	Chem. Commun., 2023,59, 12633-12636
+
+
+;$CLASS=HighRes
+;$DIM=2D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+define delay tauJ
+define delay tau
+define delay denominator
+
+"l31=d24/(2*dw)" 
+"in0=dw*l31"
+"d0=3u"
+"p2=p1*2"
+"tauJ=dw*l31/2-p16-d16"
+"tau=(dw*2*l30)+d16"
+"DELTA=d24*td1"
+
+"denominator=2.0*(p16/1e6)*(d16+p47+p16)"
+"gpz2=0.01*((-1.0*gpz0*(p47/2e6)*PI*(p47/2e6))+(2.0*d16*gpz1*p16/1e6)+(2.0*gpz1*(p16/1e6)*(p16/1e6)))/denominator"
+
+
+1 ze
+2 d1 pl1:f1
+3 p1 ph1 
+  d0
+
+  tauJ UNBLKGRAD
+  p16:gp1 
+  d16
+  p2 ph2 
+  p16:gp1 
+  d16
+  tauJ
+
+  p16:gp2 
+  d16
+  tau
+   (p47:sp34 ph3):f1 (p47:gp0)
+  d16
+  p16:gp2 
+  d16 BLKGRAD
+  d0
+
+  go=2 ph31
+  d1 mc #0 to 2 F1QF(caldel(d0, +in0))
+	DELTA
+exit
+
+ph1= 0 2 0 2 0 2 0 2		
+ph2= 0 0 0 0 1 1 1 1		
+ph3= 0 0 1 1 0 0 1 1 
+ph31=0 2 2 0 2 0 0 2	
+
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;sp34: f1 channel - shaped pulse 180 degree for Zangger-Sterk element
+;p1 : f1 channel -  90 degree high power pulse
+;p16: homospoil/gradient pulse [1 msec]
+;p47: f1 channel - 180 degree shaped pulse for Zangger-Sterk element
+;d0 : incremented delay (2D)                                [3 usec]
+;d1 : relaxation delay; 1-5 * T1
+;d16: delay for homospoil/gradient recovery
+;d24: chunk duration [10-25 ms]
+;DELTA: total duration of reconstructed FID
+;l30: number of complex points at the beginning not to be included 
+;        in reconstruction
+;l31: number of complex points along the acquisition dimension per block
+;        block length about 8 to 10ms
+;in0: = dw*l31
+;ns: 1 * n, total number of scans: NS * TD0
+;ds: 4
+;FnMODE: QF
+
+;for z-only gradients:
+;gpz0: 2%
+;gpz1: 27%
+;gpz2: calculated
+
+;use gradient files:
+;gpnam0: RECT.1
+;gpnam1: SMSQ10.100
+;gpnam2: SMSQ10.100
+
+
+
+;use AU-program proc_reset to process data
+
+
+
+;$Id:$

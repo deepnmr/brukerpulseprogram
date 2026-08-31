@@ -1,0 +1,296 @@
+; fh_sri_festa;
+; Doubly selective refocused INEPT - TOCSY (19F - 1H correlation and 1H-1H TOCSY transfer)
+;    using selective 90 19F pulse for excitation 
+;    using  selective 180 19F pulse for refocusing (optional)
+;    using  selective 180 1H pulse for refocusing
+;    homonuclear Hartman-Hahn transfer using DIPSI2 sequence for mixing with zero quantum suppression (optional)
+
+;L. Castanar, P. Moutzouri, T. Barbosa, C. Tormena, R. Rittner, A. Phillips, S. Coombes, M. Nilsson & G. A. Morris, Anal. Chem., 2018, 90, 8, 5445-5450
+
+;set zgoptns to -D_PURGE to apply 1H purge pulses before d1
+;set zgoptns to -D_F19SEL to apply 180 19F selective pulses
+;set zgoptns to -D_TOCSY to apply a DIPSI2 sequence for mixing
+
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=Fluorine-Proton Correlations
+;$SUBTYPE=
+;$COMMENT= Doubly selective refocused INEPT - TOCSY (19F - 1H correlation and 1H-1H TOCSY transfer)
+					; run wvm -q before zg or launch with xaua
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+
+#   ifdef _F19SEL  
+create_shape(sp62, gaus90, name= 19F_90_sel, stepSize= 10.0 us, bandwidth= $cnst50 Hz,offset= $cnst52 ppm)
+create_shape(sp61, rsnob, name= 19F_180_sel, stepSize= 10.0 us, bandwidth= $cnst50 Hz,offset= $cnst52 ppm)
+"d11=30m"
+"d11=30m+1s/(1+cnst50)"
+"d11=30m+1s/(1+cnst52)"
+"d11=30m"
+#   endif
+
+create_shape(sp60, rsnob, name= 1H_180_sel, stepSize= 10.0 us, bandwidth= $cnst51 Hz, offset= $cnst53 ppm)
+"d11=30m"
+"d11=30m+1s/(1+cnst51)"
+"d11=30m+1s/(1+cnst53)"
+"d11=30m"
+
+"d2=1s/(cnst2*4*cnst3)"
+"d3=1s/(cnst2*4*cnst4)"
+"d13=20u"
+"d16=200u"
+
+"DELTA1=d2-p16-d16-larger(p60,p4)/2"
+"DELTA2=d2-2*p16-2*d16-larger(p60,p4)/2"
+"DELTA3=d3-d16-p16-larger(p60,p4)/2"
+"DELTA4=d3-2*d16-2*p16-larger(p60,p4)/2"
+"DELTA11=d2-p16-d16-larger(p60,p61)/2"
+"DELTA12=d2-2*p16-2*d16-larger(p60,p61)/2"
+"DELTA13=d3-d16-p16-larger(p60,p61)/2"
+"DELTA14=d3-2*d16-2*p16-larger(p60,p61)/2"
+
+"p2=p1*2"
+"p4=p3*2"
+
+"FACTOR1=(d9/(p6*115.112))/2"
+"l1=FACTOR1*2"
+
+"acqt0=-p1*2/3.1416"
+
+
+
+1 ze
+  30m pl12:f2
+
+2 30m do:f2
+  d13 BLKGRAD
+
+#   ifdef _PURGE 
+   d13 UNBLKGRAD 
+   d13 pl1:f1
+   p16:gp20
+   d16
+   (p1 ph20):f1
+   (p1 ph21):f1 
+   p16:gp21
+   d16
+   d13 BLKGRAD
+#   else 
+
+#   endif /*_PURGE*/
+
+  d1          ;F - H AP transfer
+  d13 UNBLKGRAD
+  d13 pl1:f1
+ 
+#   ifdef _F19SEL  
+   d13  pl0:f2
+   (p62:sp62 ph1):f2	
+#   else 
+   d13  pl2:f2
+   (p2 ph1):f2	
+#   endif /*_F19SEL*/
+  
+#   ifdef _F19SEL 
+   DELTA11  pl0:f1 pl0:f2
+   p16:gp5
+   d16
+   (center (p60:sp60 ph2):f1 (p61:sp61 ph3):f2 )
+   p16:gp5
+   d16
+   DELTA12 pl1:f1 pl2:f2
+   p16:gp1
+   d16
+#   else 
+   DELTA1 pl0:f1 pl2:f2 
+   p16:gp5
+   d16
+   (center (p60:sp60 ph2):f1 (p4 ph3):f2 )
+   p16:gp5
+   d16
+   DELTA2 pl1:f1 pl2:f2
+   p16:gp1
+   d16
+#   endif /*_F19SEL*/
+
+  (p3 ph4):f2
+  p16:gp2
+  d16 
+  (p1 ph5):f1
+
+
+#   ifdef _F19SEL 
+   DELTA13 pl0:f1 pl0:f2  
+   p16:gp3
+   d16 
+   (center (p60:sp60 ph6):f1 (p61:sp61 ph7):f2 )
+   p16:gp3
+   d16 pl1:f1 pl2:f2
+   DELTA14
+   p16:gp1*0.9407
+   d16 pl12:f2
+#   else 
+   DELTA3 pl0:f1
+   p16:gp3
+   d16 
+   (center (p60:sp60 ph6):f1 (p4 ph7):f2 )
+   p16:gp3
+   d16 pl1:f1
+   DELTA4
+   p16:gp1*0.9407
+   d16 pl12:f2
+#   endif /*_F19SEL*/
+
+#   ifdef _TOCSY            ;TOCSY block with ZQF (H - H transfer)
+   (p1 ph8):f1
+   10u gron0 pl0:f1
+   (p32:sp29 ph9):f1
+   10u groff 
+   d16 pl10:f1 
+
+4 p6*3.556 ph23           ;begin DIPSI2
+  p6*4.556 ph25
+  p6*3.222 ph23
+  p6*3.167 ph25
+  p6*0.333 ph23
+  p6*2.722 ph25
+  p6*4.167 ph23
+  p6*2.944 ph25
+  p6*4.111 ph23
+  
+  p6*3.556 ph25
+  p6*4.556 ph23
+  p6*3.222 ph25
+  p6*3.167 ph23
+  p6*0.333 ph25
+  p6*2.722 ph23
+  p6*4.167 ph25
+  p6*2.944 ph23
+  p6*4.111 ph25
+
+  p6*3.556 ph25
+  p6*4.556 ph23
+  p6*3.222 ph25
+  p6*3.167 ph23
+  p6*0.333 ph25
+  p6*2.722 ph23
+  p6*4.167 ph25
+  p6*2.944 ph23
+  p6*4.111 ph25
+
+  p6*3.556 ph23
+  p6*4.556 ph25
+  p6*3.222 ph23
+  p6*3.167 ph25
+  p6*0.333 ph23
+  p6*2.722 ph25
+  p6*4.167 ph23
+  p6*2.944 ph25
+  p6*4.111 ph23
+  lo to 4 times l1        ;end DIPSI2				
+
+  p16:gp4
+  d16 pl0:f1 
+  10u gron0*1.333
+  (p32*0.75:sp29 ph9):f1
+  10u groff
+  d16 pl1:f1 
+  p1 ph10
+#   else 
+
+#   endif /*_TOCSY*/
+
+  go=2 ph31 cpd2:f2
+  30m do:f2 mc #0 to 2 F0(zd)
+  d13 BLKGRAD
+exit
+
+ph1=0 2 2 0 
+ph2=0
+ph3=0
+ph4=1
+ph5=0
+ph6=0
+ph7=0
+ph8=1
+ph9=0
+ph10=0
+ph20=0
+ph21=1
+ph23=3 
+ph25=1
+ph31=0 2 2 0 
+
+
+;pl0: zero power (0 W)
+;pl1: f1 channel - power level for pulse (default)
+;pl2: f2 channel - power level for pulse (default)
+;pl10: f1 channel - power level for TOCSY-spinlock
+;pl12: f2 channel - power level for CPD/BB decoupling
+;sp62: f2 channel - power level of excitation shaped pulse
+;sp60: f1 channel - power level of refocusing shaped pulse
+;sp61: f2 channel - power level of refocusing shaped pulse
+;sp29: f1 channel - power level of adiabatic pulse of ZQF element
+;p1: f1 channel - 90 degree high power pulse
+;p2: f1 channel - 180 degree high power pulse
+;p3: f2 channel - 90 degree high power pulse
+;p4: f2 channel - 180 degree high power pulse
+;p6: f1 channel - 90 degree low power pulse for DIPSI element
+;p62: f2 channel - 90 degree low power shaped pulse 
+;                  choose p11 according to desired selectivity
+;p60: f1 channel - 180 degree low power shaped pulse
+;                  choose p12 according to desired selectivity
+;p61: f2 channel - 180 degree low power shaped pulse
+;                  choose p13 according to desired selectivity
+;p32: f1 channel - 180 degree shaped pulse (adiabatic)              [20 msec]
+;p16: duration of CTP gradients                                     [1 msec]
+;d1: relaxation delay; 1-5 * T1
+;d2: 1/(nH*4*J(XH))
+;d3: 1/(nF*4*J(XH))
+;d9: TOCSY mixing time
+;d16: delay for gradient recovery                                  [200 usec] 
+;spnam62: f2 channel - file name for the selective 90 exciation shaped pulse    [Gauss]
+;spnam60: f1 channel - file name for the selective 180 refocusing shaped pulse  [Rsnob]
+;spnam61: f2 channel - file name for the selective 180 refocusing shaped pulse  [Rsnob]
+;spnam29: f1 channel - file name for the adiabatic shaped pulse using in ZQF    [Crp60,20,20.10]
+;                     smoothed chirp (sweepwidth, 20% smoothing, 10000 points)
+;cnst2: J(XH)
+;cnst3: number of protons coupled with fluorine 
+;cnst4: number of fluorines coupled with protons  
+;cnst50: band-width of the band-selective 90° and 180° 19F gauss/rsnob pulse in Hz
+;cnst51: band-width of the band-selective 180° 1H rsnob pulse in Hz
+;cnst52:  chemical shift for selective 19F pulse (in ppm)
+;cnst53:  chemical shift for selective 1H pulse (in ppm)
+;ns: 2 * n, total number of scans: NS * TD0
+;ds: 2
+;set O2 on resonance to the 19F signal of interest
+;cpd2: p5m4sp180
+;l1: loop for DIPSI cycle: ((p6*115.112) * l1) = mixing time
+;if any DELTA become negative try to reduce the gradient duration or selective pulse duration
+
+;for z-only gradients:
+;gpz0 :  3%  (ZQF gradient)
+;gpz1 : 47%  (F-H CTP gradient)
+;gpz2 : 37%  (homospoil gradient)
+;gpz3 : 41%  (180 1H CTP gradient)
+;gpz4 : 17%  (homospoil gradient TOCSY)
+;gpz5 : 33%  (180 1H CTP gradient)
+;gpz20: 53%  (homospoil gradient purge pulses)
+;gpz21: 59%  (homospoil gradient purge pulses)
+
+
+;use gradient files:
+;gpnam1 : SMSQ10.100
+;gpnam2 : SMSQ10.100
+;gpnam3 : SMSQ10.100
+;gpnam4 : SMSQ10.100
+;gpnam5 : SMSQ10.100
+;gpnam20: SMSQ10.100
+;gpnam21: SMSQ10.100
+
+;run wvm -q before zg or launch with xaua
+

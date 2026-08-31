@@ -1,0 +1,15 @@
+;p26bio_prot.incl
+
+; Test the rf on-time for Ca-CO BSH CP (w/H dec)
+; 10ms is maximum
+
+;$COMMENT=Protection against long BSH CP time
+;$CLASS=BioSolids PROT
+
+if "p26<10.1m" goto Passp26
+  1m 
+  print "BSH CP time p26 exceeds 10msec limit!"
+  goto HaltAcqu
+Passp26, 1m
+
+;$Id:$

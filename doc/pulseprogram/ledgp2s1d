@@ -1,0 +1,93 @@
+;ledgp2s1d
+;avance-version (12/01/11)
+;1D sequence for diffusion measurement using stimulated 
+;   echo and LED
+;using 2 spoil gradients
+;
+;A.S. Altieri, D.P. Hinton & R.A. Byrd, 
+;   J. Am. Chem Soc. 117, 7566-7567 (1995)
+;
+;$CLASS=HighRes
+;$DIM=1D
+;$TYPE=
+;$SUBTYPE=
+;$COMMENT=
+
+
+#include <Avance.incl>
+#include <Grad.incl>
+#include <Delay.incl>
+
+
+"DELTA1=d20-p1*2-p30-d16-p19-d16"
+"DELTA2=d21-p19-d16-4u"
+
+
+"acqt0=-p1*2/3.1416"
+
+
+1 ze
+2 30m
+  d1 
+  50u UNBLKGRAD
+  p1 ph1
+  p30:gp6
+  d16
+  p1 ph1
+  p19:gp7
+  d16
+  DELTA1
+  p1 ph1
+  p30:gp6
+  d16
+  p1 ph2
+  p19:gp8
+  d16
+  DELTA2
+  4u BLKGRAD
+  p1 ph3
+  go=2 ph31
+  30m mc #0 to 2 F0(zd)
+exit
+
+
+ph1= 0 0 0 0 0 0 0 0  2 2 2 2 2 2 2 2
+     1 1 1 1 1 1 1 1  3 3 3 3 3 3 3 3
+ph2= 0 0 0 0 2 2 2 2  2 2 2 2 0 0 0 0
+     1 1 1 1 3 3 3 3  3 3 3 3 1 1 1 1
+ph3= 0 1 2 3 2 3 0 1  2 3 0 1 0 1 2 3
+     1 2 3 0 3 0 1 2  3 0 1 2 1 2 3 0
+ph31=0 1 2 3 0 1 2 3  2 3 0 1 2 3 0 1
+     1 2 3 0 1 2 3 0  3 0 1 2 3 0 1 2
+
+
+;pl1 : f1 channel - power level for pulse (default)
+;p1  : f1 channel -  high power pulse
+;p19: gradient pulse 2 (spoil gradient)
+;p30: gradient pulse (little DELTA)
+;d1  : relaxation delay; 1-5 * T1
+;d16: delay for gradient recovery
+;d20: diffusion time (big DELTA)
+;d21: eddy current delay (Te)			[5 ms]
+;ns: 8 * n, total number of scans: NS * TD0
+;ds: 4 * m
+
+
+;use gradient ratio:    gp 6 : gp 7   : gp 8
+;                       var  : -17.13 : -13.17
+
+;for z-only gradients:
+;gpz6: 1-100%
+;gpz7: -17.13% (spoil)
+;gpz8: -13.17% (spoil)
+
+;use gradient files:   
+;gpnam6: SMSQ10.100
+;gpnam7: SMSQ10.100
+;gpnam8: SMSQ10.100
+
+;use AU-program dosy to calculate gradient ramp-file Difframp
+
+
+
+;$Id:$
