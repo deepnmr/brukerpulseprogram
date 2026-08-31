@@ -302,6 +302,87 @@ def test_real_tree_leaf_fields_present():
         )
 
 
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+import build_leaves as bl  # noqa: E402
+
+
+def test_read_header_hncogp3d():
+    h = bl.read_header(os.path.join(PP_DIR, "hncogp3d"))
+    assert h["dim"] == "3D", h
+    assert h["desc"] == (
+        "HNCO; 3D sequence with; inverse correlation for triple resonance using multiple; "
+        "inept transfer steps"
+    ), h["desc"]
+    assert h["uses_f3"] is True and h["uses_gp"] is True
+
+
+def test_read_header_zg():
+    h = bl.read_header(os.path.join(PP_DIR, "zg"))
+    assert h["dim"] == "1D"
+    assert h["desc"] == "1D sequence", h["desc"]
+    assert h["uses_f3"] is False and h["uses_gp"] is False
+
+
+def test_load_parsets():
+    m = bl.load_parsets(os.path.join(ROOT, "doc"))
+    assert m["hncogp3d"] == "HNCOGP3D"
+    assert m["b_hncogp3d"] == "B_HNCOGP3D"
+    assert "cosygpqf" in m  # Vol. I entry: COSYGPSW
+
+
+def test_fill_leaves_fills_empty_only():
+    tree = {
+        "leaves": {
+            "hncogp3d": {
+                "parset": None,
+                "desc": None,
+                "dim": None,
+                "requires": [],
+                "notes": "keep",
+                "alt": ["x"],
+            },
+            "zg": {
+                "parset": "MYSET",
+                "desc": "my desc",
+                "dim": None,
+                "requires": ["custom"],
+                "notes": "",
+                "alt": [],
+            },
+        }
+    }
+    filled = bl.fill_leaves(tree, PP_DIR, {"hncogp3d": "HNCOGP3D"})
+    a = tree["leaves"]["hncogp3d"]
+    assert (
+        a["parset"] == "HNCOGP3D" and a["dim"] == "3D" and a["desc"].startswith("HNCO")
+    )
+    assert a["requires"] == ["f3", "gradient"], a["requires"]
+    assert a["notes"] == "keep" and a["alt"] == ["x"]
+    b = tree["leaves"]["zg"]
+    assert b["parset"] == "MYSET" and b["desc"] == "my desc" and b["dim"] == "1D"
+    assert b["requires"] == ["custom"]
+    assert ("hncogp3d", "parset") in filled and ("zg", "parset") not in filled
+
+
+def test_fill_leaves_force_overwrites_auto_fields_only():
+    tree = {
+        "leaves": {
+            "zg": {
+                "parset": "MYSET",
+                "desc": "my desc",
+                "dim": "9D",
+                "requires": ["custom"],
+                "notes": "n",
+                "alt": ["a"],
+            }
+        }
+    }
+    bl.fill_leaves(tree, PP_DIR, {"zg": "PROTON"}, force=True)
+    z = tree["leaves"]["zg"]
+    assert z["parset"] == "PROTON" and z["desc"] == "1D sequence" and z["dim"] == "1D"
+    assert z["requires"] == ["custom"] and z["notes"] == "n" and z["alt"] == ["a"]
+
+
 def main():
     tests = [
         (n, f)

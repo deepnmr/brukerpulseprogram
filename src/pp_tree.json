@@ -1,95 +1,346 @@
 {
-  "version": 1,
-  "topspin_home": null,
-  "root": "domain",
-  "nodes": {
-    "domain": {
-      "q": "Sample type?",
-      "opts": [
-        ["Small molecule (1D / 2D)", "sm_exp"],
-        ["Protein / nucleic acid (isotope labeled)", "bio_exp"]
+  "leaves": {
+    "hncagp3d": {
+      "alt": [
+        "hncagpwg3d",
+        "trhncagp3d",
+        "hncaigp3d"
+      ],
+      "desc": "HNCA; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "Set cnst21 (CO ppm), cnst22 (Ca ppm)",
+      "parset": "HNCAGP3D",
+      "requires": [
+        "f3",
+        "gradient"
       ]
     },
-    "sm_exp": {
-      "q": "Experiment?",
-      "opts": [
-        ["1D 1H", "sm_1h"],
-        ["1D 13C", "sm_13c"]
+    "hncogp3d": {
+      "alt": [
+        "hncogpwg3d",
+        "trhncogp3d",
+        "b_hncogp3d"
+      ],
+      "desc": "HNCO; 3D sequence with; inverse correlation for triple resonance using multiple; inept transfer steps",
+      "dim": "3D",
+      "notes": "Set cnst21 (CO ppm), cnst22 (Ca ppm); getprosol after rpar",
+      "parset": "HNCOGP3D",
+      "requires": [
+        "f3",
+        "gradient"
       ]
     },
-    "sm_1h": {
-      "q": "Pulse angle / solvent suppression?",
-      "opts": [
-        ["30 deg pulse, no suppression (routine)", "L:zg30"],
-        ["90 deg pulse (quantitative), no suppression", "L:zg"],
-        ["Presaturation", "L:zgpr"],
-        ["WATERGATE 3-9-19 (gradients)", "L:p3919gp"],
-        ["Excitation sculpting (gradients)", "L:zgesgp"],
-        ["WET", "L:wet"]
+    "hsqcetfpf3gpsi": {
+      "alt": [
+        "hsqcfpf3gpphwg",
+        "hsqcetf3gpsi"
+      ],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; using sensitivity improvement; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "2D",
+      "notes": "",
+      "parset": "HSQCETFPF3GPSI",
+      "requires": [
+        "f3",
+        "gradient"
       ]
     },
-    "sm_13c": {
-      "q": "Decoupling?",
-      "opts": [
-        ["Broadband decoupled (NOE enhanced), 30 deg", "L:zgdc30"],
-        ["Broadband decoupled, 90 deg", "L:zgdc"],
-        ["Inverse gated (quantitative, no NOE)", "L:zgig"],
-        ["Gated (coupled spectrum with NOE)", "L:zggd"],
-        ["Coupled, no decoupling", "L:zg"]
+    "p3919gp": {
+      "alt": [
+        "zggpwg"
+      ],
+      "desc": "1D sequence; water suppression using 3-9-19 pulse sequence with gradients",
+      "dim": "1D",
+      "notes": "d19 = 1/(2*distance water-signal of interest in Hz)",
+      "parset": "P3919GP",
+      "requires": [
+        "gradient"
       ]
     },
-    "bio_exp": {
-      "q": "Experiment class?",
-      "opts": [
-        ["2D 1H-15N HSQC / TROSY", "bio_hn"],
-        ["Backbone assignment (triple resonance)", "bio_bb"]
+    "trhncagp3d": {
+      "alt": [
+        "trhncaetgp3d",
+        "trhncagp2h3d"
+      ],
+      "desc": "TROSY-HNCA; 3D sequence with; inverse correlation for triple resonance; via TROSY and HMQC steps",
+      "dim": "3D",
+      "notes": "",
+      "parset": "TRHNCAGP3D",
+      "requires": [
+        "f3",
+        "gradient"
       ]
     },
-    "bio_hn": {
-      "q": "Protein size / conditions?",
-      "opts": [
-        ["< 25 kDa, H2O: HSQC with PEP and water flip-back", "L:hsqcetfpf3gpsi"],
-        ["> 25 kDa or high field: TROSY", "L:trosyetf3gpsi"]
+    "trhncogp3d": {
+      "alt": [
+        "trhncoetgp3d",
+        "trhncogp2h3d"
+      ],
+      "desc": "TROSY-HNCO; 3D sequence with; inverse correlation for triple resonance; via TROSY and inept transfer steps",
+      "dim": "3D",
+      "notes": "No decoupling during acquisition (TROSY); set cnst21/cnst22",
+      "parset": "TRHNCOGP3D",
+      "requires": [
+        "f3",
+        "gradient"
       ]
     },
-    "bio_bb": {
-      "q": "Experiment?",
-      "opts": [
-        ["HNCO", "bio_hnco"],
-        ["HNCA", "bio_hnca"]
+    "trosyetf3gpsi": {
+      "alt": [
+        "trosyf3gpph19",
+        "trosyetf3gpsi.2"
+      ],
+      "desc": "2D H-1/X correlation via TROSY; using sensitivity improvement; phase sensitive using Echo/Antiecho gradient selection; using f3 - channel",
+      "dim": "2D",
+      "notes": "",
+      "parset": "TROSYETF3GPSI",
+      "requires": [
+        "f3",
+        "gradient"
       ]
     },
-    "bio_hnco": {
-      "q": "Version?",
-      "opts": [
-        ["PEP (< 25 kDa)", "L:hncogp3d"],
-        ["TROSY (> 25 kDa)", "L:trhncogp3d"]
+    "wet": {
+      "alt": [
+        "wetdc"
+      ],
+      "desc": "WET solvent suppression with shape pulse; no C-13 decoupling",
+      "dim": "1D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
       ]
     },
-    "bio_hnca": {
-      "q": "Version?",
-      "opts": [
-        ["PEP (< 25 kDa)", "L:hncagp3d"],
-        ["TROSY (> 25 kDa)", "L:trhncagp3d"]
+    "zg": {
+      "alt": [
+        "zg30"
+      ],
+      "desc": "1D sequence",
+      "dim": "1D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "zg30": {
+      "alt": [
+        "zg"
+      ],
+      "desc": "1D sequence; using 30 degree flip angle",
+      "dim": "1D",
+      "notes": "",
+      "parset": "PROTON",
+      "requires": []
+    },
+    "zgdc": {
+      "alt": [
+        "zgpg"
+      ],
+      "desc": "1D sequence with decoupling",
+      "dim": "1D",
+      "notes": "",
+      "parset": "C13CPD",
+      "requires": []
+    },
+    "zgdc30": {
+      "alt": [
+        "zgpg30"
+      ],
+      "desc": "1D sequence with decoupling; using 30 degree flip angle",
+      "dim": "1D",
+      "notes": "",
+      "parset": "C13CPD",
+      "requires": []
+    },
+    "zgesgp": {
+      "alt": [
+        "zggpw5"
+      ],
+      "desc": "1D sequence; water suppression using excitation sculpting with gradients; T.-L. Hwang & A.J. Shaka, J. Magn. Reson.,; Series A 112 275-279 (1995)",
+      "dim": "1D",
+      "notes": "",
+      "parset": "ZGESGP",
+      "requires": [
+        "gradient"
       ]
+    },
+    "zggd": {
+      "alt": [
+        "zggd30"
+      ],
+      "desc": "1D sequence with gated decoupling",
+      "dim": "1D",
+      "notes": "",
+      "parset": "C13GD",
+      "requires": []
+    },
+    "zgig": {
+      "alt": [
+        "zgig30"
+      ],
+      "desc": "1D sequence with inverse gated decoupling",
+      "dim": "1D",
+      "notes": "Use d1 >= 5*T1 for quantitation",
+      "parset": "C13IG",
+      "requires": []
+    },
+    "zgpr": {
+      "alt": [
+        "zgcppr"
+      ],
+      "desc": "1D sequence with f1 presaturation",
+      "dim": "1D",
+      "notes": "Set o1 on the solvent line; pl9 = presaturation power",
+      "parset": "ZGPR",
+      "requires": []
     }
   },
-  "leaves": {
-    "zg30": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zg"]},
-    "zg": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zg30"]},
-    "zgpr": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "Set o1 on the solvent line; pl9 = presaturation power", "alt": ["zgcppr"]},
-    "p3919gp": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "d19 = 1/(2*distance water-signal of interest in Hz)", "alt": ["zggpwg"]},
-    "zgesgp": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zggpw5"]},
-    "wet": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["wetdc"]},
-    "zgdc30": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zgpg30"]},
-    "zgdc": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zgpg"]},
-    "zgig": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "Use d1 >= 5*T1 for quantitation", "alt": ["zgig30"]},
-    "zggd": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["zggd30"]},
-    "hsqcetfpf3gpsi": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["hsqcfpf3gpphwg", "hsqcetf3gpsi"]},
-    "trosyetf3gpsi": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["trosyf3gpph19", "trosyetf3gpsi.2"]},
-    "hncogp3d": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "Set cnst21 (CO ppm), cnst22 (Ca ppm); getprosol after rpar", "alt": ["hncogpwg3d", "trhncogp3d", "b_hncogp3d"]},
-    "trhncogp3d": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "No decoupling during acquisition (TROSY); set cnst21/cnst22", "alt": ["trhncoetgp3d", "trhncogp2h3d"]},
-    "hncagp3d": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "Set cnst21 (CO ppm), cnst22 (Ca ppm)", "alt": ["hncagpwg3d", "trhncagp3d", "hncaigp3d"]},
-    "trhncagp3d": {"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": ["trhncaetgp3d", "trhncagp2h3d"]}
-  }
+  "nodes": {
+    "bio_bb": {
+      "opts": [
+        [
+          "HNCO",
+          "bio_hnco"
+        ],
+        [
+          "HNCA",
+          "bio_hnca"
+        ]
+      ],
+      "q": "Experiment?"
+    },
+    "bio_exp": {
+      "opts": [
+        [
+          "2D 1H-15N HSQC / TROSY",
+          "bio_hn"
+        ],
+        [
+          "Backbone assignment (triple resonance)",
+          "bio_bb"
+        ]
+      ],
+      "q": "Experiment class?"
+    },
+    "bio_hn": {
+      "opts": [
+        [
+          "< 25 kDa, H2O: HSQC with PEP and water flip-back",
+          "L:hsqcetfpf3gpsi"
+        ],
+        [
+          "> 25 kDa or high field: TROSY",
+          "L:trosyetf3gpsi"
+        ]
+      ],
+      "q": "Protein size / conditions?"
+    },
+    "bio_hnca": {
+      "opts": [
+        [
+          "PEP (< 25 kDa)",
+          "L:hncagp3d"
+        ],
+        [
+          "TROSY (> 25 kDa)",
+          "L:trhncagp3d"
+        ]
+      ],
+      "q": "Version?"
+    },
+    "bio_hnco": {
+      "opts": [
+        [
+          "PEP (< 25 kDa)",
+          "L:hncogp3d"
+        ],
+        [
+          "TROSY (> 25 kDa)",
+          "L:trhncogp3d"
+        ]
+      ],
+      "q": "Version?"
+    },
+    "domain": {
+      "opts": [
+        [
+          "Small molecule (1D / 2D)",
+          "sm_exp"
+        ],
+        [
+          "Protein / nucleic acid (isotope labeled)",
+          "bio_exp"
+        ]
+      ],
+      "q": "Sample type?"
+    },
+    "sm_13c": {
+      "opts": [
+        [
+          "Broadband decoupled (NOE enhanced), 30 deg",
+          "L:zgdc30"
+        ],
+        [
+          "Broadband decoupled, 90 deg",
+          "L:zgdc"
+        ],
+        [
+          "Inverse gated (quantitative, no NOE)",
+          "L:zgig"
+        ],
+        [
+          "Gated (coupled spectrum with NOE)",
+          "L:zggd"
+        ],
+        [
+          "Coupled, no decoupling",
+          "L:zg"
+        ]
+      ],
+      "q": "Decoupling?"
+    },
+    "sm_1h": {
+      "opts": [
+        [
+          "30 deg pulse, no suppression (routine)",
+          "L:zg30"
+        ],
+        [
+          "90 deg pulse (quantitative), no suppression",
+          "L:zg"
+        ],
+        [
+          "Presaturation",
+          "L:zgpr"
+        ],
+        [
+          "WATERGATE 3-9-19 (gradients)",
+          "L:p3919gp"
+        ],
+        [
+          "Excitation sculpting (gradients)",
+          "L:zgesgp"
+        ],
+        [
+          "WET",
+          "L:wet"
+        ]
+      ],
+      "q": "Pulse angle / solvent suppression?"
+    },
+    "sm_exp": {
+      "opts": [
+        [
+          "1D 1H",
+          "sm_1h"
+        ],
+        [
+          "1D 13C",
+          "sm_13c"
+        ]
+      ],
+      "q": "Experiment?"
+    }
+  },
+  "root": "domain",
+  "topspin_home": null,
+  "version": 1
 }
