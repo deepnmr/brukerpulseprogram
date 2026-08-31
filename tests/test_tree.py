@@ -383,6 +383,80 @@ def test_fill_leaves_force_overwrites_auto_fields_only():
     assert z["requires"] == ["custom"] and z["notes"] == "n" and z["alt"] == ["a"]
 
 
+def _path(labels_to_pick):
+    """Drive walk() by option LABEL text instead of index."""
+    picks = list(labels_to_pick)
+
+    def ask(question, labels):
+        want = picks.pop(0)
+        assert want in labels, "%r not offered for %r; offered %r" % (
+            want,
+            question,
+            labels,
+        )
+        return labels.index(want)
+
+    return ask
+
+
+def test_path_sm_cosy_purge():
+    leaf, _ = pp.walk(
+        real_tree(),
+        _path(
+            [
+                "Small molecule (1D / 2D)",
+                "COSY",
+                "Magnitude (fast, no phasing)",
+                "Purge pulses before d1",
+            ]
+        ),
+    )
+    assert leaf == "cosygpppqf", leaf
+
+
+def test_path_sm_hsqc_edited_adiabatic():
+    leaf, _ = pp.walk(
+        real_tree(),
+        _path(
+            [
+                "Small molecule (1D / 2D)",
+                "HSQC (1H-13C one-bond)",
+                "Multiplicity edited (CH/CH3 up, CH2 down)",
+                "Adiabatic 180 pulses, sensitivity improved (recommended)",
+            ]
+        ),
+    )
+    assert leaf == "hsqcedetgpsisp2.3", leaf
+
+
+def test_path_sm_hmbc_standard():
+    leaf, _ = pp.walk(
+        real_tree(),
+        _path(
+            [
+                "Small molecule (1D / 2D)",
+                "HMBC (1H-13C long-range)",
+                "Magnitude, low-pass J filter, no decoupling (standard)",
+            ]
+        ),
+    )
+    assert leaf == "hmbcgplpndqf", leaf
+
+
+def test_path_sm_zg30():
+    leaf, _ = pp.walk(
+        real_tree(),
+        _path(
+            [
+                "Small molecule (1D / 2D)",
+                "1D 1H",
+                "30 deg pulse, no suppression (routine)",
+            ]
+        ),
+    )
+    assert leaf == "zg30", leaf
+
+
 def main():
     tests = [
         (n, f)

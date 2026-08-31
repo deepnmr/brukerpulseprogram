@@ -1,5 +1,358 @@
 {
   "leaves": {
+    "adeq11etgprdsp": {
+      "alt": [
+        "adeq11etgpsp"
+      ],
+      "desc": "1,1-ADEQUATE: 2D-HSQC-1J(CC)-ADEQUATE; with refocussing of C chemical shift; using sensitivity improvement; phase sensitive using Echo/Antiecho gradient selection",
+      "dim": "2D",
+      "notes": "1H-detected 13C-13C connectivity",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "adeq1netgprdsp": {
+      "alt": [],
+      "desc": "1,1-ADEQUATE: 2D-HSQC-nJ(CC)-ADEQUATE; with refocussing of C chemical shift; using sensitivity improvement; phase sensitive using Echo/Antiecho gradient selection",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "apt": {
+      "alt": [],
+      "desc": "attached proton test",
+      "dim": "1D",
+      "notes": "",
+      "parset": "C13APT",
+      "requires": []
+    },
+    "cosydfesgpph": {
+      "alt": [],
+      "desc": "2D homonuclear shift correlation; with double quantum filter; phase sensitive; water suppression using excitation sculpting with gradients",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "cosydfetgp.2": {
+      "alt": [],
+      "desc": "2D homonuclear shift correlation; phase sensitive using Echo/Antiecho-TPPI gradient selection; with double quantum filter using gradient selection",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "cosydfph": {
+      "alt": [
+        "cosydfetgp.2"
+      ],
+      "desc": "2D homonuclear shift correlation; phase sensitive; with double quantum filter",
+      "dim": "2D",
+      "notes": "Longer than magnitude COSY; process in ph mode",
+      "parset": "COSYDQFPHSW",
+      "requires": []
+    },
+    "cosydfphpr": {
+      "alt": [],
+      "desc": "2D homonuclear shift correlation; with presaturation during relaxation delay; phase sensitive; with double quantum filter",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "cosygpmfqf": {
+      "alt": [],
+      "desc": "2D homonuclear shift correlation; using gradient pulses for selection; with multiple quantum filter according to gradient ratio; use pulseprogram 'mqsgp1d2' for setup",
+      "dim": "2D",
+      "notes": "",
+      "parset": "COSYGPMFSW",
+      "requires": [
+        "gradient"
+      ]
+    },
+    "cosygpppqf": {
+      "alt": [
+        "cosygpqf"
+      ],
+      "desc": "2D homonuclear shift correlation; using gradient pulses for selection; using purge pulses before d1",
+      "dim": "2D",
+      "notes": "Purge pulses suppress residual signals between scans",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "cosygpprqf": {
+      "alt": [],
+      "desc": "2D homonuclear shift correlation; with presaturation during relaxation delay; using gradient pulses for selection",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "cosygpqf": {
+      "alt": [
+        "cosygpppqf",
+        "cosyqf"
+      ],
+      "desc": "2D homonuclear shift correlation; using gradient pulses for selection",
+      "dim": "2D",
+      "notes": "Fast routine COSY; ph variant for better resolution",
+      "parset": "COSYGPSW",
+      "requires": [
+        "gradient"
+      ]
+    },
+    "cosyph": {
+      "alt": [],
+      "desc": "2D homonuclear shift correlation; phase sensitive",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "cpmg": {
+      "alt": [
+        "cpmg1d"
+      ],
+      "desc": "T2 measurement using Carr-Purcell-Meiboom-Gill sequence",
+      "dim": "2D",
+      "notes": "vclist or d20 loop for echo times",
+      "parset": null,
+      "requires": []
+    },
+    "cpmgpr1d": {
+      "alt": [],
+      "desc": "1D experiment with; T2 filter using Carr-Purcell-Meiboom-Gill sequence; using f1 presaturation",
+      "dim": "1D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "dept135": {
+      "alt": [
+        "deptsp135"
+      ],
+      "desc": "dept polarization transfer; with 135 degree read pulse to give XH, XH3 positive and XH2 negative; with decoupling during acquisition",
+      "dim": "1D",
+      "notes": "cnst2 = 1J(CH), typically 145 Hz",
+      "parset": "C13DEPT135",
+      "requires": []
+    },
+    "dept45": {
+      "alt": [],
+      "desc": "dept polarization transfer; with 45 degree read pulse to give all signals positive; with decoupling during acquisition",
+      "dim": "1D",
+      "notes": "",
+      "parset": "C13DEPT45",
+      "requires": []
+    },
+    "dept90": {
+      "alt": [],
+      "desc": "dept polarization transfer; with 90 degree read pulse to give XH only; with decoupling during acquisition",
+      "dim": "1D",
+      "notes": "",
+      "parset": "C13DEPT90",
+      "requires": []
+    },
+    "deptqgpsp": {
+      "alt": [
+        "deptqsp"
+      ],
+      "desc": "DEPTQ; dept polarization transfer; with decoupling during acquisition; using shaped pulse for 180degree pulse on f1 - channel",
+      "dim": "1D",
+      "notes": "Quaternary carbons negative",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "dipsi2esgpph": {
+      "alt": [],
+      "desc": "homonuclear Hartman-Hahn transfer using DIPSI2 sequence; for mixing; phase sensitive; water suppression using excitation sculpting with gradients",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "dipsi2gpph19": {
+      "alt": [],
+      "desc": "homonuclear Hartman-Hahn transfer using DIPSI2 sequence; for mixing; phase sensitive; water suppression using 3-9-19 pulse sequence with gradients",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "dipsi2gpphpr": {
+      "alt": [],
+      "desc": "homonuclear Hartman-Hahn transfer using DIPSI2 sequence; for mixing; phase sensitive; using spoil gradient",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "dipsi2gpphzs": {
+      "alt": [
+        "dipsi2gpph19",
+        "dipsi2phpr"
+      ],
+      "desc": "homonuclear Hartman-Hahn transfer using DIPSI2 sequence; for mixing; phase sensitive; with zero quantum suppression",
+      "dim": "2D",
+      "notes": "d9 = mixing time (60-100 ms); zero-quantum suppression cleans cross peaks",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "dstebpgp3s": {
+      "alt": [],
+      "desc": "2D sequence for diffusion measurement using double stimulated; echo for convection compensation and LED; using bipolar gradient pulses for diffusion; using 3 spoil gradients",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hjresqf": {
+      "alt": [],
+      "desc": "heteronuclear J-resolved 2D correlation; using gated decoupling",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "hmbcacgplpndqf": {
+      "alt": [],
+      "desc": "CIGAR HMBC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; optimized for long range couplings using accordion",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hmbcctetgpl2nd": {
+      "alt": [],
+      "desc": "CT-HMBC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; phase sensitive using Echo/Antiecho gradient selection",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hmbcetgpl3nd": {
+      "alt": [
+        "hmbcgplpndqf"
+      ],
+      "desc": "HMBC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; phase sensitive using Echo/Antiecho gradient selection",
+      "dim": "2D",
+      "notes": "Phase-sensitive; 3-fold filter for wide 1J range",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hmbcgpl2ndqf": {
+      "alt": [],
+      "desc": "HMBC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; optimized on long range couplings",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hmbcgplpndprqf": {
+      "alt": [],
+      "desc": "HMBC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; optimized on long range couplings",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hmbcgplpndqf": {
+      "alt": [
+        "hmbcetgpl3nd",
+        "hmbcgpl2ndqf"
+      ],
+      "desc": "HMBC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; optimized on long range couplings",
+      "dim": "2D",
+      "notes": "cnst2 = 1J(CH) 145 Hz (low-pass), cnst13 = nJ(CH) 8-10 Hz",
+      "parset": "HMBCGPLPND",
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hmqcbiph": {
+      "alt": [
+        "hmqcbindph"
+      ],
+      "desc": "HMQC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence using BIRD sequence; phase sensitive",
+      "dim": "2D",
+      "notes": "d7 = BIRD recovery delay",
+      "parset": "HMQCBIPH",
+      "requires": []
+    },
+    "hmqcdietgp": {
+      "alt": [],
+      "desc": "HMQC-TOCSY; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; using DIPSI2 sequence for homonuclear Hartman-Hahn mixing",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "hmqcetgp": {
+      "alt": [],
+      "desc": "HMQC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; phase sensitive using Echo/Antiecho gradient selection",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "hmqcgpqf": {
+      "alt": [],
+      "desc": "HMQC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; with decoupling during acquisition",
+      "dim": "2D",
+      "notes": "",
+      "parset": "HMQCGP",
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hmqcph": {
+      "alt": [],
+      "desc": "HMQC; 2D H-1/X correlation via heteronuclear zero and double quantum; coherence; phase sensitive",
+      "dim": "2D",
+      "notes": "",
+      "parset": "HMQCPH",
+      "requires": []
+    },
     "hncagp3d": {
       "alt": [
         "hncagpwg3d",
@@ -30,6 +383,77 @@
         "gradient"
       ]
     },
+    "hsqcctetgpsp": {
+      "alt": [
+        "hsqcctetgpsisp"
+      ],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; phase sensitive using Echo/Antiecho-TPPI gradient selection; with decoupling during acquisition",
+      "dim": "2D",
+      "notes": "d23 = constant-time delay (1/1J(CC) approx 7-8 ms)",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "hsqcdietgpsi": {
+      "alt": [],
+      "desc": "HSQC-TOCSY; 2D H-1/X correlation via double inept transfer; using sensitivity improvement and DIPSI2; for homonuclear Hartman-Hahn mixing",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "hsqcdietgpsisp": {
+      "alt": [
+        "hsqcdietgpsi"
+      ],
+      "desc": "HSQC-TOCSY; 2D H-1/X correlation via double inept transfer; using sensitivity improvement and DIPSI2; for homonuclear Hartman-Hahn mixing",
+      "dim": "2D",
+      "notes": "d9 = TOCSY mixing time",
+      "parset": "HSQCDIETGPSISP",
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "hsqcedetgp": {
+      "alt": [],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; phase sensitive using Echo/Antiecho-TPPI gradient selection; with decoupling during acquisition",
+      "dim": "2D",
+      "notes": "",
+      "parset": "HSQCEDETGP",
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "hsqcedetgpsisp2.2": {
+      "alt": [],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; using sensitivity improvement; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hsqcedetgpsisp2.3": {
+      "alt": [
+        "hsqcedetgpsisp2.2",
+        "hsqcedetgp"
+      ],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; using sensitivity improvement; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "2D",
+      "notes": "cnst2 = 1J(CH); CH/CH3 positive, CH2 negative",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
     "hsqcetfpf3gpsi": {
       "alt": [
         "hsqcfpf3gpphwg",
@@ -44,6 +468,245 @@
         "gradient"
       ]
     },
+    "hsqcetgp": {
+      "alt": [],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; phase sensitive using Echo/Antiecho-TPPI gradient selection; with decoupling during acquisition",
+      "dim": "2D",
+      "notes": "",
+      "parset": "HSQCETGP",
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "hsqcetgpnosp": {
+      "alt": [],
+      "desc": "HSQC-NOESY; 2D H-1/X correlation via double inept transfer; with correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange",
+      "dim": "2D",
+      "notes": "",
+      "parset": "HSQCETGPNOSP",
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "hsqcetgpprsisp2.2": {
+      "alt": [],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; using sensitivity improvement; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hsqcetgprosp": {
+      "alt": [],
+      "desc": "HSQC-ROESY; 2D H-1/X correlation via double inept transfer; with cw spinlock for ROESY mixing; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "2D",
+      "notes": "",
+      "parset": "HSQCETGPROSP",
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "hsqcetgpsi": {
+      "alt": [
+        "hsqcetgpsisp2.2"
+      ],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; using sensitivity improvement; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "2D",
+      "notes": "cnst2 = 1J(CH); hard 13C 180 - use sp2.2 version above 500 MHz",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "hsqcetgpsisp2.2": {
+      "alt": [
+        "hsqcetgpsi",
+        "hsqcetgpsisp2.3"
+      ],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; using sensitivity improvement; phase sensitive using Echo/Antiecho-TPPI gradient selection",
+      "dim": "2D",
+      "notes": "cnst2 = 1J(CH) 145 Hz; adiabatic p14:sp3 (Crp60,0.5,20.1)",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "hsqcph": {
+      "alt": [],
+      "desc": "HSQC; 2D H-1/X correlation via double inept transfer; phase sensitive; with decoupling during acquisition",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "inad1d": {
+      "alt": [],
+      "desc": "1D INADEQUATE",
+      "dim": "1D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "inadph": {
+      "alt": [],
+      "desc": "2D INADEQUATE; phase sensitive",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "inadqf": {
+      "alt": [
+        "inadph"
+      ],
+      "desc": "2D INADEQUATE",
+      "dim": "2D",
+      "notes": "13C-13C; needs high concentration or long time",
+      "parset": "INAD",
+      "requires": []
+    },
+    "jmod": {
+      "alt": [],
+      "desc": "J-modulated spin-echo for X-nuclei coupled to H-1 to determine; number of attached protons",
+      "dim": "1D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "jresgpprqf": {
+      "alt": [],
+      "desc": "homonuclear J-resolved 2D correlation; with presaturation during relaxation delay; using gradients",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "jresqf": {
+      "alt": [],
+      "desc": "homonuclear J-resolved 2D correlation",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "ledbpgp2s": {
+      "alt": [
+        "stebpgp1s",
+        "dstebpgp3s"
+      ],
+      "desc": "2D sequence for diffusion measurement using stimulated; echo and LED; using bipolar gradient pulses for diffusion; using 2 spoil gradients",
+      "dim": "2D",
+      "notes": "d20 = diffusion time, p30 = gradient length; gpz6 array via difframp",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "ledbpgp2s1d": {
+      "alt": [],
+      "desc": "1D sequence for diffusion measurement using stimulated; echo and LED; using bipolar gradient pulses for diffusion; using 2 spoil gradients",
+      "dim": "1D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "ledbpgppr2s": {
+      "alt": [],
+      "desc": "2D sequence for diffusion measurement using stimulated; echo and LED; using bipolar gradient pulses for diffusion; using 2 spoil gradients",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "mlevph": {
+      "alt": [
+        "mlevgpph19"
+      ],
+      "desc": "homonuclear Hartman-Hahn transfer using MLEV17 sequence; for mixing; using two power levels for excitation and spinlock; phase sensitive",
+      "dim": "2D",
+      "notes": "d9 = mixing time; classic phase-cycled version",
+      "parset": "MLEVPHSW",
+      "requires": []
+    },
+    "noesyesgpph": {
+      "alt": [
+        "noesygpph19",
+        "noesygpphzs"
+      ],
+      "desc": "2D homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.; phase sensitive; water suppression using excitation sculpting with gradients",
+      "dim": "2D",
+      "notes": "Excitation sculpting: sp1 = water-selective 180",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "noesyfpgpphwg": {
+      "alt": [],
+      "desc": "NOESY; 2D homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.; phase sensitive",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "f3",
+        "gradient"
+      ]
+    },
+    "noesygpph": {
+      "alt": [
+        "noesyesgpph",
+        "noesygpphpr"
+      ],
+      "desc": "2D homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.; phase sensitive; with gradient pulses in mixing time",
+      "dim": "2D",
+      "notes": "d8 = mixing time (small molecules 0.5-1 s); ROESY for mid-size molecules",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "noesygpph19": {
+      "alt": [],
+      "desc": "2D homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.; phase sensitive; water suppression using 3-9-19 pulse sequence with gradients",
+      "dim": "2D",
+      "notes": "",
+      "parset": "NOESYGPPH19SW",
+      "requires": [
+        "gradient"
+      ]
+    },
+    "noesygpphpr": {
+      "alt": [],
+      "desc": "2D homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.; phase sensitive; with presaturation during relaxation delay and mixing time",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "noesygpphzs": {
+      "alt": [],
+      "desc": "2D homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.; phase sensitive; with gradient/rf spoil pulse in mixing time",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
     "p3919gp": {
       "alt": [
         "zggpwg"
@@ -55,6 +718,160 @@
       "requires": [
         "gradient"
       ]
+    },
+    "roesyesgpph": {
+      "alt": [],
+      "desc": "2D ROESY with cw spinlock for mixing; phase sensitive; water suppression using excitation sculpting with gradients",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "roesyph": {
+      "alt": [
+        "roesyesgpph",
+        "troesyph"
+      ],
+      "desc": "2D ROESY with cw spinlock for mixing; phase sensitive",
+      "dim": "2D",
+      "notes": "p15 = spin-lock (200-300 ms) at pl11",
+      "parset": "ROESYPHSW",
+      "requires": []
+    },
+    "roesyphpr": {
+      "alt": [],
+      "desc": "2D ROESY with cw spinlock for mixing; phase sensitive",
+      "dim": "2D",
+      "notes": "",
+      "parset": "ROESYPHPR",
+      "requires": []
+    },
+    "selcogp": {
+      "alt": [],
+      "desc": "1D COSY using selective refocussing with a shaped pulse",
+      "dim": "1D",
+      "notes": "",
+      "parset": "SELCPGO",
+      "requires": [
+        "gradient"
+      ]
+    },
+    "selmlgp": {
+      "alt": [
+        "selmlgp.2"
+      ],
+      "desc": "1D homonuclear Hartman-Hahn transfer using; MLEV17 sequence for mixing; using selective refocussing with a shaped pulse",
+      "dim": "1D",
+      "notes": "d9 = TOCSY mixing (60-120 ms)",
+      "parset": "SELMLGP",
+      "requires": [
+        "gradient"
+      ]
+    },
+    "selnogp": {
+      "alt": [
+        "selnogpzs"
+      ],
+      "desc": "1D NOESY using selective refocussing with a shaped pulse; dipolar coupling may be due to noe or chemical exchange.",
+      "dim": "1D",
+      "notes": "Set d8 = mixing time; sp2 = selective 180 (Gaus1_180r.1000)",
+      "parset": "SELNOGP",
+      "requires": [
+        "gradient"
+      ]
+    },
+    "selnogpzs": {
+      "alt": [],
+      "desc": "1D NOESY using selective refocussing with a shaped pulse; dipolar coupling may be due to noe or chemical exchange.",
+      "dim": "1D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "selrogp": {
+      "alt": [],
+      "desc": "1D ROESY with cw spinlock for mixing; using selective refocussing with a shaped pulse",
+      "dim": "1D",
+      "notes": "",
+      "parset": "SELROGP",
+      "requires": [
+        "gradient"
+      ]
+    },
+    "stddiff": {
+      "alt": [],
+      "desc": "pseudo 2D sequence; for saturation transfer difference; with shaped pulse train for saturation on f2 channel; alternating between on and off resonance",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": []
+    },
+    "stddiffesgp": {
+      "alt": [
+        "stddiff",
+        "stddiffgp19"
+      ],
+      "desc": "pseudo 2D sequence; for saturation transfer difference; with shaped pulse train for saturation on f2 channel; alternating between on and off resonance",
+      "dim": "2D",
+      "notes": "fq2list = on/off resonance saturation; d20 = saturation time",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "stddiffgp19": {
+      "alt": [],
+      "desc": "pseudo 2D sequence; for saturation transfer difference; with shaped pulse train for saturation on f2 channel; alternating between on and off resonance",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "stdmlevesgpph": {
+      "alt": [],
+      "desc": "2D sequence; for saturation transfer difference; with homonuclear Hartman-Hahn transfer using MLEV17; sequence for mixing",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "stdnoesyesgpph": {
+      "alt": [],
+      "desc": "2D sequence; for saturation transfer difference; with homonuclear correlation via dipolar coupling; dipolar coupling may be due to noe or chemical exchange.",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "stebpgp1s": {
+      "alt": [],
+      "desc": "2D sequence for diffusion measurement using stimulated echo; using bipolar gradient pulses for diffusion; using 1 spoil gradient",
+      "dim": "2D",
+      "notes": "",
+      "parset": null,
+      "requires": [
+        "gradient"
+      ]
+    },
+    "t1ir": {
+      "alt": [
+        "t1irpg"
+      ],
+      "desc": "T1 measurement using inversion recovery",
+      "dim": "2D",
+      "notes": "vdlist = recovery delays",
+      "parset": null,
+      "requires": []
     },
     "trhncagp3d": {
       "alt": [
@@ -83,6 +900,16 @@
         "f3",
         "gradient"
       ]
+    },
+    "troesyph": {
+      "alt": [
+        "roesyadjsphpr"
+      ],
+      "desc": "2D off-resonance ROESY with cw spinlock for mixing; with compensation to reduce offset effects; phase sensitive",
+      "dim": "2D",
+      "notes": "Off-resonance shaped spin-lock (roesylist) removes TOCSY artifacts",
+      "parset": null,
+      "requires": []
     },
     "trosyetf3gpsi": {
       "alt": [
@@ -326,6 +1153,119 @@
       ],
       "q": "Pulse angle / solvent suppression?"
     },
+    "sm_cosy": {
+      "opts": [
+        [
+          "Magnitude (fast, no phasing)",
+          "sm_cosy_qf"
+        ],
+        [
+          "Phase-sensitive double-quantum filtered (DQF)",
+          "sm_cosy_df"
+        ],
+        [
+          "Phase-sensitive, phase-cycled (no gradients)",
+          "L:cosyph"
+        ]
+      ],
+      "q": "Phase mode?"
+    },
+    "sm_cosy_df": {
+      "opts": [
+        [
+          "None, phase-cycled",
+          "L:cosydfph"
+        ],
+        [
+          "None, gradient echo-antiecho",
+          "L:cosydfetgp.2"
+        ],
+        [
+          "Presaturation",
+          "L:cosydfphpr"
+        ],
+        [
+          "Excitation sculpting",
+          "L:cosydfesgpph"
+        ]
+      ],
+      "q": "Solvent suppression?"
+    },
+    "sm_cosy_qf": {
+      "opts": [
+        [
+          "None",
+          "L:cosygpqf"
+        ],
+        [
+          "Presaturation",
+          "L:cosygpprqf"
+        ],
+        [
+          "Purge pulses before d1",
+          "L:cosygpppqf"
+        ],
+        [
+          "Multiple-quantum filtered",
+          "L:cosygpmfqf"
+        ]
+      ],
+      "q": "Solvent suppression?"
+    },
+    "sm_dept": {
+      "opts": [
+        [
+          "DEPT-135 (CH/CH3 up, CH2 down)",
+          "L:dept135"
+        ],
+        [
+          "DEPT-90 (CH only)",
+          "L:dept90"
+        ],
+        [
+          "DEPT-45 (all protonated carbons)",
+          "L:dept45"
+        ],
+        [
+          "DEPTQ (includes quaternary C, adiabatic)",
+          "L:deptqgpsp"
+        ],
+        [
+          "APT",
+          "L:apt"
+        ],
+        [
+          "JMOD",
+          "L:jmod"
+        ]
+      ],
+      "q": "Which editing?"
+    },
+    "sm_dosy": {
+      "opts": [
+        [
+          "Bipolar LED, 2 spoil gradients (standard)",
+          "L:ledbpgp2s"
+        ],
+        [
+          "Bipolar STE, 1 spoil gradient",
+          "L:stebpgp1s"
+        ],
+        [
+          "Bipolar LED with presaturation",
+          "L:ledbpgppr2s"
+        ],
+        [
+          "Double STE (convection compensated)",
+          "L:dstebpgp3s"
+        ],
+        [
+          "1D setup (optimize gradient range)",
+          "L:ledbpgp2s1d"
+        ]
+      ],
+      "q": "Variant?"
+    },
     "sm_exp": {
       "opts": [
         [
@@ -335,9 +1275,387 @@
         [
           "1D 13C",
           "sm_13c"
+        ],
+        [
+          "1D 13C multiplicity (DEPT / APT)",
+          "sm_dept"
+        ],
+        [
+          "1D selective (1D NOESY / TOCSY / COSY)",
+          "sm_sel"
+        ],
+        [
+          "T1 / T2 measurement",
+          "sm_relax"
+        ],
+        [
+          "COSY",
+          "sm_cosy"
+        ],
+        [
+          "TOCSY",
+          "sm_tocsy"
+        ],
+        [
+          "NOESY",
+          "sm_noesy"
+        ],
+        [
+          "ROESY",
+          "sm_roesy"
+        ],
+        [
+          "HSQC (1H-13C one-bond)",
+          "sm_hsqc"
+        ],
+        [
+          "HMQC (1H-13C one-bond, simpler)",
+          "sm_hmqc"
+        ],
+        [
+          "HMBC (1H-13C long-range)",
+          "sm_hmbc"
+        ],
+        [
+          "HSQC/HMQC-TOCSY / -NOESY (combined)",
+          "sm_hx2d"
+        ],
+        [
+          "DOSY (diffusion)",
+          "sm_dosy"
+        ],
+        [
+          "STD (ligand screening)",
+          "sm_std"
+        ],
+        [
+          "J-resolved",
+          "sm_jres"
+        ],
+        [
+          "INADEQUATE / ADEQUATE (13C-13C)",
+          "sm_inad"
         ]
       ],
       "q": "Experiment?"
+    },
+    "sm_hmbc": {
+      "opts": [
+        [
+          "Magnitude, low-pass J filter, no decoupling (standard)",
+          "L:hmbcgplpndqf"
+        ],
+        [
+          "Magnitude, 2-fold low-pass filter",
+          "L:hmbcgpl2ndqf"
+        ],
+        [
+          "Phase-sensitive echo-antiecho, 3-fold low-pass filter",
+          "L:hmbcetgpl3nd"
+        ],
+        [
+          "With presaturation",
+          "L:hmbcgplpndprqf"
+        ],
+        [
+          "Constant-time (sharper F1)",
+          "L:hmbcctetgpl2nd"
+        ],
+        [
+          "Accordion (wide range of nJ)",
+          "L:hmbcacgplpndqf"
+        ]
+      ],
+      "q": "Variant?"
+    },
+    "sm_hmqc": {
+      "opts": [
+        [
+          "Gradient echo-antiecho",
+          "L:hmqcetgp"
+        ],
+        [
+          "Magnitude, gradient",
+          "L:hmqcgpqf"
+        ],
+        [
+          "Phase-cycled",
+          "L:hmqcph"
+        ],
+        [
+          "With BIRD filter (suppresses 12C-H)",
+          "L:hmqcbiph"
+        ]
+      ],
+      "q": "Variant?"
+    },
+    "sm_hsqc": {
+      "opts": [
+        [
+          "Standard (no editing)",
+          "sm_hsqc_plain"
+        ],
+        [
+          "Multiplicity edited (CH/CH3 up, CH2 down)",
+          "sm_hsqc_ed"
+        ],
+        [
+          "Constant-time (high F1 resolution)",
+          "L:hsqcctetgpsp"
+        ]
+      ],
+      "q": "Variant?"
+    },
+    "sm_hsqc_ed": {
+      "opts": [
+        [
+          "Adiabatic 180 pulses, sensitivity improved (recommended)",
+          "L:hsqcedetgpsisp2.3"
+        ],
+        [
+          "Adiabatic, sensitivity improved (older variant)",
+          "L:hsqcedetgpsisp2.2"
+        ],
+        [
+          "Hard pulses",
+          "L:hsqcedetgp"
+        ]
+      ],
+      "q": "Pulses?"
+    },
+    "sm_hsqc_plain": {
+      "opts": [
+        [
+          "Adiabatic 180 pulses, sensitivity improved (recommended)",
+          "L:hsqcetgpsisp2.2"
+        ],
+        [
+          "Hard pulses, sensitivity improved",
+          "L:hsqcetgpsi"
+        ],
+        [
+          "Hard pulses, no PEP (shortest)",
+          "L:hsqcetgp"
+        ],
+        [
+          "With presaturation",
+          "L:hsqcetgpprsisp2.2"
+        ],
+        [
+          "Phase-cycled, no gradients",
+          "L:hsqcph"
+        ]
+      ],
+      "q": "Pulses / solvent?"
+    },
+    "sm_hx2d": {
+      "opts": [
+        [
+          "HSQC-TOCSY (adiabatic, sensitivity improved)",
+          "L:hsqcdietgpsisp"
+        ],
+        [
+          "HSQC-TOCSY (hard pulses)",
+          "L:hsqcdietgpsi"
+        ],
+        [
+          "HMQC-TOCSY",
+          "L:hmqcdietgp"
+        ],
+        [
+          "HSQC-NOESY",
+          "L:hsqcetgpnosp"
+        ],
+        [
+          "HSQC-ROESY",
+          "L:hsqcetgprosp"
+        ]
+      ],
+      "q": "Which combined experiment?"
+    },
+    "sm_inad": {
+      "opts": [
+        [
+          "2D INADEQUATE (magnitude)",
+          "L:inadqf"
+        ],
+        [
+          "2D INADEQUATE (phase-sensitive)",
+          "L:inadph"
+        ],
+        [
+          "1D INADEQUATE",
+          "L:inad1d"
+        ],
+        [
+          "1,1-ADEQUATE (1H-detected, 1J(CC))",
+          "L:adeq11etgprdsp"
+        ],
+        [
+          "1,n-ADEQUATE (long-range)",
+          "L:adeq1netgprdsp"
+        ]
+      ],
+      "q": "Which?"
+    },
+    "sm_jres": {
+      "opts": [
+        [
+          "Homonuclear J-resolved (magnitude)",
+          "L:jresqf"
+        ],
+        [
+          "Homonuclear, gradients + presaturation",
+          "L:jresgpprqf"
+        ],
+        [
+          "Heteronuclear J-resolved",
+          "L:hjresqf"
+        ]
+      ],
+      "q": "Which?"
+    },
+    "sm_noesy": {
+      "opts": [
+        [
+          "None, gradient",
+          "L:noesygpph"
+        ],
+        [
+          "Presaturation",
+          "L:noesygpphpr"
+        ],
+        [
+          "WATERGATE 3-9-19",
+          "L:noesygpph19"
+        ],
+        [
+          "Excitation sculpting",
+          "L:noesyesgpph"
+        ],
+        [
+          "Zero-quantum suppression",
+          "L:noesygpphzs"
+        ],
+        [
+          "Flip-back + WATERGATE (peptides in H2O)",
+          "L:noesyfpgpphwg"
+        ]
+      ],
+      "q": "Solvent suppression?"
+    },
+    "sm_relax": {
+      "opts": [
+        [
+          "T1 inversion recovery",
+          "L:t1ir"
+        ],
+        [
+          "T2 CPMG",
+          "L:cpmg"
+        ],
+        [
+          "T2 CPMG with presaturation",
+          "L:cpmgpr1d"
+        ]
+      ],
+      "q": "Which?"
+    },
+    "sm_roesy": {
+      "opts": [
+        [
+          "CW spin-lock, phase-cycled",
+          "L:roesyph"
+        ],
+        [
+          "With presaturation",
+          "L:roesyphpr"
+        ],
+        [
+          "Gradient, excitation sculpting",
+          "L:roesyesgpph"
+        ],
+        [
+          "Transverse ROESY (suppresses TOCSY transfer)",
+          "L:troesyph"
+        ]
+      ],
+      "q": "Variant?"
+    },
+    "sm_sel": {
+      "opts": [
+        [
+          "1D NOESY (gradient, selective)",
+          "L:selnogp"
+        ],
+        [
+          "1D NOESY with zero-quantum suppression",
+          "L:selnogpzs"
+        ],
+        [
+          "1D ROESY",
+          "L:selrogp"
+        ],
+        [
+          "1D TOCSY",
+          "L:selmlgp"
+        ],
+        [
+          "1D COSY",
+          "L:selcogp"
+        ]
+      ],
+      "q": "Which 1D selective experiment?"
+    },
+    "sm_std": {
+      "opts": [
+        [
+          "STD with excitation sculpting",
+          "L:stddiffesgp"
+        ],
+        [
+          "STD, no suppression",
+          "L:stddiff"
+        ],
+        [
+          "STD with WATERGATE 3-9-19",
+          "L:stddiffgp19"
+        ],
+        [
+          "STD-TOCSY",
+          "L:stdmlevesgpph"
+        ],
+        [
+          "STD-NOESY",
+          "L:stdnoesyesgpph"
+        ]
+      ],
+      "q": "Variant?"
+    },
+    "sm_tocsy": {
+      "opts": [
+        [
+          "None, DIPSI-2 with zero-quantum suppression (recommended)",
+          "L:dipsi2gpphzs"
+        ],
+        [
+          "Presaturation",
+          "L:dipsi2gpphpr"
+        ],
+        [
+          "WATERGATE 3-9-19",
+          "L:dipsi2gpph19"
+        ],
+        [
+          "Excitation sculpting",
+          "L:dipsi2esgpph"
+        ],
+        [
+          "MLEV-17, phase-cycled (classic)",
+          "L:mlevph"
+        ]
+      ],
+      "q": "Solvent suppression / mixing?"
     }
   },
   "root": "domain",
