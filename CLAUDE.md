@@ -37,3 +37,10 @@ Do not delete `;avance-version`, `;begin ___`/`;end ___`, or the preprocessor-fl
 - Target hardware is AVANCE NEO / Fourier 80 (TopSpin 4.x). `.bsh` and some solids files still note "Avance II / AVIII"; check the manual before reusing constructs from them.
 - New or modified programs go in `doc/pulseprogram/` alongside the originals; derive from the closest existing program (`grep -l '^;\$TYPE=…' doc/pulseprogram/*`, or search by description line) rather than writing from scratch.
 - Bruker raw data (`fid`, `ser`, `acqus`, `pdata/`) must never be committed — gitignore it.
+
+## pp_selector (the tool this repo builds)
+
+- `src/pp_selector.py` (Jython 2.7 runner, must stay Python 2/3 compatible: no f-strings, no pathlib, `io.open`) + `src/pp_tree.json` (decision tree). Spec: `docs/superpowers/specs/2026-08-31-pp-selector-design.md`.
+- `python3 tests/test_tree.py` — run after any change; it validates the tree against `doc/pulseprogram/` and the catalogue tables.
+- `python3 tools/build_leaves.py` — refills `parset`/`desc`/`dim` for leaves; never edit those by hand, edit `requires`/`notes`/`alt` instead.
+- Console smoke test: `python3 src/pp_selector.py`.
