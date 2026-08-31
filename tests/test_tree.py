@@ -118,6 +118,96 @@ def test_validate_rejects_single_option():
         assert False, "expected TreeError"
 
 
+def _exists_all(name):
+    return True
+
+
+def _exists_none(name):
+    return False
+
+
+def _exists_unknown(name):
+    return None
+
+
+def test_report_found():
+    text = pp.format_report(MINI, "hncogp3d", ["Bio"], _exists_all)
+    lines = text.split("\n")
+    assert lines[0] == "Recommended pulse program:  hncogp3d   [found in lists/pp]", (
+        lines[0]
+    )
+    assert (
+        lines[1]
+        == "Parameter set:              HNCOGP3D   ->  rpar HNCOGP3D all ; getprosol"
+    ), lines[1]
+    assert lines[2] == "Dimension:                  3D"
+    assert lines[3] == "Requires:                   f3, gradient, 13C/15N labeled"
+    assert lines[4] == "Description:                HNCO"
+    assert lines[5] == "Notes:                      Set cnst21/cnst22"
+    assert (
+        lines[6] == "Alternatives:               trhncogp3d (found), b_hncogp3d (found)"
+    ), lines[6]
+    assert lines[7] == "Your answers:               Bio"
+    assert len(lines) == 8, lines
+
+
+def test_report_not_found_puts_existing_alt_first():
+    def exists(name):
+        return name == "b_hncogp3d"
+
+    text = pp.format_report(MINI, "hncogp3d", ["Bio"], exists)
+    lines = text.split("\n")
+    assert lines[0].endswith("[NOT found]"), lines[0]
+    assert (
+        lines[6]
+        == "Alternatives:               b_hncogp3d (found), trhncogp3d (NOT found)"
+    ), lines[6]
+
+
+def test_report_unchecked_and_no_parset():
+    text = pp.format_report(MINI, "cosygpqf", ["Small", "COSY"], _exists_unknown)
+    lines = text.split("\n")
+    assert lines[0].endswith("[not checked]")
+    assert (
+        lines[1]
+        == "Parameter set:              (no standard parameter set - start from a similar experiment)"
+    ), lines[1]
+    assert lines[5] == "Notes:                      -"
+    assert lines[6] == "Alternatives:               -"
+    assert lines[7] == "Your answers:               Small > COSY"
+
+
+def test_make_checker_without_home_returns_none():
+    chk = pp.make_checker(None)
+    assert chk("zg") is None
+
+
+def test_make_checker_with_home(tmp_home=None):
+    import tempfile
+    import shutil
+
+    home = tempfile.mkdtemp()
+    try:
+        d = pp.pp_dir(home)
+        os.makedirs(d)
+        with io.open(os.path.join(d, "zg"), "w", encoding="utf-8") as f:
+            f.write(";zg\n")
+        chk = pp.make_checker(home)
+        assert chk("zg") is True
+        assert chk("nope") is False
+    finally:
+        shutil.rmtree(home)
+
+
+def test_find_topspin_home_falls_back_to_tree():
+    t = dict(MINI)
+    t["topspin_home"] = "/opt/topspin"
+    # Under CPython sys.registry does not exist -> fallback path
+    assert pp.find_topspin_home(t) == "/opt/topspin"
+    t["topspin_home"] = None
+    assert pp.find_topspin_home(t) is None
+
+
 def main():
     tests = [
         (n, f)
