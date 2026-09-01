@@ -40,7 +40,7 @@ Do not delete `;avance-version`, `;begin ___`/`;end ___`, or the preprocessor-fl
 
 ## pp_selector (the tool this repo builds)
 
-- `src/pp_selector.py` (Jython 2.7 runner, must stay Python 2/3 compatible: no f-strings, no pathlib, `io.open`) + `src/pp_tree.json` (decision tree). Spec: `docs/superpowers/specs/2026-08-31-pp-selector-design.md`.
+- `src/pp_selector.py` (Jython 2.7 runner, must stay Python 2/3 compatible: no f-strings, no pathlib, no `io` module — TopSpin 5 bundles a broken Jython `io`, use `codecs.open`; never reference `__file__`, TopSpin aborts the script) + `src/pp_tree.json` (decision tree). Spec: `docs/superpowers/specs/2026-08-31-pp-selector-design.md`.
 - `python3 tests/test_tree.py` — run after any change; it validates the tree against `doc/pulseprogram/` and the catalogue tables.
 - `python3 tools/build_leaves.py` — refills `parset`/`desc`/`dim` for leaves; never edit those by hand, edit `requires`/`notes`/`alt` instead.
 - Console smoke test: `python3 src/pp_selector.py`.

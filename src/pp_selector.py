@@ -6,7 +6,7 @@ next to this file. This tool never modifies the dataset.
 """
 
 from __future__ import print_function
-import io
+import codecs
 import json
 import os
 import sys
@@ -21,7 +21,7 @@ class TreeError(Exception):
 
 def load_tree(path):
     try:
-        with io.open(path, encoding="utf-8") as f:
+        with codecs.open(path, encoding="utf-8") as f:
             tree = json.load(f)
     except (IOError, OSError, ValueError) as e:
         raise TreeError("cannot read %s: %s" % (path, e))
@@ -208,10 +208,12 @@ def ask_topspin(question, labels):
 
 
 def _script_dir():
-    try:
-        return os.path.dirname(os.path.abspath(__file__))
-    except NameError:  # __file__ missing under some TopSpin invocations
-        return os.getcwd()
+    # TopSpin's xpy leaves __file__ unset (and a bare __file__ lookup aborts the
+    # script with "Command cancelled"), but sys.argv[0] holds the script path.
+    path = globals().get("__file__") or (sys.argv[0] if sys.argv else "")
+    if path:
+        return os.path.dirname(os.path.abspath(path))
+    return os.getcwd()
 
 
 def main():
