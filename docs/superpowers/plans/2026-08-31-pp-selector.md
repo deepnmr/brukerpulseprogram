@@ -50,7 +50,7 @@
   - `validate_tree(tree) -> None` (raises `TreeError`)
   - `walk(tree, ask) -> (leaf_name_or_None, answers_list)`; `ask(question, labels) -> int index or BACK`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `tests/test_tree.py`:
 
@@ -172,12 +172,12 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `python3 tests/test_tree.py`
 Expected: `ImportError: No module named pp_selector` (traceback, exit 1)
 
-- [ ] **Step 3: Write the runner core**
+- [x] **Step 3: Write the runner core**
 
 `src/pp_selector.py`:
 
@@ -259,12 +259,12 @@ def walk(tree, ask):
     return None, []
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `python3 tests/test_tree.py`
 Expected: 7 lines starting with `ok`, then `7 tests, 0 failed`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/pp_selector.py tests/test_tree.py
@@ -288,7 +288,7 @@ git commit -m "feat: pp_selector runner core (load/validate/walk) with tests"
   - `format_report(tree, name, answers, exists) -> str`
   - `STATUS`, `ALT_STATUS` dicts keyed by `True/False/None`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_tree.py` (above `def main`):
 
@@ -368,12 +368,12 @@ def test_find_topspin_home_falls_back_to_tree():
     assert pp.find_topspin_home(t) is None
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `python3 tests/test_tree.py`
 Expected: 6 `FAIL` lines mentioning `AttributeError: module 'pp_selector' has no attribute 'format_report'` (and `make_checker`, `find_topspin_home`); exit 1.
 
-- [ ] **Step 3: Implement report and checker**
+- [x] **Step 3: Implement report and checker**
 
 Append to `src/pp_selector.py`:
 
@@ -432,12 +432,12 @@ def format_report(tree, name, answers, exists):
     return "\n".join(lines)
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `python3 tests/test_tree.py`
 Expected: `13 tests, 0 failed`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/pp_selector.py tests/test_tree.py
@@ -455,7 +455,7 @@ git commit -m "feat: report formatting and lists/pp existence check"
 - Consumes: `walk`, `load_tree`, `format_report`, `make_checker`, `find_topspin_home`.
 - Produces: `ask_topspin(question, labels) -> int`, `main()`; module-level `IN_TOPSPIN` bool.
 
-- [ ] **Step 1: Append adapter and main**
+- [x] **Step 1: Append adapter and main**
 
 Append to `src/pp_selector.py`:
 
@@ -550,7 +550,7 @@ TopSpin API notes for the implementer (from Bruker's Python programming manual; 
 - `INPUT_DIALOG(title, header, items, values, comments, types, buttons)` returns the list of field values, or `None` when cancelled/closed. `types` `"1"` = text field.
 - `VIEWTEXT(title, header, text)` opens a read-only text window.
 
-- [ ] **Step 2: Smoke-test the console fallback with a scripted session**
+- [x] **Step 2: Smoke-test the console fallback with a scripted session**
 
 Create a temporary tree and run the module under CPython:
 
@@ -575,17 +575,17 @@ Parameter set:              HNCOGP3D   ->  rpar HNCOGP3D all ; getprosol
 Your answers:               Bio
 ```
 
-- [ ] **Step 3: Verify Jython-compatible syntax**
+- [x] **Step 3: Verify Jython-compatible syntax**
 
 Run: `python3 -c "import ast,sys; ast.parse(open('src/pp_selector.py').read())" && grep -nE 'f"|f'"'"'|pathlib|-> |: (str|int|dict)\b' src/pp_selector.py`
 Expected: no grep matches (exit 1 from grep is fine), no SyntaxError.
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 Run: `python3 tests/test_tree.py`
 Expected: `13 tests, 0 failed`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/pp_selector.py
@@ -604,7 +604,7 @@ git commit -m "feat: TopSpin dialog adapter, console fallback and main()"
 - Consumes: `pp.load_tree`, `pp.LEAF_PREFIX`, `TREE_PATH`, `PP_DIR`.
 - Produces: `real_tree()` helper, `parset_map()` helper used by Task 6–8 tests.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_tree.py` (above `def main`):
 
@@ -700,12 +700,12 @@ def test_real_tree_leaf_fields_present():
         assert isinstance(leaf["requires"], list) and isinstance(leaf["alt"], list), name
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `python3 tests/test_tree.py`
 Expected: 6 `FAIL` lines with `TreeError: cannot read .../src/pp_tree.json`; exit 1.
 
-- [ ] **Step 3: Create the minimal tree**
+- [x] **Step 3: Create the minimal tree**
 
 `src/pp_tree.json`:
 
@@ -807,12 +807,12 @@ Expected: 6 `FAIL` lines with `TreeError: cannot read .../src/pp_tree.json`; exi
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `python3 tests/test_tree.py`
 Expected: `19 tests, 0 failed` (parset test passes because all parsets are `null`; existence test passes — every name above is in `doc/pulseprogram/`. If a name is reported missing, fix the name, do not delete the test.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/pp_tree.json tests/test_tree.py
@@ -834,7 +834,7 @@ git commit -m "feat: minimal decision tree with integrity and library tests"
   - `fill_leaves(tree, pp_dir, parsets, force=False) -> list of (name, field) filled`
   - CLI: `python3 tools/build_leaves.py [--force]` rewrites `src/pp_tree.json` in place.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_tree.py` (above `def main`):
 
@@ -892,12 +892,12 @@ def test_fill_leaves_force_overwrites_auto_fields_only():
     assert z["requires"] == ["custom"] and z["notes"] == "n" and z["alt"] == ["a"]
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `python3 tests/test_tree.py`
 Expected: traceback `ModuleNotFoundError: No module named 'build_leaves'`; exit 1.
 
-- [ ] **Step 3: Implement the build tool**
+- [x] **Step 3: Implement the build tool**
 
 `tools/build_leaves.py`:
 
@@ -1016,17 +1016,17 @@ if __name__ == "__main__":
 
 Note: `sort_keys=True` also sorts `"nodes"` by id and `"opts"` stays in author order (lists are not sorted). Node order in the file is cosmetic; the runner only follows `root` and targets.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `python3 tests/test_tree.py`
 Expected: `24 tests, 0 failed`. If `test_read_header_hncogp3d` fails on the exact `desc` prefix, print `bl.read_header(...)["desc"]` and adjust the expected string to the real first four header lines joined by `; ` — the rule (4 lines after `;avance-version`) is the contract, the literal is derived from it.
 
-- [ ] **Step 5: Run the tool on the minimal tree and re-test**
+- [x] **Step 5: Run the tool on the minimal tree and re-test**
 
 Run: `python3 tools/build_leaves.py && python3 tests/test_tree.py && git diff --stat`
 Expected: `filled ... fields in 16 leaves`; tests `24 tests, 0 failed` (parset test now compares real parsets: `zg30 -> PROTON`? — the catalogue lists `zg30` under several parsets; `setdefault` keeps the first, which is what the test compares against, so it passes by construction). `src/pp_tree.json` now has `parset`/`desc`/`dim` populated and `requires` suggested.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add tools/build_leaves.py tests/test_tree.py src/pp_tree.json
@@ -1045,7 +1045,7 @@ git commit -m "feat: build_leaves tool fills leaf metadata from library and cata
 - Consumes: `walk`, `real_tree`, `scripted` (Task 1), build tool (Task 5).
 - Produces: node ids listed below (referenced by README examples).
 
-- [ ] **Step 1: Write the failing path tests**
+- [x] **Step 1: Write the failing path tests**
 
 Append to `tests/test_tree.py` (above `def main`):
 
@@ -1086,12 +1086,12 @@ def test_path_sm_zg30():
     assert leaf == "zg30", leaf
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `python3 tests/test_tree.py`
 Expected: 3 `FAIL` (`'COSY' not offered`, `'HSQC (1H-13C one-bond)' not offered`, `'HMBC ...' not offered`); `test_path_sm_zg30` passes; exit 1.
 
-- [ ] **Step 3: Author the small-molecule nodes**
+- [x] **Step 3: Author the small-molecule nodes**
 
 Replace node `sm_exp` and add the nodes below to `src/pp_tree.json` `"nodes"` (keep `sm_1h`, `sm_13c` from Task 4). Format: `node id` — question — `label → target`.
 
@@ -1236,7 +1236,7 @@ Replace node `sm_exp` and add the nodes below to `src/pp_tree.json` `"nodes"` (k
 - `1,1-ADEQUATE (1H-detected, 1J(CC))` → `L:adeq11etgprdsp`
 - `1,n-ADEQUATE (long-range)` → `L:adeq1netgprdsp`
 
-- [ ] **Step 4: Add the leaves with hand-written `notes`/`alt`**
+- [x] **Step 4: Add the leaves with hand-written `notes`/`alt`**
 
 Add every `L:` target above to `"leaves"` with the template `{"parset": null, "desc": null, "dim": null, "requires": [], "notes": "", "alt": []}` and these hand-written values (leaves not listed keep empty `notes`/`alt`):
 
@@ -1270,12 +1270,12 @@ Add every `L:` target above to `"leaves"` with the template `{"parset": null, "d
 | inadqf | `13C-13C; needs high concentration or long time` | `inadph` |
 | adeq11etgprdsp | `1H-detected 13C-13C connectivity` | `adeq11etgpsp` |
 
-- [ ] **Step 5: Run the build tool, then tests**
+- [x] **Step 5: Run the build tool, then tests**
 
 Run: `python3 tools/build_leaves.py && python3 tests/test_tree.py`
 Expected: `28 tests, 0 failed`. Typical failures and fixes: a leaf name not in `doc/pulseprogram/` → fix the spelling in the JSON (check with `ls doc/pulseprogram | grep <stem>`); a parset mismatch → remove the hand-set parset and let the tool fill it.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/pp_tree.json tests/test_tree.py
@@ -1293,7 +1293,7 @@ git commit -m "feat: small-molecule decision tree (catalogue Vol. I)"
 **Interfaces:**
 - Consumes: Task 6 helpers. Produces: node ids below.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_tree.py` (above `def main`):
 
@@ -1330,12 +1330,12 @@ def test_bio_leaves_declare_labeling():
     assert not bad, "bio leaves without labeling requirement: %s" % sorted(bad)
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `python3 tests/test_tree.py`
 Expected: `test_path_bio_hnco_pep` passes (already in minimal tree); `test_bio_leaves_declare_labeling` FAILS listing the 6 bio leaves; exit 1.
 
-- [ ] **Step 3: Author the biomolecular nodes**
+- [x] **Step 3: Author the biomolecular nodes**
 
 **`bio_exp`** — "Experiment class?"
 1. `2D 1H-15N HSQC / TROSY` → `bio_hn`
@@ -1456,7 +1456,7 @@ Version nodes (question "Version?"). Each option list: `PEP (< 25 kDa)`, `WATERG
 - `2D 13C-13C COSY` → `L:c_cosy`
 - `3D CANCO` → `L:c_canco_ia3d`
 
-- [ ] **Step 4: Add the leaves with `requires` labeling rules and notes**
+- [x] **Step 4: Add the leaves with `requires` labeling rules and notes**
 
 Add every `L:` target above to `"leaves"` (template as in Task 6). Then apply labeling with this one-off script (run once; result is committed):
 
@@ -1515,12 +1515,12 @@ Hand-written `notes`/`alt` for the main families (others keep defaults):
 | c_hnco_ia3d | `13C-detected; IPAP virtual decoupling (l0 parity); prosol triple_c` | `c_hncoca_ia3d` |
 | na_hcnetgpsi3d | `Correlates H6/H8-C6/C8-N1/N9 and H1'-C1'-N1/N9` | `na_hcnmqgpphpr` |
 
-- [ ] **Step 5: Run the build tool, then tests**
+- [x] **Step 5: Run the build tool, then tests**
 
 Run: `python3 tools/build_leaves.py && python3 tests/test_tree.py`
 Expected: `31 tests, 0 failed`. Fix any `not in doc/pulseprogram` name by checking `ls doc/pulseprogram | grep <stem>`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/pp_tree.json tests/test_tree.py
@@ -1535,7 +1535,7 @@ git commit -m "feat: biomolecular decision tree (catalogue Vol. II)"
 - Create: `README.md`
 - Modify: `CLAUDE.md` (add a "pp_selector" section after "Working in this repo")
 
-- [ ] **Step 1: Write README.md**
+- [x] **Step 1: Write README.md**
 
 ```markdown
 # pp_selector — pulse program recommender for TopSpin
@@ -1601,7 +1601,7 @@ representative answer paths reach the expected programs.
 select options; empty input = Back).
 ```
 
-- [ ] **Step 2: Add CLAUDE.md section**
+- [x] **Step 2: Add CLAUDE.md section**
 
 Append to `CLAUDE.md` after the "Working in this repo" section:
 
@@ -1614,18 +1614,18 @@ Append to `CLAUDE.md` after the "Working in this repo" section:
 - Console smoke test: `python3 src/pp_selector.py`.
 ```
 
-- [ ] **Step 3: End-to-end console run against the real tree**
+- [x] **Step 3: End-to-end console run against the real tree**
 
 Run: `printf '2\n3\n1\n1\n' | python3 src/pp_selector.py | tail -8`
 (2 = bio, 3 = backbone, 1 = HNCO, 1 = PEP; the `bio_exp`/`bio_bb` questions use the numbered-list dialog so the numbers are 1-based; the root `SELECT` is 0-based so `1` there means the second button.)
 Expected: last 8 lines are the report with `Recommended pulse program:  hncogp3d   [not checked]` and `Your answers:               Protein / nucleic acid (isotope labeled) > Backbone assignment (triple resonance) > HNCO > PEP (< 25 kDa)`. If the numbering differs, read the printed menus and adjust the input — the check is that a 4-answer path yields the hncogp3d report.
 
-- [ ] **Step 4: Full test run and Jython syntax check**
+- [x] **Step 4: Full test run and Jython syntax check**
 
 Run: `python3 tests/test_tree.py && python3 -c "import ast; ast.parse(open('src/pp_selector.py').read())" && ! grep -nE 'f"|pathlib|-> ' src/pp_selector.py`
 Expected: `31 tests, 0 failed`, no syntax error, no grep hits.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md CLAUDE.md

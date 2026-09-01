@@ -147,11 +147,16 @@ try:
 except ImportError:
     IN_TOPSPIN = False
 
+    try:
+        _input = raw_input  # noqa: F821 (Python 2 / Jython)
+    except NameError:
+        _input = input
+
     def _readline(prompt):
         try:
-            return raw_input(prompt)  # noqa: F821 (Python 2)
-        except NameError:
-            return input(prompt)
+            return _input(prompt)
+        except EOFError:  # piped stdin ran out -> treat as Back/cancel
+            return ""
 
     def SELECT(title, message, buttons):  # noqa: N802 - mimic TopSpin API
         print(title)
