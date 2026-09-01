@@ -4,14 +4,17 @@ Asks a few questions inside TopSpin and recommends a Bruker standard pulse
 program and parameter set. It only displays a recommendation; it never
 changes the current dataset.
 
-## Install (TopSpin 3.x / 4.x)
+## Install (TopSpin 3.x – 5.x)
 
 Copy two files into the user Python directory of your TopSpin installation:
 
     <TOPSPIN>/exp/stan/nmr/py/user/pp_selector.py
     <TOPSPIN>/exp/stan/nmr/py/user/pp_tree.json
 
-(`<TOPSPIN>` is e.g. `/opt/topspin4.1.4` or `C:\Bruker\TopSpin4.1.4`.)
+(`<TOPSPIN>` is e.g. `/opt/topspin5.0.0`, `/opt/topspin4.1.4` or `C:\Bruker\TopSpin4.1.4`.)
+
+Verified on TopSpin 5.0.0 (macOS). TopSpin 3.x / 4.x use the same Jython API and
+should work, but have not been tested yet.
 
 ## Run
 
