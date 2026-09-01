@@ -63,7 +63,7 @@ def walk(tree, ask):
         node = tree["nodes"][stack[-1]]
         labels = [opt[0] for opt in node["opts"]]
         choice = ask(node["q"], labels)
-        if choice is None or choice < 0 or choice >= len(labels):
+        if choice is None or not 0 <= choice < len(labels):  # Back / cancel / junk
             stack.pop()
             if answers:
                 answers.pop()
@@ -76,19 +76,15 @@ def walk(tree, ask):
     return None, []
 
 
-STATUS = {True: "found in lists/pp", False: "NOT found", None: "not checked"}
-ALT_STATUS = {True: "found", False: "NOT found", None: "not checked"}
+STATUS = {True: "found", False: "NOT found", None: "not checked"}
 
 
 def find_topspin_home(tree):
     """TopSpin install dir: Jython registry first, then tree setting, else None."""
-    home = None
-    registry = getattr(sys, "registry", None)
-    if registry is not None:
-        try:
-            home = registry.getProperty("XWINNMRHOME")
-        except Exception:  # noqa: BLE001 - any Java-side failure
-            home = None
+    try:
+        home = sys.registry.getProperty("XWINNMRHOME")
+    except Exception:  # no sys.registry under CPython, or any Java-side failure
+        home = None
     return home or tree.get("topspin_home") or None
 
 
@@ -104,37 +100,33 @@ def make_checker(home):
     return lambda name: os.path.isfile(os.path.join(d, name))
 
 
-def _row(label, value):
-    return "%-28s%s" % (label + ":", value)
-
-
 def format_report(tree, name, answers, exists):
     leaf = tree["leaves"][name]
     found = exists(name)
-    lines = [_row("Recommended pulse program", "%s   [%s]" % (name, STATUS[found]))]
+    status = "found in lists/pp" if found else STATUS[found]
     parset = leaf.get("parset")
-    if parset:
-        lines.append(
-            _row("Parameter set", "%s   ->  rpar %s all ; getprosol" % (parset, parset))
-        )
-    else:
-        lines.append(
-            _row(
-                "Parameter set",
-                "(no standard parameter set - start from a similar experiment)",
-            )
-        )
-    lines.append(_row("Dimension", leaf.get("dim") or "?"))
-    lines.append(_row("Requires", ", ".join(leaf.get("requires") or []) or "-"))
-    lines.append(_row("Description", leaf.get("desc") or "-"))
-    lines.append(_row("Notes", leaf.get("notes") or "-"))
     alts = list(leaf.get("alt") or [])
     if found is False:
         alts.sort(key=lambda a: 0 if exists(a) else 1)  # stable: existing first
-    alt_text = ", ".join("%s (%s)" % (a, ALT_STATUS[exists(a)]) for a in alts) or "-"
-    lines.append(_row("Alternatives", alt_text))
-    lines.append(_row("Your answers", " > ".join(answers)))
-    return "\n".join(lines)
+    rows = [
+        ("Recommended pulse program", "%s   [%s]" % (name, status)),
+        (
+            "Parameter set",
+            "%s   ->  rpar %s all ; getprosol" % (parset, parset)
+            if parset
+            else "(no standard parameter set - start from a similar experiment)",
+        ),
+        ("Dimension", leaf.get("dim") or "?"),
+        ("Requires", ", ".join(leaf.get("requires") or []) or "-"),
+        ("Description", leaf.get("desc") or "-"),
+        ("Notes", leaf.get("notes") or "-"),
+        (
+            "Alternatives",
+            ", ".join("%s (%s)" % (a, STATUS[exists(a)]) for a in alts) or "-",
+        ),
+        ("Your answers", " > ".join(answers)),
+    ]
+    return "\n".join("%-28s%s" % (label + ":", value) for label, value in rows)
 
 
 TITLE = "pp_selector"
@@ -142,11 +134,7 @@ MAX_BUTTONS = 4  # more options than this -> numbered list + text entry
 
 try:
     from TopCmds import SELECT, INPUT_DIALOG, VIEWTEXT, MSG  # noqa: F401  (TopSpin builtins)
-
-    IN_TOPSPIN = True
-except ImportError:
-    IN_TOPSPIN = False
-
+except ImportError:  # not inside TopSpin -> console fallback
     try:
         _input = raw_input  # noqa: F821 (Python 2 / Jython)
     except NameError:
@@ -184,27 +172,15 @@ except ImportError:
 
 
 def ask_topspin(question, labels):
-    """Ask one question. Returns option index or BACK."""
+    """Ask one question. Returns an option index; anything else means Back."""
     if len(labels) <= MAX_BUTTONS:
-        idx = SELECT(TITLE, question, list(labels) + ["Back"])
-        if idx is None or idx < 0 or idx >= len(labels):
-            return BACK
-        return idx
-    header = (
-        question + "\n" + "\n".join("%d) %s" % (i + 1, l) for i, l in enumerate(labels))
-    )
-    result = INPUT_DIALOG(
-        TITLE, header, ["Choice number:"], ["1"], [""], ["1"], ["OK", "Back"]
-    )
-    if not result:
-        return BACK
+        return SELECT(TITLE, question, list(labels) + ["Back"])
+    header = question + "\n" + "\n".join("%d) %s" % (i + 1, l) for i, l in enumerate(labels))
+    result = INPUT_DIALOG(TITLE, header, ["Choice number:"], ["1"], [""], ["1"], ["OK", "Back"])
     try:
-        n = int(str(result[0]).strip())
-    except ValueError:
+        return int(str(result[0]).strip()) - 1
+    except (TypeError, IndexError, ValueError):  # Back/close -> None, or junk text
         return BACK
-    if 1 <= n <= len(labels):
-        return n - 1
-    return BACK
 
 
 def _script_dir():
