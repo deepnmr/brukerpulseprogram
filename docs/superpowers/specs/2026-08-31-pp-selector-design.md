@@ -93,7 +93,7 @@ Your answers:               Protein > Backbone > HNCO > PEP
 
 ## 6. 호환성 규칙 (Jython 2.7)
 
-- Python 2/3 겸용 문법만: `print()` 함수형, f-string·`pathlib`·타입 힌트 금지, 파일은 `io.open(path, encoding="utf-8")`.
+- Python 2/3 겸용 문법만: `print()` 함수형, f-string·`pathlib`·타입 힌트 금지, 파일은 `codecs.open(path, encoding="utf-8")` (`io` 모듈 금지 — TopSpin 5 Jython의 `io`는 깨져 있음), `__file__` 참조 금지(TopSpin이 스크립트를 중단시킴; `sys.argv[0]` 사용).
 - `from TopCmds import *`는 `try/except ImportError`로 감싸고 실패 시 콘솔 더미(`SELECT`→`input`, `VIEWTEXT`→`print`)로 대체. 러너 로직은 CPython에서 import·실행 가능해야 한다.
 - 문자열은 ASCII로 유지(TopSpin 대화상자 폰트 문제 회피).
 

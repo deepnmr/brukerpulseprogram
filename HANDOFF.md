@@ -47,11 +47,10 @@ TopSpin 명령줄에서 `pp_selector`를 치면 몇 가지 질문 후 Bruker 표
 - 메모리: `~/.claude/projects/-Users-donghanlee-work-projects-brukerpulseprogram/memory/topspin5-local-install.md` — TopSpin 5 GUI 구동 절차 상세.
 
 ## Next steps
-1. 문서 정합성 수정(선택): `docs/superpowers/specs/2026-08-31-pp-selector-design.md:96`이 아직 `io.open(path, encoding="utf-8")`이라고 적혀 있음 → 코드는 `codecs.open`. 스펙 문구를 코드에 맞춰 갱신.
+1. ~~스펙 `io.open` 문구~~ — 2026-09-01 `codecs.open` + `__file__` 금지로 갱신 (완료).
 2. ~~README 버전 범위~~ — 2026-09-01 "TopSpin 3.x – 5.x"로 갱신, 5.0.0만 검증됨을 명시 (완료).
 3. ~~`INPUT_DIALOG` Back 동작~~ — 2026-09-01 TopSpin 5 GUI에서 검증됨: 옵션 8개 노드(HNCO 목록)에서 Back → 이전 질문(Experiment class)으로 복귀. 어댑터 수정 불필요.
 4. 실제 분광기 PC(TopSpin 3.x/4.x)에 배포 시 README 절차대로 `XWINNMRHOME` 값 확인. `None`이면 `pp_tree.json`에 `"topspin_home"` 추가.
-5. 1–2 수행 시 `python3 tests/test_tree.py` 재실행 후 커밋.
 
 ## Open questions / risks
 - TopSpin 3.x / 4.x 에서의 동작 — **unverified**(로컬에는 5.0.0만 있음). `codecs.open`/`sys.registry`는 구버전 Jython에서도 표준이라 동작할 것으로 예상하나 확인 안 됨.
