@@ -16,7 +16,7 @@ TopSpin 명령줄에서 `pp_selector`를 치면 몇 가지 질문 후 Bruker 표
 - `python3 tests/test_tree.py` → `31 tests, 0 failed` (2026-09-01 재확인)
 - 트리: 43 nodes / 191 leaves, `topspin_home` 미설정(None) — XWINNMRHOME 레지스트리로 자동 탐지됨
 - 로컬 TopSpin 5.0.0(`/opt/topspin5.0.0`)에 배포된 `src/pp_selector.py`, `src/pp_tree.json` 사본이 HEAD와 **동일함**(`diff -q`로 확인)
-- 2026-09-01 10:25 TopSpin 5 실 GUI에서 `pp_selector` 실행 → `hncogp3d [found in lists/pp]` 확인 (명령 로그 `/opt/topspin5.0.0/prog/curdir/donghanlee/history_j.txt`)
+- 2026-09-01 10:25 및 11:22(리팩터 `e69a623` 이후) TopSpin 5 실 GUI에서 `pp_selector` 실행 → `hncogp3d [found in lists/pp]` 확인, SELECT·INPUT_DIALOG·Back 경로 모두 동작 (명령 로그 `/opt/topspin5.0.0/prog/curdir/donghanlee/history_j.txt`)
 
 남은 것은 아래 "Open questions"의 문서 정합성·미검증 항목뿐. 새 기능 요청은 없음.
 
@@ -49,12 +49,11 @@ TopSpin 명령줄에서 `pp_selector`를 치면 몇 가지 질문 후 Bruker 표
 ## Next steps
 1. 문서 정합성 수정(선택): `docs/superpowers/specs/2026-08-31-pp-selector-design.md:96`이 아직 `io.open(path, encoding="utf-8")`이라고 적혀 있음 → 코드는 `codecs.open`. 스펙 문구를 코드에 맞춰 갱신.
 2. `README.md:7` 제목이 "Install (TopSpin 3.x / 4.x)"인데 실제 검증은 TopSpin 5.0.0에서만 함 → "TopSpin 3.x–5.x" 등으로 갱신하고, 3.x/4.x는 미검증임을 명시.
-3. README "One-time check" 절의 `INPUT_DIALOG` Back 동작(옵션 5개 이상 질문에서 Back/닫기 시 `None` 반환) — **unverified**. TopSpin 5 GUI에서 옵션 5개 이상인 노드를 골라 Back을 눌러 확인. 값이 반환되면 어댑터 수정 필요.
+3. ~~`INPUT_DIALOG` Back 동작~~ — 2026-09-01 TopSpin 5 GUI에서 검증됨: 옵션 8개 노드(HNCO 목록)에서 Back → 이전 질문(Experiment class)으로 복귀. 어댑터 수정 불필요.
 4. 실제 분광기 PC(TopSpin 3.x/4.x)에 배포 시 README 절차대로 `XWINNMRHOME` 값 확인. `None`이면 `pp_tree.json`에 `"topspin_home"` 추가.
 5. 1–2 수행 시 `python3 tests/test_tree.py` 재실행 후 커밋.
 
 ## Open questions / risks
 - TopSpin 3.x / 4.x 에서의 동작 — **unverified**(로컬에는 5.0.0만 있음). `codecs.open`/`sys.registry`는 구버전 Jython에서도 표준이라 동작할 것으로 예상하나 확인 안 됨.
-- `INPUT_DIALOG` Back 반환값 — **unverified** (Next steps 3).
 - 계획 self-review에 기록된 판단: 리프 `hccconhgp3d2` 라벨 "HCC(CO)NH"는 카탈로그 변형 1/2/3 구분이 없어 임의 선택; `zg`는 1D 1H와 1D 13C 노드 양쪽에 의도적으로 중복.
 - TopSpin GUI를 셸에서 자동 조작할 때는 위 "What didn't work"의 제약(sendgui 불가, IME, 좌표 스케일)을 반드시 따를 것.

@@ -44,3 +44,7 @@ Do not delete `;avance-version`, `;begin ___`/`;end ___`, or the preprocessor-fl
 - `python3 tests/test_tree.py` — run after any change; it validates the tree against `doc/pulseprogram/` and the catalogue tables.
 - `python3 tools/build_leaves.py` — refills `parset`/`desc`/`dim` for leaves; never edit those by hand, edit `requires`/`notes`/`alt` instead.
 - Console smoke test: `python3 src/pp_selector.py`.
+- Deploy to the local TopSpin 5 (`/opt/topspin5.0.0`): copy `src/pp_selector.py` and `src/pp_tree.json` to `/opt/topspin5.0.0/exp/stan/nmr/py/user/`; no restart needed. Keep that copy in sync with HEAD after every change to `src/`.
+- GUI verification (do it after touching the dialog adapter — Jython/TopSpin behaviour differs from CPython): type `pp_selector` in TopSpin, walk to a leaf, expect `[found in lists/pp]`. `sendgui` does not work on macOS; drive the GUI with `cliclick` + clipboard paste (Korean IME garbles typed text), submit with `key code 36`, and use slow `dd`/`du` clicks for Swing buttons. Details in the auto-memory `topspin5-local-install`.
+- `HANDOFF.md` — current status, dead ends, and open items; update it when you stop mid-task.
+- Remote: `origin` = `github.com/deepnmr/brukerpulseprogram` (public). Work on a branch, PR, merge to `main`.
